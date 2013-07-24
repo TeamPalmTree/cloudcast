@@ -1,0 +1,62 @@
+// variables
+
+@import "variables.less";
+
+@textColor:             @white;
+
+@linkColor:             @white;
+
+@baseBorderRadius:      0px;
+@borderRadiusLarge:     0px;
+@borderRadiusSmall:     0px;
+
+@horizontalComponentOffset:       140px;
+
+@popoverBackground:       @BackgroundColor2;
+@popoverArrowColor:       @BackgroundColor3;
+@popoverTitleBackground:  @BackgroundColor3;
+
+// overrides
+
+.navbar-inner {
+  padding-left:  0px;
+  padding-right: 0px;
+}
+
+label {
+    display: inline-block;
+}
+
+.radio.inline,
+.checkbox.inline {
+  padding-top: 0px;
+  vertical-align: inherit;
+}
+
+select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+  margin-bottom: 0px;
+}
+
+a {
+  color: white;
+}
+
+.table {
+  font-size: 12px;
+}
