@@ -264,9 +264,9 @@ return array(
             'helper',
             'getID3',
             'tagscanner',
-            'cameloteasymixwheel',
-            'icecast',
-            'liquidsoap',
+            'cemw',
+            'ichook',
+            'lshook',
             'shared',
 		),
 
