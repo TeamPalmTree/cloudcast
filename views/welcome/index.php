@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>CloudCast</title>
     <?php echo Asset::css('bootstrap-datetimepicker.css'); ?>
-    <?php echo Asset::less('cloudcast/template.less'); ?>
+    <?php echo Asset::less('template.less'); ?>
     <?php echo Asset::js('jquery.js'); ?>
     <?php echo Asset::js('jquery.tablesorter.js'); ?>
     <?php echo Asset::js('bootstrap.js'); ?>

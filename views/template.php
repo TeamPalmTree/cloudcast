@@ -6,7 +6,7 @@
     <!-- css -->
     <?php echo Asset::css('bootstrap-datetimepicker.css'); ?>
     <!-- less -->
-    <?php echo Asset::less('cloudcast/template.less'); ?>
+    <?php echo Asset::less('template.less'); ?>
     <!-- universal scripts -->
     <?php echo Asset::js('jquery.js'); ?>
     <?php echo Asset::js('knockout.js'); ?>
