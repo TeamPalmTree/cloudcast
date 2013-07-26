@@ -234,7 +234,7 @@ class Model_Block extends \Orm\Model
         }
 
         // get harmonic musical keys
-        $harmonic_musical_keys = CamelotEasymixWheel::harmonic_musical_keys($musical_key);
+        $harmonic_musical_keys = CamelotEasyMixWheel::harmonic_musical_keys($musical_key);
         // shuffle musical keys
         shuffle($harmonic_musical_keys);
 
