@@ -26,7 +26,7 @@ return array(
 	 *
 	 * Default: APPPATH.'vendor/less/'
 	 */
-    'less_source_dir' => DOCROOT.'../less/',
+    'less_source_dir' => APPPATH.'less/',
 	
 	/**
 	 * As the asset config is a array with multiple paths, you must tell

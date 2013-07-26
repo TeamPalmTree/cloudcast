@@ -2,7 +2,6 @@
     <h4>Settings</h4>
     <div class="cloudcast_header-right">
         <button type="submit" class="btn btn-primary" form="settings_index">SAVE</button>
-        <a href="/users" class="btn">CANCEL</a>
     </div>
     <div class="clearfix"></div>
 </div>
