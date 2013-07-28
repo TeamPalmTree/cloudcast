@@ -261,13 +261,12 @@ return array(
 		    'orm',
             'less',
             'auth',
-            'helper',
+            'shared',
             'getID3',
             'tagscanner',
             'cemw',
             'ichook',
             'lshook',
-            'shared',
 		),
 
 		/**
