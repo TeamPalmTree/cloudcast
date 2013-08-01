@@ -12,7 +12,7 @@
 
 @horizontalComponentOffset:       140px;
 
-@popoverBackground:       @BackgroundColor2;
+@popoverBackground:       @backgroundColor2;
 @popoverArrowColor:       @BackgroundColor3;
 @popoverTitleBackground:  @BackgroundColor3;
 
