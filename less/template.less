@@ -1,368 +1,24 @@
 @import "../../vendor/twitter/bootstrap/less/bootstrap.less";
 @import "../../packages/shared/less/shared.less";
 
-@Spacing: 6px;
-@AccentColor1: #21409A;
-@AccentColor2: #0077b3;
-@BackgroundColor1: #2D2D2D;
-@BackgroundColor2: #5C5C5C;
-@BackgroundColor3: #707070;
+///////////////
+// VARIABLES //
+///////////////
 
-.cloudcast_welcome_logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -250px;
-  margin-left: -200px;
-  width: 400px;
-  height: 308px;
-  background-image: url('../img/CloudCastLarge.png');
-}
-
-.cloudcast_welcome_form {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: 40px;
-  margin-left: -110px;
-}
-
-.cloudcast_display {
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  height: 100px;
-  background: linear-gradient(to bottom, @BackgroundColor1 0%, @BackgroundColor3 100%);
-}
-
-.cloudcast_display-logo {
-  float: right;
-  width: 130px;
-  height: 100px;
-  background-image: url('../img/CloudCast.png');
-}
-
-.cloudcast_display-left {
-  position: absolute;
-  left: 0px;
-  right: 300px;
-  height: 100px;
-}
-
-.cloudcast_display-file {
-  position: absolute;
-  width: 60%;
-}
-
-.cloudcast_display-show {
-  position: absolute;
-  left: 60%;
-  width: 40%;
-}
-
-.cloudcast_display-block-inner {
-  height: 79 - (2 * @Spacing);
-  padding: 10px;
-  margin-left: @Spacing;
-  margin-top: @Spacing;
-  margin-bottom: @Spacing;
-  border-right: #21409A solid 1px;
-  border-bottom: #21409A solid 1px;
-  background-color: @AccentColor1;
-  background: linear-gradient(to bottom, @AccentColor1 0%, @AccentColor2 100%);
-  box-shadow: inset 1px 1px 2px 1px rgba(0, 0, 0, 1);
-  color: white;
-  white-space: nowrap;
-  text-shadow: -1px -1.5px 0 rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-}
-
-.cloudcast_display-right {
-  position: absolute;
-  right: 130px;
-  height: 100px;
-  width: 170px;
-}
-
-.cloudcast_display-status {
-  float: left;
-  width: 100%;
-}
-
-.cloudcast_display-status-inner {
-  height: 80px;
-  padding: @Spacing;
-  color: black;
-  font-size: 16px;
-}
-
-.cloudcast_display-status-time {
-  font-size: 40px;
-  line-height: 40px;
-  top: 14px;
-  position: absolute;
-  color: white;
-  text-shadow: @AccentColor1 2px 2px 0, @AccentColor2 -1px -1px 0;
-}
-
-.cloudcast_display-status-input {
-  position: absolute;
-  bottom: @Spacing;
-}
-
-.cloudcast_display-progress {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.cloudcast_display-progress-time {
-  color: black;
-  text-shadow: none;
-  position: absolute;
-  right: 16px;
-}
-
-.cloudcast_navigation {
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 100px;
-  height: 40px;
-}
-
-.cloudcast_content {
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 140px;
-  bottom: 0px;
-  padding-right: @Spacing * 3;
-  padding-left: @Spacing * 3;
-  padding-top: @Spacing * 2;
-  padding-bottom: @Spacing * 2;
-  background-color: @BackgroundColor1;
-  overflow-y: auto;
-  z-index: -1;
-}
-
-.cloudcast_modal-error {
-  color: #b94a48;
-  background-color: #f2dede;
-  border-color: #eed3d7;
-}
-
-.cloudcast_modal-success {
-  color: #468847;
-  background-color: #dff0d8;
-  border-color: #d6e9c6;
-}
-
-.cloudcast_header {
-  margin-bottom: @Spacing;
-}
-
-.cloudcast_super-header {
-  display: block;
-  margin-bottom: @Spacing;
-  background-color: @BackgroundColor2;
-  padding: 3px 6px 3px 6px;
-}
-
-.cloudcast_header h1,
-.cloudcast_header h2,
-.cloudcast_header h3,
-.cloudcast_header h4,
-.cloudcast_header h5,
-.cloudcast_header h6,
-{
-  display: inline;
-  vertical-align: middle;
-}
-
-.cloudcast_header .label,
-.cloudcast_header input {
-  display: inline;
-  vertical-align: middle;
-  margin-left: @Spacing;
-}
-
-.cloudcast_header-right {
-  float: right;
-  display: inline;
-}
-
-.cloudcast_super-item {
-  display: block;
-  line-height: 35px;
-  background-color: @BackgroundColor2;
-  padding-left: 6px;
-  padding-right: 6px;
-  margin-top: @Spacing;
-  margin-bottom: @Spacing;
-  cursor: default;
-}
-
-.cloudcast_item {
-  margin-top: @Spacing;
-  margin-bottom: @Spacing;
-  cursor: default;
-}
-
-.cloudcast_item-time {
-  display: inline-block;
-  width: 160px;
-  background-color: black;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 6px;
-  padding-right: 6px;
-  font-weight: bold;
-  vertical-align: middle;
-  margin-right: @Spacing;
-}
-
-.cloudcast_item-time .cloudcast_item-time-start {
-  float: left;
-}
-
-.cloudcast_item-time .cloudcast_item-time-end {
-  float: right;
-}
-
-.cloudcast_item-date {
-  display: inline-block;
-  width: 100px;
-  background-color: black;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 6px;
-  padding-right: 6px;
-  font-weight: bold;
-  vertical-align: middle;
-  margin-right: @Spacing;
-}
-
-.cloudcast_section {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: @Spacing;
-}
-
-.cloudcast_show-files {
-  position: absolute;
-  left: 0px;
-  width: 50%;
-  height: 100%;
-  background: red;
-}
-
-.cloudcast_show-schedule {
-  width: 50%;
-  height: 100%;
-  background: blue;
-}
-
-.cloudcast_sidebar-one {
-  position: absolute;
-  width: 200px;
-  bottom: 0px;
-  top: 0px;
-  left: 0px;
-  overflow-y: auto;
-  background-color: @BackgroundColor2;
-}
-
-.cloudcast_sidebar-two {
-  position: absolute;
-  bottom: 0px;
-  left: 200px;
-  width: 200px;
-  top: 0px;
-  overflow-y: auto;
-  background-color: @BackgroundColor3;
-}
-
-.cloudcast_sidebar-content {
-  position: absolute;
-  bottom: @Spacing * 2;
-  top: @Spacing * 2;
-  left: @Spacing * 3;
-  right: @Spacing * 3;
-}
-
-.cloudcast_sidebar-item {
-  margin-bottom: @Spacing;
-}
-
-.cloudcast_content-one {
-  position: absolute;
-  left: 200px;
-  bottom: 0px;
-  top: 0px;
-  right: 0px;
-  overflow-y: auto;
-  padding-right: @Spacing * 3;
-  padding-left: @Spacing * 3;
-  padding-top: @Spacing * 2;
-  padding-bottom: @Spacing * 2;
-}
-
-.cloudcast_content-two {
-  position: absolute;
-  left: 400px;
-  bottom: 0px;
-  top: 0px;
-  right: 0px;
-  overflow-y: auto;
-  padding-right: @Spacing * 3;
-  padding-left: @Spacing * 3;
-  padding-top: @Spacing * 2;
-  padding-bottom: @Spacing * 2;
-}
-
-.cloudcast_tooltip {
-  color: white;
-  text-decoration: underline;
-}
-
-.cloudcast_popover {
-  color: white;
-  text-decoration: underline;
-}
-
-.cloudcast_sidebar-query {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: @Spacing;
-}
-
-a {
-  color: white;
-}
-
-.desc {
-  color: red;
-}
-
-.asc {
-  color: green;
-}
-
-.table {
-  font-size: 12px;
-}
-
+@spacing: 6px;
+@accentColor1: #21409A;
+@accentColor2: #0077b3;
+@backgroundColor1: #2D2D2D;
+@backgroundColor2: #5C5C5C;
+@backgroundColor3: #707070;
 
 /////////////////////////
 // BOOTSTRAP OVERRIDES //
 /////////////////////////
 
-body {
-  background-color: @BackgroundColor1;
-}
+@bodyBackground: @backgroundColor1;
+@textColor: @white;
+@popoverBackground: @backgroundColor2;
 
 .navbar-inner {
   padding-left:  0px;
@@ -404,13 +60,363 @@ input[type="color"],
   border-radius: 0px;
 }
 
-///////////
-// FIXES //
-///////////
-
 h1,h2,h3,h4,h5,h6 {
   -webkit-margin-before: 0px;
   -webkit-margin-after: 0px;
   -webkit-margin-start: 0px;
   -webkit-margin-end: 0px;
+}
+
+///////////////
+// CLOUDCAST //
+///////////////
+
+.cloudcast_welcome_logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -250px;
+  margin-left: -200px;
+  width: 400px;
+  height: 308px;
+  background-image: url('../img/CloudCastLarge.png');
+}
+
+.cloudcast_welcome_form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: 40px;
+  margin-left: -110px;
+}
+
+.cloudcast_display {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  height: 100px;
+  background: linear-gradient(to bottom, @backgroundColor1 0%, @backgroundColor3 100%);
+}
+
+.cloudcast_display-logo {
+  float: right;
+  width: 130px;
+  height: 100px;
+  background-image: url('../img/CloudCast.png');
+}
+
+.cloudcast_display-left {
+  position: absolute;
+  left: 0px;
+  right: 300px;
+  height: 100px;
+}
+
+.cloudcast_display-file {
+  position: absolute;
+  width: 60%;
+}
+
+.cloudcast_display-show {
+  position: absolute;
+  left: 60%;
+  width: 40%;
+}
+
+.cloudcast_display-block-inner {
+  height: 79 - (2 * @spacing);
+  padding: 10px;
+  margin-left: @spacing;
+  margin-top: @spacing;
+  margin-bottom: @spacing;
+  border-right: #21409A solid 1px;
+  border-bottom: #21409A solid 1px;
+  background-color: @accentColor1;
+  background: linear-gradient(to bottom, @accentColor1 0%, @accentColor2 100%);
+  box-shadow: inset 1px 1px 2px 1px rgba(0, 0, 0, 1);
+  color: white;
+  white-space: nowrap;
+  text-shadow: -1px -1.5px 0 rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.cloudcast_display-right {
+  position: absolute;
+  right: 130px;
+  height: 100px;
+  width: 170px;
+}
+
+.cloudcast_display-status {
+  float: left;
+  width: 100%;
+}
+
+.cloudcast_display-status-inner {
+  height: 80px;
+  padding: @spacing;
+  color: black;
+  font-size: 16px;
+}
+
+.cloudcast_display-status-time {
+  font-size: 40px;
+  line-height: 40px;
+  top: 14px;
+  position: absolute;
+  color: white;
+  text-shadow: @accentColor1 2px 2px 0, @accentColor2 -1px -1px 0;
+}
+
+.cloudcast_display-status-input {
+  position: absolute;
+  bottom: @spacing;
+}
+
+.cloudcast_display-progress {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cloudcast_display-progress-time {
+  color: black;
+  text-shadow: none;
+  position: absolute;
+  right: 16px;
+}
+
+.cloudcast_navigation {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 100px;
+  height: 40px;
+}
+
+.cloudcast_content {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 140px;
+  bottom: 0px;
+  padding-right: @spacing * 3;
+  padding-left: @spacing * 3;
+  padding-top: @spacing * 2;
+  padding-bottom: @spacing * 2;
+  overflow-y: auto;
+  z-index: -1;
+}
+
+.cloudcast_modal-error {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+
+.cloudcast_modal-success {
+  color: #468847;
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+}
+
+.cloudcast_header {
+  margin-bottom: @spacing;
+}
+
+.cloudcast_super-header {
+  display: block;
+  margin-bottom: @spacing;
+  background-color: @backgroundColor2;
+  padding: 3px 6px 3px 6px;
+}
+
+.cloudcast_header h1,
+.cloudcast_header h2,
+.cloudcast_header h3,
+.cloudcast_header h4,
+.cloudcast_header h5,
+.cloudcast_header h6,
+{
+  display: inline;
+  vertical-align: middle;
+}
+
+.cloudcast_header .label,
+.cloudcast_header input {
+  display: inline;
+  vertical-align: middle;
+  margin-left: @spacing;
+}
+
+.cloudcast_header-right {
+  float: right;
+  display: inline;
+}
+
+.cloudcast_super-item {
+  display: block;
+  line-height: 35px;
+  background-color: @backgroundColor2;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-top: @spacing;
+  margin-bottom: @spacing;
+  cursor: default;
+}
+
+.cloudcast_item {
+  margin-top: @spacing;
+  margin-bottom: @spacing;
+  cursor: default;
+}
+
+.cloudcast_item-time {
+  display: inline-block;
+  width: 160px;
+  background-color: black;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-weight: bold;
+  vertical-align: middle;
+  margin-right: @spacing;
+}
+
+.cloudcast_item-time .cloudcast_item-time-start {
+  float: left;
+}
+
+.cloudcast_item-time .cloudcast_item-time-end {
+  float: right;
+}
+
+.cloudcast_item-date {
+  display: inline-block;
+  width: 100px;
+  background-color: black;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-weight: bold;
+  vertical-align: middle;
+  margin-right: @spacing;
+}
+
+.cloudcast_section {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: @spacing;
+}
+
+.cloudcast_show-files {
+  position: absolute;
+  left: 0px;
+  width: 50%;
+  height: 100%;
+  background: red;
+}
+
+.cloudcast_show-schedule {
+  width: 50%;
+  height: 100%;
+  background: blue;
+}
+
+.cloudcast_sidebar-one {
+  position: absolute;
+  width: 200px;
+  bottom: 0px;
+  top: 0px;
+  left: 0px;
+  overflow-y: auto;
+  background-color: @backgroundColor2;
+}
+
+.cloudcast_sidebar-two {
+  position: absolute;
+  bottom: 0px;
+  left: 200px;
+  width: 200px;
+  top: 0px;
+  overflow-y: auto;
+  background-color: @backgroundColor3;
+}
+
+.cloudcast_sidebar-content {
+  position: absolute;
+  bottom: @spacing * 2;
+  top: @spacing * 2;
+  left: @spacing * 3;
+  right: @spacing * 3;
+}
+
+.cloudcast_sidebar-item {
+  margin-bottom: @spacing;
+}
+
+.cloudcast_content-one {
+  position: absolute;
+  left: 200px;
+  bottom: 0px;
+  top: 0px;
+  right: 0px;
+  overflow-y: auto;
+  padding-right: @spacing * 3;
+  padding-left: @spacing * 3;
+  padding-top: @spacing * 2;
+  padding-bottom: @spacing * 2;
+}
+
+.cloudcast_content-two {
+  position: absolute;
+  left: 400px;
+  bottom: 0px;
+  top: 0px;
+  right: 0px;
+  overflow-y: auto;
+  padding-right: @spacing * 3;
+  padding-left: @spacing * 3;
+  padding-top: @spacing * 2;
+  padding-bottom: @spacing * 2;
+}
+
+.cloudcast_tooltip {
+  color: white;
+  text-decoration: underline;
+}
+
+.cloudcast_popover {
+  color: white;
+  text-decoration: underline;
+}
+
+.cloudcast_sidebar-query {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: @spacing;
+}
+
+/////////////
+// GENERAL //
+/////////////
+
+a {
+  color: white;
+}
+
+.desc {
+  color: red;
+}
+
+.asc {
+  color: green;
+}
+
+.table {
+  font-size: 12px;
 }
