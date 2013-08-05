@@ -147,14 +147,14 @@ class Controller_Streams extends Controller_Cloudcast
                 // Icecast
                 case '1':
                     // query stats from icecast
-                    $icecast = new Icecast(
+                    $icecast_hook = new IcecastHook(
                         $stream->host,
                         $stream->port,
                         $stream->admin_username,
                         $stream->admin_password
                     );
                     // get statistics from icecast for this mount
-                    $icecast_mount_statistics = $icecast->mount_statistics($stream->mount);
+                    $icecast_mount_statistics = $icecast_hook->mount_statistics($stream->mount);
                     // verify we got something
                     if ($icecast_mount_statistics == null)
                         throw new Exception('UNABLE_TO_OBTAIN');

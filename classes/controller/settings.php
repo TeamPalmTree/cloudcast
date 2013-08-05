@@ -35,7 +35,7 @@ class Controller_Settings extends Controller_Cloudcast
             ////////////////////////
 
             // tell LS to refresh it's settings
-            Liquidsoap::restart();
+            LiquidsoapHook::restart();
         }
 
         ////////////////////////

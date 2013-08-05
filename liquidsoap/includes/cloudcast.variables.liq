@@ -18,11 +18,6 @@ files_genre_uri = cloudcast_uri ^ "/files/genre/<genre>.rawxml" ^ "?key=" ^ clou
 ## SETTINGS ##
 ##############
 
-# genres
-advertisement_genre = ref ''
-sweeper_genre = ref ''
-jingle_genre = ref ''
-
 # transitions
 transition_fade_seconds = ref 0.
 transition_seconds = ref 0.
