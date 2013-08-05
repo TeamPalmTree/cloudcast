@@ -18,11 +18,6 @@ def set_settings(settings) =
     ## SET SETTINGS ##
     ##################
     
-    # genres
-    advertisement_genre := settings['advertisement_genre']
-    sweeper_genre := settings['sweeper_genre']
-    jingle_genre := settings['jingle_genre']
-    
     # transitions
     transition_fade_seconds := float_of_string(settings['transition_fade_seconds'])
     transition_seconds := float_of_string(settings['transition_seconds'])
@@ -36,7 +31,7 @@ def set_settings(settings) =
     jingle_quiet_seconds := float_of_string(settings['jingle_quiet_seconds'])
     jingle_noise_seconds := float_of_string(settings['jingle_noise_seconds'])
     jingle_start_delay_seconds := float_of_string(settings['jingle_start_delay_seconds'])
-    jingle_end_padding_seconds := float_of_string(settings['jingle_jingle_end_padding_seconds'])
+    jingle_end_padding_seconds := float_of_string(settings['jingle_end_padding_seconds'])
 
     # inputs
     show_input_port := int_of_string(settings['show_input_port'])
@@ -54,11 +49,6 @@ def set_settings(settings) =
     ##################
     ## LOG SETTINGS ##
     ##################
-
-    # genres
-    log('Settings: advertisement_genre = ' ^ !advertisement_genre)
-    log('Settings: sweeper_genre = ' ^ !sweeper_genre)
-    log('Settings: jingle_genre = ' ^ !jingle_genre)
 
     # transitions
     log('Settings: transition_fade_seconds = ' ^ string_of(!transition_fade_seconds))

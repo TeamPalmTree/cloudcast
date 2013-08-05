@@ -351,7 +351,7 @@ class Controller_Engine extends Controller_Cloudcast {
         $input = Input::get('input');
         $enabled = Input::get('enabled');
         // forward to Liquidsoap
-        Liquidsoap::input($input, $enabled);
+        LiquidsoapHook::input($input, $enabled);
         // send response
         return $this->response('SUCCESS');
 

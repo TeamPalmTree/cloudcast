@@ -37,6 +37,14 @@ class Model_File extends \Orm\Model
         'schedule_files',
     );
 
+    protected static $restricted_genres = array(
+        'Ad',
+        'Sweeper',
+        'Jingle',
+        'Bumper',
+        'Intro',
+    );
+
     public function duration_seconds()
     {
         return Helper::duration_seconds($this->duration);
@@ -236,15 +244,7 @@ class Model_File extends \Orm\Model
 
         // see if we remove some genres from the search
         if ($restrict_genres)
-        {
-            $restricted_genres = array();
-            // get genres to restrict
-            $restricted_genres[] = Model_Setting::get_value('advertisement_genre');
-            $restricted_genres[] = $sweeper_genre = Model_Setting::get_value('sweeper_genre');
-            $restricted_genres[] = $jingle_genre = Model_Setting::get_value('jingle_genre');
-            // add to query
-            $files = $files->where('genre', 'not in', $restricted_genres);
-        }
+            $files = $files->where('genre', 'not in', self::$restricted_genres);
 
         // restrict to available
         if ($restrict_available)

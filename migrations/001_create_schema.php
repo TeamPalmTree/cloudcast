@@ -393,6 +393,14 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
+                'name' => 'bumper_genre',
+                'type' => 'text',
+                'value' => 'Bumper',
+                'category' => 'genres'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
                 'name' => 'transition_fade_seconds',
                 'type' => 'text',
                 'value' => '5.0',

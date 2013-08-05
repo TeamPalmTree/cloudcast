@@ -24,8 +24,10 @@ radio := on_end(delay = !jingle_end_padding_seconds, track_end, !radio)
 ## TRANSITIONS ##
 #################
 
+# calculate transition inhibition
+transition_inhibit = !transition_seconds * 2.
 # crossfading
-radio := smart_cross(width = !transition_width_seconds, duration = !transition_seconds, transition, !radio)
+radio := smart_cross(conservative = true, width = !transition_width_seconds, duration = !transition_seconds, inhibit = transition_inhibit, transition, !radio)
 
 #############
 ## JINGLES ##

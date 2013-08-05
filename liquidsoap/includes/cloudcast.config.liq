@@ -2,7 +2,7 @@
 set("log.stdout", true)
 set("log.file", true)
 set("log.file.append", false)
-set("log.level", 3)
+set("log.level", 2)
 
 # services
 services_port = 1234
