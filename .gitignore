@@ -10,4 +10,3 @@ config/*/db.php
 config/*/migrations.php
 config/cloudcast.php
 config/liquidsoap.php
-liquidsoap/includes/cloudcast.config.liq
