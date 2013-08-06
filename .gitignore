@@ -3,10 +3,10 @@
 Thumbs.db
 desktop.ini
 .DS_Store
-/logs/*/*/*
-/cache/*/*
-/config/crypt.php
-/config/*/db.php
-/config/*/migrations.php
-/config/cloudcast.php
-/config/liquidsoap.php
+logs/*/*/*
+cache/*/*
+config/crypt.php
+config/*/db.php
+config/*/migrations.php
+config/cloudcast.php
+config/liquidsoap.php
