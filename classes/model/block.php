@@ -170,8 +170,6 @@ class Model_Block extends \Orm\Model
         $filled_seconds = 0;
         // get all files that match the criteria
         $search_files = Model_File::search($this->file_query);
-        // assume there is a 50% chance of a crossfade (because it is smart ;)
-        $average_transition_seconds = 0.5 * (int)Model_Setting::get_value('transition_seconds');
 
         /////////////////////////////////////////////////
         // LOOP OVER EACH FILE UNTIL DURATION EXCEEDED //
@@ -206,7 +204,7 @@ class Model_Block extends \Orm\Model
             // add to files array
             $files[] = $file;
             // update filled seconds
-            $filled_seconds += $file->duration_seconds() - $average_transition_seconds;
+            $filled_seconds += $file->duration_seconds();
         }
 
         /////////////
@@ -269,9 +267,6 @@ class Model_Block extends \Orm\Model
 
     private function items_files($seconds, $block_items, &$total_filled_seconds, &$musical_key)
     {
-        // assume there is a 50% chance of a crossfade (because it is smart ;)
-        $average_transition_seconds = 0.5 * (int)Model_Setting::get_value('transition_seconds');
-
         //////////////////
         // CALCULATIONS //
         //////////////////
@@ -286,7 +281,7 @@ class Model_Block extends \Orm\Model
                 $duration_seconds += $block_item->duration_seconds();
             // get block file item duration
             if ($block_item->file != null)
-                $duration_seconds += $block_item->file->duration_seconds() - $average_transition_seconds;
+                $duration_seconds += $block_item->file->duration_seconds();
         }
 
         // now get the interval remainder for percentage-based items
@@ -332,7 +327,7 @@ class Model_Block extends \Orm\Model
                 // update musical key
                 $musical_key = $block_item->file->musical_key;
                 // update filled dateinterval
-                $filled_seconds += $block_item->file->duration_seconds() - $average_transition_seconds;
+                $filled_seconds += $block_item->file->duration_seconds();
             }
             else
             {

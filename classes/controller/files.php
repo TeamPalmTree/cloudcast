@@ -133,6 +133,13 @@ class Controller_Files extends Controller_Cloudcast
             }
         }
 
+        /////////////////////////
+        // RELOAD LS PLAYLISTS //
+        /////////////////////////
+
+        // tell LS to update its jingles, sweepers, and bumpers
+        LiquidsoapHook::reload_playlists();
+
         /////////////
         // SUCCESS //
         /////////////

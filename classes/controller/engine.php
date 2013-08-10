@@ -110,7 +110,7 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function post_inputs()
+    public function post_update_inputs()
     {
 
         ///////////////////////
@@ -166,48 +166,29 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function post_file()
+    public function get_play_schedule_file($id)
     {
 
-        /////////////////////
-        // PROCESS LS FILE //
-        /////////////////////
+        ////////////////////////
+        // FIND SCHEDULE FILE //
+        ////////////////////////
 
-        // get posted file
-        $input = file_get_contents('php://input');
-        // get php file from json
-        $file = json_decode($input);
-
-        ///////////////
-        // FIND FILE //
-        ///////////////
-
-        // find the file
-        $file = Model_File::query()
-            ->where('id', $file->id)
+        // find the schedule file
+        $schedule_file = Model_Schedule_File::query()
+            ->where('id', $id)
             ->get_one();
-
-        /////////////////////////////////////
-        // FIND SCHEDULE FILE FOR METADATA //
-        /////////////////////////////////////
-
-        // get server time
-        $server_datetime_string = Helper::server_datetime_string();
-        // get the current schedule file by file id
-        $current_schedule_file = Model_Schedule_File::current_by_file($file->id, $server_datetime_string);
 
         ////////////////////////////////////
         // UPDATE SCHEDULE FILE PLAY DATE //
         ////////////////////////////////////
 
-        // update play date
-        $current_schedule_file->played_on = $server_datetime_string;
-        // save schedule file
-        $current_schedule_file->save();
-        // update file date
-        $file->last_play = $server_datetime_string;
+        // get server time
+        $server_datetime_string = Helper::server_datetime_string();
+        // update play dates
+        $schedule_file->played_on = $server_datetime_string;
+        $schedule_file->file->last_play = $server_datetime_string;
         // save file
-        $file->save();
+        $schedule_file->save();
 
         /////////////
         // SUCCESS //
@@ -218,7 +199,7 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function get_file()
+    public function get_next_queue()
     {
 
         /////////////////////////////////////
@@ -229,17 +210,24 @@ class Controller_Engine extends Controller_Cloudcast {
         $server_datetime = Helper::server_datetime();
         // get next schedule file
         $next_schedule_file = Model_Schedule_File::the_next($server_datetime);
+        // if we have none, we are done
+        if (!$next_schedule_file)
+            $this->response('NONE');
 
-        //////////////////////
-        // RETURN FILE NAME //
-        //////////////////////
+        ///////////////////////////////
+        // CREATE AND POPULATE QUEUE //
+        ///////////////////////////////
 
-        // prepare response body
-        $file = 'NONE';
-        if ($next_schedule_file != null)
-            $file = $next_schedule_file->file;
-        // send response
-        return $this->response($file);
+        // create new queue
+        $next_queue = new Model_Queue();
+        // populate
+        $next_queue->schedule_file_id = $next_schedule_file->id;
+        $next_queue->show_title = $next_schedule_file->schedule->show->title;
+        $next_queue->file_name = $next_schedule_file->file->name;
+        $next_queue->file_artist = $next_schedule_file->file->artist;
+        $next_queue->file_title = $next_schedule_file->file->title;
+        // send queue response
+        return $this->response($next_queue);
 
     }
 
@@ -344,15 +332,97 @@ class Controller_Engine extends Controller_Cloudcast {
         return $this->response($response);
     }
 
-    public function get_input()
+    public function get_enable_input()
     {
 
         // get input & enabled
         $input = Input::get('input');
         $enabled = Input::get('enabled');
         // forward to Liquidsoap
-        LiquidsoapHook::input($input, $enabled);
+        LiquidsoapHook::enable_input($input, $enabled);
         // send response
+        return $this->response('SUCCESS');
+
+    }
+
+    public function get_save_stream_statistics($id)
+    {
+
+        ////////////////
+        // GET STREAM //
+        ////////////////
+
+        // get the stream
+        $stream = Model_Stream::find($id);
+        // verify stream
+        if ($stream == null)
+            return $this->response('INVALID_STREAM');
+
+        ///////////////////////////////
+        // GET CURRENT SCHEDULE FILE //
+        ///////////////////////////////
+
+        // get server date time
+        $server_datetime = Helper::server_datetime();
+        // get currently playing file
+        $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
+        // if we have nothing current, we are done
+        if ($current_schedule_file == null)
+            return $this->response('INVALID_CURRENT_SCHEDULE_FILE');
+
+        /////////////////////
+        // CREATE NEW STAT //
+        /////////////////////
+
+        // create new statistic
+        $stream_statistic = Model_Stream_Statistic::forge();
+        // set stat properties
+        $stream_statistic->stream_id = $id;
+        $stream_statistic->schedule_file_id = $current_schedule_file->id;
+        $stream_statistic->captured_on = Helper::server_datetime_string($server_datetime);
+
+        ////////////////////////////////////
+        // SET STATS FROM CORRECT SERVICE //
+        ////////////////////////////////////
+
+        try
+        {
+            // switch on stream type
+            switch ($stream->type)
+            {
+                // Icecast
+                case '1':
+                    // query stats from icecast
+                    $icecast_hook = new IcecastHook(
+                        $stream->host,
+                        $stream->port,
+                        $stream->admin_username,
+                        $stream->admin_password
+                    );
+                    // get statistics from icecast for this mount
+                    $icecast_mount_statistics = $icecast_hook->mount_statistics($stream->mount);
+                    // verify we got something
+                    if ($icecast_mount_statistics == null)
+                        throw new Exception('UNABLE_TO_OBTAIN');
+                    // set listeners
+                    $stream_statistic->listeners = $icecast_mount_statistics['listeners'];
+                    break;
+
+                // stats not supported
+                default:
+                    throw new Exception('STATISTICS_NOT_SUPPORTED');
+                    break;
+            }
+        }
+        catch (Exception $exception)
+        {
+            // fail
+            return $this->response($exception->getMessage());
+        }
+
+        // save statistic
+        $stream_statistic->save();
+        // success
         return $this->response('SUCCESS');
 
     }

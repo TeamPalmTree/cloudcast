@@ -95,6 +95,7 @@ class Model_Schedule_File extends \Orm\Model
         // the lowest id that has been played
         $next_schedule_files = Model_Schedule_File::query()
             ->related('schedule')
+            ->related('schedule.show')
             ->related('file')
             ->where('played_on', null)
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
