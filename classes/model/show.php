@@ -246,9 +246,9 @@ class Model_Show extends \Orm\Model
             $this->show_repeat = null;
         }
 
-        // clear existing
+        // clear existing users
         $this->users = array();
-        // add hosts
+        // replace hosts
         if (Input::post('hosted'))
         {
             // add new
@@ -284,14 +284,16 @@ class Model_Show extends \Orm\Model
         // GET FILES FROM BLOCK FOR DURATION //
         ///////////////////////////////////////
 
-        // get the seconds for this duration
+        // set up initial parameters
         $seconds = $this->duration_seconds();
-        // keep track of the total seconds filled
+        $added_files = array();
         $total_filled_seconds = 0;
-        // set initial musical key
         $musical_key = null;
+        $energy = null;
+        // forward to gathering loop (and so the crazy begins)
+        $this->block->files($seconds, $added_files, $total_filled_seconds, $musical_key, $energy);
         // forward to block processing
-        return $this->block->files($seconds, $total_filled_seconds, $musical_key);
+        return $added_files;
 
     }
 

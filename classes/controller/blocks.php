@@ -51,11 +51,13 @@ class Controller_Blocks extends Controller_Cloudcast
     public function action_edit($id)
     {
 
-        // fetch the block to edit
-        $block = Model_Block::edit($id);
         // posted block
         if (Input::method() == 'POST')
         {
+            // clear block weights
+            Model_Block::clear_weights($id);
+            // fetch the block to edit
+            $block = Model_Block::edit($id);
             // populate save
             $block->populate();
             $block->save();
@@ -63,6 +65,11 @@ class Controller_Blocks extends Controller_Cloudcast
             Response::redirect('blocks');
             // done
             return;
+        }
+        else
+        {
+            // fetch the block to edit
+            $block = Model_Block::edit($id);
         }
 
         // render create form

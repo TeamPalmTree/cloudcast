@@ -35,15 +35,41 @@
             </div>
         </div>
         <div class="control-group">
-            <?php echo Form::label('Harmonic', 'harmonic', array('class' => 'control-label')); ?>
+            <?php echo Form::label('Harmonic Key', 'harmonic_key', array('class' => 'control-label')); ?>
             <div class="controls">
-                <input name="harmonic" type="checkbox" data-bind="checked: harmonic" />
+                <input name="harmonic_key" type="checkbox" data-bind="checked: harmonic_key" />
+            </div>
+        </div>
+        <div class="control-group">
+            <?php echo Form::label('Harmonic Energy', 'harmonic_energy', array('class' => 'control-label')); ?>
+            <div class="controls">
+                <input name="harmonic_energy" type="checkbox" data-bind="checked: harmonic_energy" />
             </div>
         </div>
         <div class="control-group">
             <?php echo Form::label('File Query', 'file_query', array('class' => 'control-label')); ?>
             <div class="controls">
                 <?php echo Form::textarea('file_query', null, array('rows' => '5', 'placeholder' => 'File Query', 'data-bind' => "value: file_query, valueUpdate: 'afterkeydown'" )); ?>
+            </div>
+        </div>
+
+        <!-- criteria (weighted) -->
+        <div class="control-group">
+            <?php echo Form::label('Weighted', 'weighted', array('class' => 'control-label')); ?>
+            <div class="controls">
+                <input name="weighted" type="checkbox" data-bind="checked: weighted" />
+            </div>
+        </div>
+        <div data-bind="visible: weighted">
+            <div class="control-group" data-bind="foreach: block_weights">
+                <div class="controls">
+                    <input type="text" data-bind="value: weight, attr: { name: 'block_weights[' + $index() + '][weight]' }" placeholder="Weight"/>
+                    <button name="remove" type="button" class="btn btn-danger" data-bind="visible: ($parent.block_weights().length > 1), click: $parent.remove_block_weight"><i class="icon-remove"></i></button>
+                    <button name="add" type="button" class="btn btn-info" data-bind="visible: $index() == ($parent.block_weights().length - 1), click: $parent.add_block_weight"><i class="icon-plus"></i></button>
+                </div>
+                <div class="controls">
+                    <?php echo Form::textarea('file_query', null, array('rows' => '3', 'placeholder' => 'Weight Query', 'data-bind' => "value: file_query, valueUpdate: 'afterkeydown', attr: { name: 'block_weights[' + \$index() + '][file_query]' }" )); ?>
+                </div>
             </div>
         </div>
 

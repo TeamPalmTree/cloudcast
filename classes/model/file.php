@@ -13,6 +13,8 @@ class Model_File extends \Orm\Model
         'BPM',
         'rating',
         'bit_rate',
+        'ups',
+        'downs',
         'sample_rate',
         'name',
         'duration',
@@ -133,10 +135,10 @@ class Model_File extends \Orm\Model
 
     public static function search(
         $query,
-        $limit = 0,
-        $randomize = true,
-        $restrict_genres = true,
-        $restrict_available = true
+        $restrict_genres,
+        $restrict_available,
+        $limit,
+        $randomize
     )
     {
 
@@ -245,7 +247,6 @@ class Model_File extends \Orm\Model
         // see if we remove some genres from the search
         if ($restrict_genres)
             $files = $files->where('genre', 'not in', self::$restricted_genres);
-
         // restrict to available
         if ($restrict_available)
             $files = $files->where('available', true);

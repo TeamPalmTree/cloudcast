@@ -6,8 +6,6 @@ class Model_Schedule_File extends \Orm\Model
     protected static $_properties = array(
         'id',
         'played_on',
-        'ups',
-        'downs',
         'schedule_id',
         'file_id',
     );

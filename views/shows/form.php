@@ -122,7 +122,7 @@
 <div data-bind="visible: hosted">
     <div class="control-group" data-bind="foreach: users">
         <div class="controls">
-            <input name="username" class="typeahead" type="text" placeholder="Username" data-bind="typeahead: username, typeaheadOptions: { source: $parents[1].query_users }, attr: { name: 'users[' + $index() + '][username]' }" />
+            <input class="typeahead" type="text" placeholder="Username" data-bind="typeahead: username, typeaheadOptions: { source: $parents[1].query_users }, attr: { name: 'users[' + $index() + '][username]' }" />
             <button name="remove" type="button" class="btn btn-danger" data-bind="visible: ($parent.users().length > 1), click: $parent.remove_user"><i class="icon-remove"></i></button>
             <button name="add" type="button" class="btn btn-info" data-bind="visible: $index() == ($parent.users().length - 1), click: $parent.add_user"><i class="icon-plus"></i></button>
         </div>

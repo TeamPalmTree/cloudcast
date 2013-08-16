@@ -1,5 +1,5 @@
 <script>
-    var block_items_js = <?php echo Format::forge($block->block_items)->to_json(); ?>
+    var block_items_js = <?php echo Format::forge(array_values($block->block_items))->to_json(); ?>
 </script>
 
 <div id="blocks_layout">

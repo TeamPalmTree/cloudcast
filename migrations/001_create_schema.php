@@ -19,6 +19,8 @@ class Create_Schema
                 'rating' => array('type' => 'smallint', 'null' => true),
                 'bit_rate' => array('constraint' => 11, 'type' => 'int'),
                 'sample_rate' => array('constraint' => 11, 'type' => 'int'),
+                'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'name' => array('constraint' => 255, 'type' => 'varchar'),
                 'duration' => array('constraint' => 255, 'type' => 'varchar'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
@@ -44,11 +46,30 @@ class Create_Schema
 
         \DBUtil::create_table('blocks', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
-                'harmonic' => array('type' => 'boolean', 'default' => '1'),
+                'harmonic_key' => array('type' => 'boolean', 'default' => '1'),
+                'harmonic_energy' => array('type' => 'boolean', 'default' => '1'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'description' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'file_query' => array('type' => 'text'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci');
+
+        \DBUtil::create_table('block_weights', array(
+                'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
+                'weight' => array('constraint' => 11, 'type' => 'int', 'default' => '1'),
+                'file_query' => array('type' => 'text'),
+                'block_id' => array('constraint' => 11, 'type' => 'int'),
+            ), array('id'), false, 'InnoDB', 'utf8_general_ci',
+            array(
+                array(
+                    'key' => 'block_id',
+                    'reference' => array(
+                        'table' => 'blocks',
+                        'column' => 'id',
+                    ),
+                    'on_delete' => 'CASCADE',
+                ),
+            )
+        );
 
         \DBUtil::create_table('block_items', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
@@ -207,8 +228,6 @@ class Create_Schema
         \DBUtil::create_table('schedule_files', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
                 'played_on' => array('type' => 'timestamp', 'null' => true),
-                'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
-                'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'schedule_id' => array('constraint' => 11, 'type' => 'int'),
                 'file_id' => array('constraint' => 11, 'type' => 'int'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',

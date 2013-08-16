@@ -12,7 +12,9 @@
                 <strong><?php echo $block->title; ?></strong> <span class="text-info"><?php echo $block->description; ?></span>
             </div>
             <div class="cloudcast_section">
-                <?php if ($block->harmonic == '1'): ?><span class="label label-info"><i class="icon-music"></i> HARMONIC</span><?php endif; ?>
+                <?php if ($block->harmonic_key == '1'): ?><span class="label label-info"><i class="icon-music"></i> KEY</span><?php endif; ?>
+                <?php if ($block->harmonic_energy == '1'): ?><span class="label label-info"><i class="icon-music"></i> ENERGY</span><?php endif; ?>
+                <?php if (count($block->block_weights) > 0): ?><span class="label label-info"><i class="icon-tasks"></i> WEIGHTED</span><?php endif; ?>
             </div>
         </div>
     <?php endforeach; ?>
