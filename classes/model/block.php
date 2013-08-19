@@ -154,7 +154,7 @@ class Model_Block extends \Orm\Model
         
     }
 
-    private function gather_files($seconds, &$gathered_files, &$total_filled_seconds, &$musical_key, &$energy)
+    public function gather_files($seconds, &$gathered_files, &$total_filled_seconds, &$musical_key, &$energy)
     {
 
         ///////////////////////////////
@@ -197,7 +197,7 @@ class Model_Block extends \Orm\Model
         /////////////////////////////
 
         // get weighted search files
-        $weighted_files = $this->weighted_files($block_weights, $gathered_files);
+        $weighted_files = $this->weighted_files($block_weights);
 
         /////////////////////////////////
         // LOOP UNTIL SECONDS EXCEEDED //
@@ -403,6 +403,11 @@ class Model_Block extends \Orm\Model
 
     private function harmonic_energy_files(&$files, &$energy)
     {
+        // if we have no original energy,
+        // do no sorting and keep files as is
+        if (!$energy)
+            return;
+
         usort($files, function($a, $b) use ($energy)
         {
             // calculate the abs value difference between energy levels

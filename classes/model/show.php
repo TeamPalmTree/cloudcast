@@ -286,14 +286,14 @@ class Model_Show extends \Orm\Model
 
         // set up initial parameters
         $seconds = $this->duration_seconds();
-        $added_files = array();
+        $gathered_files = array();
         $total_filled_seconds = 0;
         $musical_key = null;
         $energy = null;
         // forward to gathering loop (and so the crazy begins)
-        $this->block->files($seconds, $added_files, $total_filled_seconds, $musical_key, $energy);
-        // forward to block processing
-        return $added_files;
+        $this->block->gather_files($seconds, $gathered_files, $total_filled_seconds, $musical_key, $energy);
+        // success
+        return $gathered_files;
 
     }
 

@@ -308,7 +308,7 @@ class Create_Schema
                 'name' => array('constraint' => 255, 'type' => 'varchar'),
                 'status' => array('type' => 'boolean', 'default' => '0'),
                 'enabled' => array('type' => 'boolean', 'default' => '0'),
-                'user_id' => array('constraint' => 11, 'type' => 'int', 'null' => true, 'default' => 'null'),
+                'user_id' => array('constraint' => 11, 'type' => 'int', 'null' => true),
             ), array('name'), false, 'InnoDB', 'utf8_general_ci',
             array(
                 array(
