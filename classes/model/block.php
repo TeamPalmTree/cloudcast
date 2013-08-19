@@ -214,22 +214,22 @@ class Model_Block extends \Orm\Model
             if ($filled_seconds >= $seconds)
                 break;
 
-            ////////////////////////
-            // OBTAIN SEARCH FILE //
-            ////////////////////////
+            /////////////////////////
+            // CLAIM WEIGHTED FILE //
+            /////////////////////////
 
-            // claim search file
-            $file = $this->claim_weighted_file(
+            // claim weighted file
+            $claimed_file = $this->claim_weighted_file(
                 $weighted_files,
                 $gathered_files,
                 $musical_key,
                 $energy);
             // stop if we are unable to find files
-            if (!$file)
+            if (!$claimed_file)
                 break;
 
-            // update filled seconds
-            $filled_seconds += $file->duration_seconds();
+            // update filled seconds with claimed file duration
+            $filled_seconds += $claimed_file->duration_seconds();
         }
 
         /////////////
@@ -250,7 +250,7 @@ class Model_Block extends \Orm\Model
 
         // get base query files
         $base_files = Model_File::search(
-            $this->file_query, true, true, null, true);
+            $this->file_query, true, true, null, true, true);
         // start the weighted sets with base files
         $weighted_files = array($base_files);
 
@@ -267,8 +267,11 @@ class Model_Block extends \Orm\Model
         {
             $weighted_files[$block_weight->weight] = Model_File::search(
                 $this->file_query . "\n" .  $block_weight->file_query,
-                true, true, null, true);
+                true, true, null, true, true);
         }
+
+        // success
+        return $weighted_files;
 
     }
 
@@ -316,12 +319,8 @@ class Model_Block extends \Orm\Model
             // if the random number is less than or = to the cum weights
             // sum, we have found our set :)
             if ($random_number <= $cumulative_weights_sum)
-                $random_files = $files;
-            break;
+                return $files;
         }
-
-        // success
-        return $random_files;
 
     }
 
@@ -337,8 +336,8 @@ class Model_Block extends \Orm\Model
         // verify we have some still, else we fail
         if (count($files) == 0)
             return null;
-        // now create a separate array to track compatible files
-        $compatible_files = $files;
+        // now create a duplicate array to track harmonic files
+        $harmonic_files = $files;
 
         ///////////////////////////////////////////
         // ATTEMPT SET REDUCTION BY HARMONIC KEY //
@@ -346,7 +345,7 @@ class Model_Block extends \Orm\Model
 
         // attempt reduce file set by harmonic key
         if ($this->harmonic_key == '1')
-            $compatible_files = $this->harmonic_key_files($compatible_files, $musical_key);
+            $harmonic_files = $this->harmonic_key_files($harmonic_files, $musical_key);
 
         //////////////////////////////////
         // SORT BY CLOSEST ENERGY LEVEL //
@@ -354,19 +353,23 @@ class Model_Block extends \Orm\Model
 
         // sort files by closest energy
         if ($this->harmonic_energy == '1')
-            $this->harmonic_energy_files($compatible_files, $energy);
+            $this->harmonic_energy_files($harmonic_files, $energy);
 
         ////////////////
         // CLAIM FILE //
         ////////////////
 
         // claim file
-        $claimed_file = array_shift($compatible_files);
+        $claimed_file = current($harmonic_files);
+        unset($files[$claimed_file->id]);
+
         // update musical key & energy
         $musical_key = $claimed_file->musical_key;
         $energy = $claimed_file->energy;
+
         // add to gathered files
         $gathered_files[$claimed_file->id] = $claimed_file;
+
         // success
         return $claimed_file;
 
@@ -374,27 +377,31 @@ class Model_Block extends \Orm\Model
 
     private function harmonic_key_files(&$files, &$musical_key)
     {
-        // if we have no original key, return all files
+        // if we have no original key, keep files intact
         // this will give us a starting point and initiate the show
         if (!$musical_key)
             return $files;
 
+        // keep track of harmonic files
         $harmonic_key_files = array();
         // get harmonic musical keys
         $harmonic_musical_keys = CamelotEasyMixWheel::harmonic_musical_keys($musical_key);
-        // loop through each musical key option
-        foreach ($harmonic_musical_keys as $harmonic_musical_key)
+        // loop through search files until we find a file that matches the current musical key
+        foreach ($files as $file)
         {
-            // loop through search files until we find a file that matches the current musical key
-            foreach ($files as $file)
+            // loop through each musical key option
+            foreach ($harmonic_musical_keys as $harmonic_musical_key)
             {
-                // if we find the musical key, we are good
+                // if we find a musical key match, we are good
                 if ($file->musical_key == $harmonic_musical_key)
+                {
                     $harmonic_key_files[$file->id] = $file;
+                    break;
+                }
             }
         }
 
-        // if we found no harmonic key files, return the original set
+        // if we have no harmonic files, return original set
         if (count($harmonic_key_files) == 0)
             return $files;
         // success

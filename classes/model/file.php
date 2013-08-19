@@ -138,7 +138,8 @@ class Model_File extends \Orm\Model
         $restrict_genres,
         $restrict_available,
         $limit,
-        $randomize
+        $randomize,
+        $index
     )
     {
 
@@ -262,9 +263,15 @@ class Model_File extends \Orm\Model
         if ($limit)
             $files = $files->limit($limit);
 
+        /////////////////
+        // GET & INDEX //
+        /////////////////
 
         // get em
         $files = $files->get();
+        // either return indexed, or
+        if ($index)
+            return $files;
         // get array values
         return array_values($files);
     }

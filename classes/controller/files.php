@@ -59,7 +59,7 @@ class Controller_Files extends Controller_Cloudcast
         // get the query
         $query = Input::get('query');
         // search with 100 limit while randomizing and restricting genres
-        $files = Model_File::search($query, 100, true, false, false);
+        $files = Model_File::search($query, false, false, 100, false, false);
         // success
         return $this->response($files);
 
