@@ -74,6 +74,14 @@ class Model_File extends \Orm\Model
             $changed = true;
         }
 
+        // set ups/downs
+        if (!$this->ups or !$this->downs)
+        {
+            $this->ups = 0;
+            $this->downs = 0;
+            $changed = true;
+        }
+
         // set date
         $this->populate_field('date', $scanned_file, $changed);
         // set track
