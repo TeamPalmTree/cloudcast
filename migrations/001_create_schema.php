@@ -314,7 +314,7 @@ class Create_Schema
                 array(
                     'key' => 'user_id',
                     'reference' => array(
-                        'table' => 'user',
+                        'table' => 'users',
                         'column' => 'id',
                     ),
                     'on_delete' => 'CASCADE',
