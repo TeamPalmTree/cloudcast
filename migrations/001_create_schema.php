@@ -400,7 +400,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'transition_fade_seconds',
                 'type' => 'text',
-                'value' => '5.0',
+                'value' => '4.0',
                 'category' => 'transitions'
             ))->execute();
 
@@ -408,7 +408,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'transition_seconds',
                 'type' => 'text',
-                'value' => '6.0',
+                'value' => '5.0',
                 'category' => 'transitions'
             ))->execute();
 
@@ -416,7 +416,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'transition_width_seconds',
                 'type' => 'text',
-                'value' => '2.0',
+                'value' => '3.0',
                 'category' => 'transitions'
             ))->execute();
 
@@ -448,7 +448,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'jingle_quiet_threshold',
                 'type' => 'text',
-                'value' => '-15.0',
+                'value' => '-20.0',
                 'category' => 'jingles'
             ))->execute();
 
@@ -464,7 +464,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'jingle_noise_seconds',
                 'type' => 'text',
-                'value' => '1.0',
+                'value' => '2.0',
                 'category' => 'jingles'
             ))->execute();
 
@@ -480,7 +480,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'jingle_end_padding_seconds',
                 'type' => 'text',
-                'value' => '20.0',
+                'value' => '30.0',
                 'category' => 'jingles'
             ))->execute();
 
@@ -552,7 +552,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'talkover_quiet_threshold',
                 'type' => 'text',
-                'value' => '-40.0',
+                'value' => '-20.0',
                 'category' => 'talkover'
             ))->execute();
 
