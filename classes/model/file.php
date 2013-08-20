@@ -142,7 +142,7 @@ class Model_File extends \Orm\Model
     }
 
     public static function search(
-        $query,
+        $search_string,
         $restrict_genres,
         $restrict_available,
         $limit,
@@ -151,103 +151,11 @@ class Model_File extends \Orm\Model
     )
     {
 
-        // start the query :)
-        $files = Model_File::query();
-        // get server datetime
-        $server_datetime = Helper::server_datetime();
+        //////////////////////
+        // GET SEARCH QUERY //
+        //////////////////////
 
-        try
-        {
-            // get query ands
-            $query_ands = explode("\n", $query);
-            // process each query and
-            foreach ($query_ands as $query_and)
-            {
-                // ignore empty ands
-                if ($query_and == '')
-                    continue;
-
-                // start and condition
-                $files = $files->and_where_open();
-                // get query ors
-                $query_ors = explode(",", $query_and);
-                // process each query or
-                foreach ($query_ors as $query_or)
-                {
-                    // ignore empty ors
-                    if ($query_or == '')
-                        continue;
-
-                    // get query line parts
-                    if (strpos($query_or, '>=') !== false)
-                        $delimiter = '>=';
-                    elseif (strpos($query_or, '<=') !== false)
-                        $delimiter = '<=';
-                    elseif (strpos($query_or, '>') !== false)
-                        $delimiter = '>';
-                    elseif (strpos($query_or, '<') !== false)
-                        $delimiter = '<';
-                    elseif (strpos($query_or, '!=') !== false)
-                        $delimiter = '!=';
-                    elseif (strpos($query_or, '=') !== false)
-                        $delimiter = '=';
-                    elseif (strpos($query_or, '~') !== false)
-                        $delimiter = '~';
-
-                    // get or parts
-                    $query_or_parts = explode($delimiter, $query_or);
-                    // verify 3 parts
-                    if (count($query_or_parts) != 2)
-                        throw new Exception('Invalid Where Clause');
-
-                    // column/value
-                    $column = trim($query_or_parts[0]);
-                    $value = trim($query_or_parts[1]);
-
-                    ///////////////////
-                    // DATE FUNCTION //
-                    ///////////////////
-
-                    if (strpos($value, 'DATEAGO(') === 0)
-                    {
-                        // grab innards
-                        $date_ago_string = substr($value, 8, strlen($value) - 9);
-                        // create date interval
-                        $dateinterval = new DateInterval('P' . $date_ago_string);
-                        // clone server datetime
-                        $datetime = clone $server_datetime;
-                        // subtract years
-                        $datetime->sub($dateinterval);
-                        // override value with calculation
-                        $value = Helper::server_datetime_to_user_datetime_string($datetime);
-                    }
-
-                    ///////////////////
-                    // LIKE HANDLING //
-                    ///////////////////
-
-                    if ($delimiter == '~')
-                    {
-                        // verify at least one char
-                        if (strlen($value) == 0)
-                            throw new Exception('Invalid Like Value');
-                        // set delimiter/value
-                        $delimiter = 'LIKE';
-                        $value = '%' . $value . '%';
-                    }
-
-                    // add condition
-                    $files = $files->or_where($column, $delimiter, $value);
-                }
-
-                // close and condition
-                $files = $files->and_where_close();
-            }
-        }
-        catch(Exception $e)
-        {
-            return array();
-        }
+        $search_query = self::search_query($search_string);
 
         //////////////////
         // RESTRICTIONS //
@@ -255,10 +163,10 @@ class Model_File extends \Orm\Model
 
         // see if we remove some genres from the search
         if ($restrict_genres)
-            $files = $files->where('genre', 'not in', self::$restricted_genres);
+            $search_query->where('genre', 'not in', self::$restricted_genres);
         // restrict to available
         if ($restrict_available)
-            $files = $files->where('available', true);
+            $search_query->where('available', true);
 
         ///////////////////////
         // RANDOMIZE & LIMIT //
@@ -266,22 +174,195 @@ class Model_File extends \Orm\Model
 
         // add random sort
         if ($randomize)
-            $files = $files->order_by(DB::expr('RAND()'));
+            $search_query->order_by(DB::expr('RAND()'));
         // add limit
         if ($limit)
-            $files = $files->limit($limit);
+            $search_query->limit($limit);
 
         /////////////////
         // GET & INDEX //
         /////////////////
 
         // get em
-        $files = $files->get();
+        $search_files = $search_query->get();
         // either return indexed, or
         if ($index)
-            return $files;
+            return $search_files;
         // get array values
-        return array_values($files);
+        return array_values($search_files);
+
+    }
+
+    protected static function search_query(&$search_string)
+    {
+
+        try
+        {
+
+            // start the query :)
+            $search_query = Model_File::query();
+            // get server datetime
+            $server_datetime = Helper::server_datetime();
+            // get query ands
+            $search_string_ands = explode("\n", $search_string);
+            // process each query and
+            foreach ($search_string_ands as $search_string_and)
+            {
+                // ignore empty ands
+                if ($search_string_and == '')
+                    continue;
+                // process and
+                self::search_query_and($search_string_and, $search_query, $server_datetime);
+            }
+
+            // success
+            return $search_query;
+
+        }
+        catch(Exception $e)
+        {
+            return null;
+        }
+
+    }
+
+    protected static function search_query_and(&$search_string_and, $search_query, $server_datetime)
+    {
+
+        // start and condition
+        $search_query->and_where_open();
+        // get query ors
+        $search_string_and_ors = explode(",", $search_string_and);
+        // process each query or
+        foreach ($search_string_and_ors as $search_string_and_or)
+        {
+            // ignore empty ors
+            if ($search_string_and_or == '')
+                continue;
+            // process or
+            self::search_query_and_or($search_string_and_or, $search_query, $server_datetime);
+        }
+
+        // close and condition
+        $search_query->and_where_close();
+
+    }
+
+    protected static function search_query_and_or(&$search_string_and_or, $search_query, $server_datetime)
+    {
+
+        ////////////////////////
+        // HANDLE COMPARISONS //
+        ////////////////////////
+
+        // get query line parts
+        if (strpos($search_string_and_or, '>=') !== false)
+            $delimiter = '>=';
+        elseif (strpos($search_string_and_or, '<=') !== false)
+            $delimiter = '<=';
+        elseif (strpos($search_string_and_or, '>') !== false)
+            $delimiter = '>';
+        elseif (strpos($search_string_and_or, '<') !== false)
+            $delimiter = '<';
+        elseif (strpos($search_string_and_or, '!=') !== false)
+            $delimiter = '!=';
+        elseif (strpos($search_string_and_or, '=') !== false)
+            $delimiter = '=';
+        elseif (strpos($search_string_and_or, '~') !== false)
+            $delimiter = '~';
+
+        ////////////////////////
+        // GET COLUMN & VALUE //
+        ////////////////////////
+
+        // get or parts
+        $search_string_and_or_parts = explode($delimiter, $search_string_and_or);
+        // verify 3 parts
+        if (count($search_string_and_or_parts) != 2)
+            throw new Exception('Invalid Where Clause');
+
+        // get column/value
+        $column = trim($search_string_and_or_parts[0]);
+        $value = trim($search_string_and_or_parts[1]);
+
+        //////////////////////
+        // COLUMN FUNCTIONS //
+        //////////////////////
+
+        // listener rating (0-5)
+        if (stripos($column, 'listener_rating') === 0)
+            self::search_query_listener_rating($column);
+        // popularity rating (0-5)
+        else if (stripos($column, 'popularity_rating') === 0)
+            self::search_query_listener_rating($column, $server_datetime);
+        // total ups + downs = votes
+        else if (stripos($column, 'votes') === 0)
+            self::search_query_votes($column);
+
+        /////////////////////
+        // VALUE FUNCTIONS //
+        /////////////////////
+
+        // date ago
+        if (stripos($value, 'date_ago') === 0)
+            self::search_query_date_ago($value, $server_datetime);
+
+        ///////////////////
+        // LIKE HANDLING //
+        ///////////////////
+
+        if ($delimiter == '~')
+        {
+            // verify at least one char
+            if (strlen($value) == 0)
+                throw new Exception('Invalid Like Value');
+            // set delimiter/value
+            $delimiter = 'LIKE';
+            $value = '%' . $value . '%';
+        }
+
+        // add condition
+        $search_query->or_where($column, $delimiter, $value);
+
+    }
+
+    protected static function search_query_listener_rating(&$column)
+    {
+        // listener rating == ups / (ups + downs); handling the divide by zero case
+        // and then normalized to a 5 point scale
+        $column = DB::expr('IF((ups + downs) > 0, ups / (ups + downs) * 5, 0)');
+    }
+
+    protected static function search_query_popularity_rating(&$column, $server_datetime)
+    {
+        // get the most popular file over the popularity time frame
+        $most_popular_file = Model_Schedule_File::most_popular_file($server_datetime);
+        // now caculate the total votes of that file
+        $most_popular_file_votes = $most_popular_file->ups + $most_popular_file->downs;
+        // popularity is the total votes for any file we are finding / the most
+        // popular files votes over the popularity time frame
+        // normalized to a 5 point scale
+        $column = DB::expr("(ups + downs) / $most_popular_file_votes * 5");
+    }
+
+    protected static function search_query_votes(&$column)
+    {
+        // return the sum of ups and downs (total votes)
+        $column = DB::expr('ups + downs');
+    }
+
+    protected static function search_query_date_ago(&$value, $server_datetime)
+    {
+        // grab innards
+        $date_ago_string = substr($value, 9, strlen($value) - 10);
+        // create date interval
+        $dateinterval = new DateInterval('P' . $date_ago_string);
+        // clone server datetime
+        $datetime = clone $server_datetime;
+        // subtract years
+        $datetime->sub($dateinterval);
+        // override value with calculation
+        $value = Helper::server_datetime_to_user_datetime_string($datetime);
     }
 
     public static function catalog()

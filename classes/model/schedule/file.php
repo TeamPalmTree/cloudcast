@@ -6,6 +6,8 @@ class Model_Schedule_File extends \Orm\Model
     protected static $_properties = array(
         'id',
         'played_on',
+        'ups',
+        'downs',
         'schedule_id',
         'file_id',
     );
@@ -14,6 +16,8 @@ class Model_Schedule_File extends \Orm\Model
         'schedule',
         'file',
     );
+
+    protected static $most_popular_file;
 
     public function client_played_on()
     {
@@ -106,101 +110,43 @@ class Model_Schedule_File extends \Orm\Model
 
     }
 
-    /*public static function the_queue($server_datetime)
+    public static function most_popular_file($server_datetime)
     {
 
-        /////////////////////////////////////////////////////////
-        // TRIAGE CURRENT VS NONE TO CONTINUE/INITIALIZE QUEUE //
-        /////////////////////////////////////////////////////////
+        // see if we have already gotten the most popular
+        if (self::$most_popular_file)
+            return self::$most_popular_file;
 
-        // get current schedule file
-        $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
-        // if we do not have a current, initialize the queue
-        if ($current_schedule_file != null)
-        {
+        ////////////////////////////////////////////////
+        // CALCULATE POPULARITY MEASUREMENT BEGINNING //
+        ////////////////////////////////////////////////
 
-            /////////////////////////////
-            // GET FIRST SCHEDULE FILE //
-            /////////////////////////////
+        // first get the number of voting days to look at
+        $popularity_days = (int)Model_Setting::get_value('popularity_days');
+        // get server datetime
+        $popularity_played_on_datetime = clone $server_datetime;
+        // get date interval for days in future
+        $popularity_dateinterval = new DateInterval('P' . $popularity_days . 'D');
+        // sub days to server time to get beginning of popularity metrics
+        $popularity_played_on_datetime->sub($popularity_dateinterval);
+        // get popularity time string
+        $popularity_played_on_datetime_string = Helper::server_datetime_string($popularity_played_on_datetime);
 
-            // get first schedule file
-            $first_schedule_file = Model_Schedule_File::the_next($server_datetime);
+        /////////////////////////////////////////////
+        // FIND MOST POPULAR FILE OVER THIS PERIOD //
+        /////////////////////////////////////////////
 
-            //////////////////////////////
-            // GET SECOND SCHEDULE FILE //
-            //////////////////////////////
-
-            // now get the additional seconds for the lookup time (duration) of the second file
-            $second_schedule_file_seconds = $first_schedule_file->file->duration_seconds();
-            // get new date time
-            $second_schedule_file_datetime = Helper::datetime_add_seconds($server_datetime, $second_schedule_file_seconds);
-            // get the second schedule file
-            $second_schedule_file = Model_Schedule_File::the_next($second_schedule_file_datetime, $first_schedule_file->id);
-
-            ///////////////////////////
-            // RETURN FIRST & SECOND //
-            ///////////////////////////
-
-            // this will initialize the LS queue
-            // and provide smart_cross support
-            return array($first_schedule_file, $second_schedule_file);
-
-        }
-        else
-        {
-
-            //////////////////////////////
-            // GET SECOND SCHEDULE FILE //
-            //////////////////////////////
-
-            // now get the additional seconds for the lookup time (duration) of the second file
-            $second_schedule_file_seconds = $current_schedule_file->file->duration_seconds();
-            // get new date time
-            $second_schedule_file_datetime = Helper::datetime_add_seconds($server_datetime, $second_schedule_file_seconds);
-            // get the second schedule file
-            $second_schedule_file = Model_Schedule_File::the_next($second_schedule_file_datetime);
-
-            /////////////////////////////
-            // GET THIRD SCHEDULE FILE //
-            /////////////////////////////
-
-            // now get the additional seconds for the lookup time (duration) of the third file
-            $third_schedule_file_seconds = $second_schedule_file->file->duration_seconds();
-            // get new date time
-            $third_schedule_file_datetime = Helper::datetime_add_seconds($server_datetime, $third_schedule_file_seconds);
-            // get the third schedule file
-            $third_schedule_file = Model_Schedule_File::the_next($third_schedule_file_datetime, $second_schedule_file->id);
-
-            //////////////////
-            // RETURN THIRD //
-            //////////////////
-
-            // this will initialize the LS queue
-            // and provide smart_cross support
-            return array($third_schedule_file);
-
-        }
-
-    }*/
-
-    public static function current_by_file($file_id, $server_datetime)
-    {
-        // get server time
-        $server_datetime_string = Helper::server_datetime_string();
-        // find the current schedule file with this file
-        // there may be more than one of the same file, find
-        // the lowest id that hasn't been played ;) bud
-        $schedule_files = Model_Schedule_File::query()
-            ->related('schedule')
-            ->where('schedule.start_on', '<=', $server_datetime_string)
-            ->where('schedule.end_at', '>', $server_datetime_string)
-            ->where('played_on', null)
-            ->where('file_id', $file_id)
-            ->order_by('id', 'asc')
-            ->rows_limit(1)
-            ->get();
-        // get first or return null
-        return $schedule_files ? current($schedule_files) : null;
+        // find the file with the most votes over the popularity period
+        $most_popular_file_sum = DB::select(array('file_id'), DB::expr('SUM(ups + downs) AS votes'))
+            ->from('schedule_files')
+            ->where('played_on', '>=', $popularity_played_on_datetime_string)
+            ->group_by('file_id')
+            ->order_by('votes', 'desc')
+            ->get_one();
+        // now set the most popular file associated with this file id
+        self::$most_popular_file = Model_File::find($most_popular_file_sum->file_id);
+        // success
+        return self::$most_popular_file;
 
     }
 

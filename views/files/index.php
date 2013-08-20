@@ -28,6 +28,8 @@
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'label' }">Label</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'language' }">Language</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'mood' }">Mood</a></th>
+                    <th><a href="#" data-bind="orderable: { collection: 'files', field: 'ups' }">Ups</a></th>
+                    <th><a href="#" data-bind="orderable: { collection: 'files', field: 'downs' }">Downs</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'found_on' }">Found On</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'last_play' }">Last Play</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'date' }">Date</a></th>
@@ -61,6 +63,8 @@
                     <td data-bind="text: label"></td>
                     <td data-bind="text: language"></td>
                     <td data-bind="text: mood"></td>
+                    <td data-bind="text: ups"></td>
+                    <td data-bind="text: downs"></td>
                     <td data-bind="text: found_on"></td>
                     <td data-bind="text: last_play"></td>
                     <td data-bind="text: date"></td>

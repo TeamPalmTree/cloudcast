@@ -11,12 +11,12 @@ class Model_Setting extends \Orm\Model
         'category',
     );
 
-    private static $_categories = array(
+    protected static $_categories = array(
         'general',
         'stream_one'
     );
 
-    private static $mapped_settings;
+    protected static $mapped_settings;
 
     public function human_name()
     {

@@ -228,6 +228,8 @@ class Create_Schema
         \DBUtil::create_table('schedule_files', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
                 'played_on' => array('type' => 'timestamp', 'null' => true),
+                'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'schedule_id' => array('constraint' => 11, 'type' => 'int'),
                 'file_id' => array('constraint' => 11, 'type' => 'int'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',
@@ -374,7 +376,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'schedule_out_days',
                 'type' => 'text',
-                'value' => '20',
+                'value' => '2',
                 'category' => 'general'
             ))->execute();
 
@@ -388,34 +390,10 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
-                'name' => 'advertisement_genre',
+                'name' => 'popularity_days',
                 'type' => 'text',
-                'value' => 'Advertisement',
-                'category' => 'genres'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'jingle_genre',
-                'type' => 'text',
-                'value' => 'Jingle',
-                'category' => 'genres'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'sweeper_genre',
-                'type' => 'text',
-                'value' => 'Sweeper',
-                'category' => 'genres'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'bumper_genre',
-                'type' => 'text',
-                'value' => 'Bumper',
-                'category' => 'genres'
+                'value' => "7",
+                'category' => 'general'
             ))->execute();
 
         \DB::insert('settings')
