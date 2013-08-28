@@ -7,8 +7,13 @@ class Model_Block extends \Orm\Model
         'id',
         'harmonic_key',
         'harmonic_energy',
+        'harmonic_genre',
+        'separate_similar',
         'title',
         'description',
+        'initial_key',
+        'initial_energy',
+        'initial_genre',
         'file_query',
     );
 
@@ -22,6 +27,26 @@ class Model_Block extends \Orm\Model
             'key_to' => 'child_block_id',
         ),
     );
+
+    public static $options = array(
+        '0' => 'No',
+        '1' => 'Yes',
+        '2' => 'Inherit',
+    );
+
+    protected $parent_block;
+    protected $top_block;
+    protected $gathered_files = array();
+    protected $filled_seconds = 0;
+    protected $current_harmonic_key;
+    protected $current_harmonic_energy;
+    protected $current_harmonic_genre;
+    protected $current_separate_similar;
+    protected $current_key;
+    protected $current_energy;
+    protected $current_genre;
+    protected $weighted_block_weights;
+    protected $ordered_block_items;
 
     public static function all($except_id = null)
     {
@@ -100,9 +125,20 @@ class Model_Block extends \Orm\Model
         // set block from post data
         $this->title = Input::post('title');
         $this->description = Input::post('description');
-        $this->harmonic_key = Input::post('harmonic_key') ? '1' : '0';
-        $this->harmonic_energy = Input::post('harmonic_energy') ? '1' : '0';
+        $this->harmonic_key = Input::post('harmonic_key');
+        $this->harmonic_energy = Input::post('harmonic_energy');
+        $this->harmonic_genre = Input::post('harmonic_genre');
+        $this->separate_similar = Input::post('separate_similar');
         $this->file_query = Input::post('file_query');
+
+        // get initial key and energy
+        $initial_key = Input::post('initial_key');
+        $initial_energy = Input::post('initial_energy');
+        $initial_genre = Input::post('initial_genre');
+        // set initial key and energy
+        $this->initial_key = (($this->harmonic_key == '0') || ($initial_key == '')) ? null : $initial_key;
+        $this->initial_energy = (($this->harmonic_energy == '0') || ($initial_energy == '')) ? null : $initial_energy;
+        $this->initial_genre = (($this->harmonic_genre == '0') || ($initial_genre == '')) ? null : $initial_genre;
 
         // add weights
         if (Input::post('weighted'))
@@ -154,23 +190,14 @@ class Model_Block extends \Orm\Model
         
     }
 
-    public function gather_files($seconds, &$gathered_files, &$total_filled_seconds, &$musical_key, &$energy)
+    public function files($seconds, $parent_block, $top_block)
     {
 
-        ///////////////////////////////
-        // GET BLOCK WEIGHTS & ITEMS //
-        ///////////////////////////////
+        ////////////////////////
+        // SET CURRENT VALUES //
+        ////////////////////////
 
-        // get block weights
-        $block_weights = Model_Block_Weight::weighted($this->id);
-        // get block items;
-        // id determines order
-        $block_items = Model_Block_Item::query()
-            ->related('file')
-            ->related('child_block')
-            ->where('block_id', $this->id)
-            ->order_by('id', 'ASC')
-            ->get();
+        $this->files_set($parent_block, $top_block);
 
         /////////////////////////////
         // NO ITEMS, START QUERIES //
@@ -179,14 +206,88 @@ class Model_Block extends \Orm\Model
         // if we have no items, we can use the
         // current block's criteria to generate
         // else, we need to do sub-block processing
-        if (count($block_items) == 0)
-            $this->query_files($seconds, $block_weights, $gathered_files, $total_filled_seconds, $musical_key, $energy);
+        if (count($this->ordered_block_items) == 0)
+            $this->query_files($seconds);
         else
-            $this->items_files($seconds, $block_items, $block_weights, $gathered_files, $total_filled_seconds, $musical_key, $energy);
+            $this->items_files($seconds);
+        // success
+        return $this->gathered_files;
 
     }
 
-    private function query_files($seconds, &$block_weights, &$gathered_files, &$total_filled_seconds, &$musical_key, &$energy)
+    protected function files_set($parent_block, $top_block)
+    {
+
+        //////////////////////
+        // SET PARENT & TOP //
+        //////////////////////
+
+        $this->parent_block = $parent_block;
+        $this->top_block = $top_block;
+
+        //////////////////////////////
+        // SET OTHER CURRENT VALUES //
+        //////////////////////////////
+
+        // if we have no parent, we at the top
+        if (!$parent_block)
+        {
+
+            // set current key
+            if ($this->initial_key == null)
+                $this->current_key = null;
+            // set current energy
+            if ($this->initial_energy == null)
+                $this->current_energy = null;
+
+            // set current harmonic genre
+            if (($this->harmonic_genre == '0') or ($this->harmonic_genre == '2'))
+                $this->current_harmonic_genre = '0';
+            else
+                $this->current_harmonic_genre = '1';
+
+            // 1 (true) or 2 (inherited) are interpreted as true
+            $this->current_harmonic_key = $this->harmonic_key == '0' ? '0' : '1';
+            $this->current_harmonic_energy = $this->harmonic_energy == '0' ? '0' : '1';
+            $this->current_separate_similar = $this->separate_similar == '0' ? '0' : '1';
+
+        }
+        else
+        {
+
+            // set current key
+            if ($this->initial_key == null)
+                $this->current_key = $parent_block->current_key;
+            // set current energy
+            if ($this->initial_energy == null)
+                $this->current_energy = $parent_block->current_energy;
+
+            // set current harmonic genre
+            $this->current_harmonic_genre = $this->harmonic_genre == '2' ? $parent_block->current_harmonic_genre : $this->harmonic_genre;
+            // pull values from our parent if we inherit, else from ourselves
+            $this->current_harmonic_key = $this->harmonic_key == '2' ? $parent_block->current_harmonic_key : $this->harmonic_key;
+            $this->current_harmonic_energy = $this->harmonic_energy == '2' ? $parent_block->current_harmonic_energy : $this->harmonic_energy;
+            $this->current_separate_similar = $this->separate_similar == '2' ? $parent_block->current_separate_similar : $this->separate_similar;
+
+        }
+
+        ///////////////////////////////
+        // SET BLOCK WEIGHTS & ITEMS //
+        ///////////////////////////////
+
+        // get block weights
+        $this->weighted_block_weights = Model_Block_Weight::weighted($this->id);
+        // get block items, id determines order
+        $this->ordered_block_items = Model_Block_Item::query()
+            ->related('file')
+            ->related('child_block')
+            ->where('block_id', $this->id)
+            ->order_by('id', 'ASC')
+            ->get();
+
+    }
+
+    protected function query_files($seconds)
     {
 
         // total dateinterval consumed so far
@@ -197,7 +298,7 @@ class Model_Block extends \Orm\Model
         /////////////////////////////
 
         // get weighted search files
-        $weighted_files = $this->weighted_files($block_weights);
+        $weighted_files = $this->weighted_files();
 
         /////////////////////////////////
         // LOOP UNTIL SECONDS EXCEEDED //
@@ -206,6 +307,7 @@ class Model_Block extends \Orm\Model
         // loop until show filled
         while (true)
         {
+
             /////////////////////////////////////
             // VERIFY WE HAVE TIME & FILE SETS //
             /////////////////////////////////////
@@ -219,29 +321,38 @@ class Model_Block extends \Orm\Model
             /////////////////////////
 
             // claim weighted file
-            $claimed_file = $this->claim_weighted_file(
-                $weighted_files,
-                $gathered_files,
-                $musical_key,
-                $energy);
+            $claimed_file = $this->claim_weighted_file($weighted_files);
             // stop if we are unable to find files
             if (!$claimed_file)
                 break;
 
             // update filled seconds with claimed file duration
             $filled_seconds += $claimed_file->duration_seconds();
+
         }
 
         /////////////
         // SUCCESS //
         /////////////
 
-        // update master total
-        $total_filled_seconds += $filled_seconds;
+        // update filled seconds
+        $this->fill_seconds($seconds);
 
     }
 
-    private function weighted_files(&$block_weights)
+    protected function fill_seconds($seconds)
+    {
+        // set initial block to us
+        $block = $this;
+        // update vertically filled seconds
+        while ($block != null)
+        {
+            $block->filled_seconds += $seconds;
+            $block = $block->parent_block;
+        }
+    }
+
+    protected function weighted_files()
     {
 
         //////////////////////////
@@ -259,11 +370,11 @@ class Model_Block extends \Orm\Model
         ////////////////////////////
 
         // see if we have any weights defined
-        if (count($block_weights) == 0)
+        if (count($this->weighted_block_weights) == 0)
             return $weighted_files;
 
         // append to the base query each weight
-        foreach ($block_weights as $block_weight)
+        foreach ($this->weighted_block_weights as $block_weight)
         {
             $weighted_files[$block_weight->weight] = Model_File::search(
                 $this->file_query . "\n" .  $block_weight->file_query,
@@ -275,7 +386,7 @@ class Model_Block extends \Orm\Model
 
     }
 
-    private function claim_weighted_file(&$weighted_files, &$gathered_files, &$musical_key, &$energy)
+    protected function claim_weighted_file(&$weighted_files)
     {
 
         /////////////////////////////////////
@@ -285,7 +396,7 @@ class Model_Block extends \Orm\Model
         // if we have only the base files,
         // else get a random set based on weights
         if (count($weighted_files) == 1)
-            return $this->claim_file($weighted_files[0], $gathered_files, $musical_key, $energy);
+            return $this->claim_file($weighted_files[0]);
 
         /////////////////////////////////
         // GET RANDOM SEARCH FILES SET //
@@ -294,16 +405,16 @@ class Model_Block extends \Orm\Model
         // get random files
         $random_files = $this->random_files($weighted_files);
         // attempt to claim from random files set
-        $file = $this->claim_file($random_files, $gathered_files, $musical_key, $energy);
+        $file = $this->claim_file($random_files);
         // if that failed for whatever reason, claim from base set
         if (!$file)
-            return $this->claim_file($weighted_files[0], $gathered_files, $musical_key, $energy);
+            return $this->claim_file($weighted_files[0]);
         // else return something from the random set
         return $file;
 
     }
 
-    private function random_files(&$weighted_files)
+    protected function random_files(&$weighted_files)
     {
         $random_files = null;
         $cumulative_weights_sum = 0;
@@ -324,76 +435,97 @@ class Model_Block extends \Orm\Model
 
     }
 
-    private function claim_file(&$files, &$gathered_files, &$musical_key, &$energy)
+    protected function claim_file(&$files)
     {
 
-        ///////////////////////////
-        // REMOVE GATHERED FILES //
-        ///////////////////////////
+        ///////////////////////////////
+        // REMOVE PRE-GATHERED FILES //
+        ///////////////////////////////
 
         // update the files array with files not already gathered
-        $files = array_diff_key($files, $gathered_files);
+        $files = array_diff_key($files, $this->top_block->gathered_files);
         // verify we have some still, else we fail
         if (count($files) == 0)
             return null;
-        // now create a duplicate array to track harmonic files
-        $harmonic_files = $files;
+        // now create a duplicate array to track compatible files
+        $compatible_files = $files;
 
         ///////////////////////////////////////////
         // ATTEMPT SET REDUCTION BY HARMONIC KEY //
         ///////////////////////////////////////////
 
         // attempt reduce file set by harmonic key
-        if ($this->harmonic_key == '1')
-            $harmonic_files = $this->harmonic_key_files($harmonic_files, $musical_key);
+        if ($this->current_harmonic_key = '1')
+            $compatible_files = $this->harmonic_key_files($compatible_files);
+
+        /////////////////////////////////////////////
+        // ATTEMPT SET REDUCTION BY HARMONIC GENRE //
+        /////////////////////////////////////////////
+
+        // attempt reduce file set by harmonic key
+        if ($this->current_harmonic_genre = '1')
+            $compatible_files = $this->harmonic_genre_files($compatible_files);
+
+        ///////////////////////////////////////////////////
+        // ATTEMPT SET REDUCTION BY SIMILAR FILE REMOVAL //
+        ///////////////////////////////////////////////////
+
+        // attempt reduce file set by harmonic key
+        if ($this->current_separate_similar = '1')
+            $compatible_files = $this->separate_similar_files($compatible_files);
 
         //////////////////////////////////
         // SORT BY CLOSEST ENERGY LEVEL //
         //////////////////////////////////
 
         // sort files by closest energy
-        if ($this->harmonic_energy == '1')
-            $this->harmonic_energy_files($harmonic_files, $energy);
+        if ($this->current_harmonic_energy = '1')
+            $this->harmonic_energy_files($compatible_files);
 
-        ////////////////
-        // CLAIM FILE //
-        ////////////////
+        /////////////////////////
+        // CLAIM & GATHER FILE //
+        /////////////////////////
 
         // claim file
-        $claimed_file = current($harmonic_files);
+        $claimed_file = current($compatible_files);
         unset($files[$claimed_file->id]);
-
-        // update musical key & energy
-        $musical_key = $claimed_file->musical_key;
-        $energy = $claimed_file->energy;
-
-        // add to gathered files
-        $gathered_files[$claimed_file->id] = $claimed_file;
-
+        // gather claimed file
+        $this->gather_file($claimed_file);
         // success
         return $claimed_file;
 
     }
 
-    private function harmonic_key_files(&$files, &$musical_key)
+    protected function gather_file($file)
     {
+        // update musical key & energy
+        $this->current_key = $file->key;
+        $this->current_energy = $file->energy;
+        $this->current_genre = $file->genre;
+        // update top block gathered files
+        $this->top_block->gathered_files[$file->id] = $file;
+    }
+
+    protected function harmonic_key_files(&$files)
+    {
+
         // if we have no original key, keep files intact
         // this will give us a starting point and initiate the show
-        if (!$musical_key)
+        if (!$this->current_key)
             return $files;
 
         // keep track of harmonic files
         $harmonic_key_files = array();
         // get harmonic musical keys
-        $harmonic_musical_keys = CamelotEasyMixWheel::harmonic_musical_keys($musical_key);
+        $harmonic_keys = CamelotEasyMixWheel::harmonic_keys($this->current_key);
         // loop through search files until we find a file that matches the current musical key
         foreach ($files as $file)
         {
             // loop through each musical key option
-            foreach ($harmonic_musical_keys as $harmonic_musical_key)
+            foreach ($harmonic_keys as $harmonic_key)
             {
                 // if we find a musical key match, we are good
-                if ($file->musical_key == $harmonic_musical_key)
+                if ($file->key == $harmonic_key)
                 {
                     $harmonic_key_files[$file->id] = $file;
                     break;
@@ -406,20 +538,99 @@ class Model_Block extends \Orm\Model
             return $files;
         // success
         return $harmonic_key_files;
+
     }
 
-    private function harmonic_energy_files(&$files, &$energy)
+    protected function harmonic_genre_files(&$files)
     {
+
+        // if we have no original key, keep files intact
+        // this will give us a starting point and initiate the show
+        if (!$this->current_energy)
+            return $files;
+
+        // keep track of harmonic files
+        $harmonic_genre_files = array();
+        // loop through search files until we find a file that matches the current genre
+        foreach ($files as $file)
+        {
+            // if we find a genre match, we are good
+            if ($file->genre == $this->current_energy)
+            {
+                $harmonic_genre_files[$file->id] = $file;
+                break;
+            }
+        }
+
+        // if we have no harmonic files, return original set
+        if (count($harmonic_genre_files) == 0)
+            return $files;
+        // success
+        return $harmonic_genre_files;
+
+    }
+
+    protected function separate_similar_files(&$files)
+    {
+
+        // get the number songs to look backwards for similar files
+        $similar_files_count = (int)Model_Setting::get_value('similar_files_count');
+        // initially, get a slice of the array back the number of files to check for similarity
+        $similar_gathered_files = array_slice($this->top_block->gathered_files, -1 * $similar_files_count, $similar_files_count, true);
+
+        // keep track of different (un-similar) files
+        $separate_similar_files = array();
+        // loop through files making sure we don't have a similar one
+        foreach ($files as $file)
+        {
+
+            // reset the similarity product to 1
+            $similarity_product = 1;
+            // loop through all gathered files
+            foreach ($similar_gathered_files as $similar_gathered_file)
+            {
+
+                // left calculate weighted levenshtein file similarity score
+                $left_artist_similarity = levenshtein($file->artist, $similar_gathered_file->artist, 0, 1, 1);
+                $left_title_similarity = levenshtein($file->title, $similar_gathered_file->title, 0, 1, 1);
+                // right calculate weighted levenshtein file similarity score
+                $right_artist_similarity = levenshtein($similar_gathered_file->artist, $file->artist, 0, 1, 1);
+                $right_title_similarity = levenshtein($similar_gathered_file->title, $file->title, 0, 1, 1);
+                // calculate similarity product (a single zero will mean similarity detected)
+                $similarity_product *=
+                    $left_artist_similarity * $left_title_similarity * $right_artist_similarity * $right_title_similarity;
+
+            }
+
+            // after looking through the last X number of songs for similarity
+            // add it if we didn't encounter a zero product (similar file)
+            if ($similarity_product > 0)
+                $separate_similar_files[$file->id] = $file;
+
+        }
+
+        // if we have no harmonic files, return original set
+        if (count($separate_similar_files) == 0)
+            return $files;
+        // success
+        return $separate_similar_files;
+
+    }
+
+    protected function harmonic_energy_files(&$files)
+    {
+
         // if we have no original energy,
         // do no sorting and keep files as is
-        if (!$energy)
+        if (!$this->current_energy)
             return;
 
-        usort($files, function($a, $b) use ($energy)
+        // sort files by energy closeness
+        usort($files, function($a, $b)
         {
             // calculate the abs value difference between energy levels
-            $a_energy_diff = (int)$a->energy - (int)$energy;
-            $b_energy_diff = (int)$b->energy - (int)$energy;
+            $a_energy_diff = (int)$a->energy - (int)$this->current_energy;
+            $b_energy_diff = (int)$b->energy - (int)$this->current_energy;
             // compare
             if ($a_energy_diff > $b_energy_diff)
                 return 1;
@@ -427,10 +638,12 @@ class Model_Block extends \Orm\Model
                 return -1;
             return 0;
         });
+
     }
 
-    private function items_files($seconds, &$block_items, &$block_weights, &$gathered_files, &$total_filled_seconds, &$musical_key, &$energy)
+    protected function items_files($seconds)
     {
+
         //////////////////
         // CALCULATIONS //
         //////////////////
@@ -438,7 +651,7 @@ class Model_Block extends \Orm\Model
         // hold seconds allocated to duration
         $duration_seconds = 0;
         // calculate the total duration consumed by duration-based items
-        foreach ($block_items as $block_item)
+        foreach ($this->ordered_block_items as $block_item)
         {
             // get block item duration
             if ($block_item->duration != null)
@@ -461,12 +674,13 @@ class Model_Block extends \Orm\Model
         // total seconds used up
         $filled_seconds = 0;
         // loop over each block item
-        foreach ($block_items as $block_item)
+        foreach ($this->ordered_block_items as $block_item)
         {
             //////////////////////////////////
             // VERIFY TIME FOR ANOTHER ITEM //
             //////////////////////////////////
 
+            // see if we are over
             if ($filled_seconds >= $seconds)
                 break;
 
@@ -484,12 +698,9 @@ class Model_Block extends \Orm\Model
                 // FILES MOVE IN //
                 ///////////////////
 
-                // add file to array
-                $gathered_files[] = $block_item->file;
-                // update musical key & energy
-                $musical_key = $block_item->file->musical_key;
-                $energy = $block_item->file->energy;
-                // update filled dateinterval
+                // gather item file
+                $this->gather_file($block_item->file);
+                // update filled date interval
                 $filled_seconds += $block_item->file->duration_seconds();
             }
             else
@@ -518,15 +729,24 @@ class Model_Block extends \Orm\Model
                 // ADD CHILD FILES //
                 /////////////////////
 
-                // keep track of total seconds for child block files from here
-                $block_item_total_filled_seconds = 0;
                 // merge next block files into end of current files array
                 if ($block_item_duration_seconds > 0)
-                    $block_item->child_block->gather_files($block_item_duration_seconds, $gathered_files, $block_item_total_filled_seconds, $musical_key, $energy);
+                    $block_item->child_block->gather_files($block_item_duration_seconds, $this, $this->top_block);
+                // update key and energy to lower block's current
+                $this->current_key = $block_item->child_block->current_key;
+                $this->current_energy = $block_item->child_block->current_energy;
+                $this->current_genre = $block_item->child_block->current_genre;
                 // update total seconds filled for this block
-                $filled_seconds += $block_item_total_filled_seconds;
+                $filled_seconds += $block_item->child_block->filled_seconds;
             }
         }
+
+        //////////////////
+        // FILL SECONDS //
+        //////////////////
+
+        // update total filled seconds
+        $this->fill_seconds($filled_seconds);
 
         ///////////////////////////////
         // ADDITIONAL CRITERIA FILES //
@@ -537,21 +757,7 @@ class Model_Block extends \Orm\Model
         // if, after running through block items, we don't have our duration filled
         // fill the remainder with our criteria files
         if ($remaining_seconds > 0)
-        {
-            // keep track of total seconds for child block files from here
-            $additional_total_filled_seconds = 0;
-            // get more criteria files for this block
-            $this->query_files($remaining_seconds, $block_weights, $gathered_files, $additional_total_filled_seconds, $musical_key, $energy);
-            // update total seconds filled for this block
-            $filled_seconds += $additional_total_filled_seconds;
-        }
-
-        /////////////
-        // SUCCESS //
-        /////////////
-
-        // update total filled seconds
-        $total_filled_seconds += $filled_seconds;
+            $this->query_files($remaining_seconds);
 
     }
 

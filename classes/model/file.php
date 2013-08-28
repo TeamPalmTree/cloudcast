@@ -29,7 +29,7 @@ class Model_File extends \Orm\Model
         'label',
         'language',
         'mood',
-        'musical_key',
+        'key',
         'energy',
         'website',
     );
@@ -117,7 +117,7 @@ class Model_File extends \Orm\Model
         // set mood
         $this->populate_field('mood', $scanned_file, $changed);
         // set musical key
-        $this->populate_field('musical_key', $scanned_file, $changed);
+        $this->populate_field('key', $scanned_file, $changed);
         // set energy
         $this->populate_field('energy', $scanned_file, $changed);
         // set rating

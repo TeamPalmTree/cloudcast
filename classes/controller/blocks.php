@@ -42,6 +42,7 @@ class Controller_Blocks extends Controller_Cloudcast
         $view->files_finder = View::forge('files/viewer');
         $view->header = 'Create Block';
         $view->action = '/blocks/create';
+        $view->options = Model_Block::$options;
         // set view vars
         $this->template->title = 'Create';
         $this->template->content = $view;
@@ -78,6 +79,7 @@ class Controller_Blocks extends Controller_Cloudcast
         $view->files_finder = View::forge('files/viewer');
         $view->header = 'Edit ' . $block->title;
         $view->action = '/blocks/edit/' . $block->id;
+        $view->options = Model_Block::$options;
         $view->set('block', $block, false);
         // set view vars
         $this->template->title = 'Edit';

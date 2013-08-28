@@ -11,8 +11,6 @@ class Controller_Engine extends Controller_Cloudcast {
 
         // create new status model
         $status = new Model_Status();
-        // set off air
-        $status->on_air = false;
         // get server time
         $server_datetime = Helper::server_datetime();
         // get generated time

@@ -234,6 +234,8 @@ class Controller_Schedules extends Controller_Cloudcast
             'start_on' => $show_start_on_datetime_string,
             'end_at' => $show_end_at_datetime_string,
             'show_id' => $show->id,
+            'ups' => '0',
+            'downs' => '0',
         ));
 
         // save
@@ -326,6 +328,8 @@ class Controller_Schedules extends Controller_Cloudcast
                 'start_on' => $schedule_start_on_datetime_string,
                 'end_at' => $schedule_end_at_datetime_string,
                 'show_id' => $show->id,
+                'ups' => '0',
+                'downs' => '0',
             ));
 
             // save

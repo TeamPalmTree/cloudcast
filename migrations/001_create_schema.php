@@ -34,7 +34,7 @@ class Create_Schema
                 'label' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'language' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'mood' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
-                'musical_key' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'key' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'energy' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'website' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci');
@@ -46,10 +46,15 @@ class Create_Schema
 
         \DBUtil::create_table('blocks', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
-                'harmonic_key' => array('type' => 'boolean', 'default' => '1'),
-                'harmonic_energy' => array('type' => 'boolean', 'default' => '1'),
+                'harmonic_key' => array('constraint' => 1, 'type' => 'tinyint', 'default' => '1'),
+                'harmonic_energy' => array('constraint' => 1, 'type' => 'tinyint', 'default' => '1'),
+                'harmonic_genre' => array('constraint' => 1, 'type' => 'tinyint', 'default' => '1'),
+                'separate_similar' => array('constraint' => 1, 'type' => 'tinyint', 'default' => '1'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'description' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'initial_key' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'initial_energy' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'initial_genre' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'file_query' => array('type' => 'text'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci');
 
@@ -140,6 +145,8 @@ class Create_Schema
         \DBUtil::create_table('shows', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
                 'start_on' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
+                'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'duration' => array('constraint' => 255, 'type' => 'varchar'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'description' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
@@ -211,6 +218,8 @@ class Create_Schema
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
                 'start_on' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
                 'end_at' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
+                'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'show_id' => array('constraint' => 11, 'type' => 'int'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',
             array(
@@ -374,14 +383,6 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
-                'name' => 'schedule_out_days',
-                'type' => 'text',
-                'value' => '2',
-                'category' => 'general'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
                 'name' => 'files_directory',
                 'type' => 'text',
                 'value' => "F:\\DropFolder\\GDM\\",
@@ -390,10 +391,26 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
+                'name' => 'schedule_out_days',
+                'type' => 'text',
+                'value' => '2',
+                'category' => 'scheduling'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
                 'name' => 'popularity_days',
                 'type' => 'text',
                 'value' => "7",
-                'category' => 'general'
+                'category' => 'scheduling'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
+                'name' => 'similar_files_count',
+                'type' => 'text',
+                'value' => "10",
+                'category' => 'scheduling'
             ))->execute();
 
         \DB::insert('settings')

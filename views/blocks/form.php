@@ -37,13 +37,69 @@
         <div class="control-group">
             <?php echo Form::label('Harmonic Key', 'harmonic_key', array('class' => 'control-label')); ?>
             <div class="controls">
-                <input name="harmonic_key" type="checkbox" data-bind="checked: harmonic_key" />
+                <?php foreach ($options as $option_key => $option_value): ?>
+                    <label class="radio">
+                        <input name="harmonic_key" type="radio" value="<?php echo $option_key; ?>" data-bind="checked: harmonic_key" />
+                        <?php echo $option_value; ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div data-bind="visible: harmonic_key() == '1'">
+            <div class="control-group">
+                <?php echo Form::label('Initial Key', 'initial_key', array('class' => 'control-label')); ?>
+                <div class="controls">
+                    <input name="description" type="text" data-bind="value: initial_key" placeholder="Initial Key" />
+                </div>
             </div>
         </div>
         <div class="control-group">
             <?php echo Form::label('Harmonic Energy', 'harmonic_energy', array('class' => 'control-label')); ?>
             <div class="controls">
-                <input name="harmonic_energy" type="checkbox" data-bind="checked: harmonic_energy" />
+                <?php foreach ($options as $option_key => $option_value): ?>
+                    <label class="radio">
+                        <input name="harmonic_energy" type="radio" value="<?php echo $option_key; ?>" data-bind="checked: harmonic_energy" />
+                        <?php echo $option_value; ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div data-bind="visible: harmonic_energy() == '1'">
+            <div class="control-group">
+                <?php echo Form::label('Initial Energy', 'initial_energy', array('class' => 'control-label')); ?>
+                <div class="controls">
+                    <input name="description" type="text" data-bind="value: initial_energy" placeholder="Initial Energy" />
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <?php echo Form::label('Harmonic Genre', 'harmonic_genre', array('class' => 'control-label')); ?>
+            <div class="controls">
+                <?php foreach ($options as $option_key => $option_value): ?>
+                    <label class="radio">
+                        <input name="harmonic_genre" type="radio" value="<?php echo $option_key; ?>" data-bind="checked: harmonic_genre" />
+                        <?php echo $option_value; ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div data-bind="visible: harmonic_genre() == '1'">
+            <div class="control-group">
+                <?php echo Form::label('Initial Genre', 'initial_genre', array('class' => 'control-label')); ?>
+                <div class="controls">
+                    <input name="description" type="text" data-bind="value: initial_genre" placeholder="Initial Genre" />
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <?php echo Form::label('Separate Similar', 'separate_similar', array('class' => 'control-label')); ?>
+            <div class="controls">
+                <?php foreach ($options as $option_key => $option_value): ?>
+                    <label class="radio">
+                        <input name="separate_similar" type="radio" value="<?php echo $option_key; ?>" data-bind="checked: separate_similar" />
+                        <?php echo $option_value; ?>
+                    </label>
+                <?php endforeach; ?>
             </div>
         </div>
         <div class="control-group">

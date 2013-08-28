@@ -7,6 +7,8 @@ class Model_Schedule extends \Orm\Model
         'id',
         'start_on',
         'end_at',
+        'ups',
+        'downs',
         'show_id',
     );
 

@@ -39,7 +39,7 @@
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'bit_rate' }">Bit Rate</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'sample_rate' }">Sample Rate</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'duration' }">Duration</a></th>
-                    <th><a href="#" data-bind="orderable: { collection: 'files', field: 'musical_key' }">Musical Key</a></th>
+                    <th><a href="#" data-bind="orderable: { collection: 'files', field: 'key' }">Key</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'energy' }">Energy</a></th>
                     <th><a href="#" data-bind="orderable: { collection: 'files', field: 'website' }">Website</a></th>
                     <th><a href="#">Name</a></th>
@@ -74,7 +74,7 @@
                     <td data-bind="text: bit_rate"></td>
                     <td data-bind="text: sample_rate"></td>
                     <td data-bind="text: duration"></td>
-                    <td data-bind="text: musical_key"></td>
+                    <td data-bind="text: key"></td>
                     <td data-bind="text: energy"></td>
                     <td data-bind="text: website"></td>
                     <td>

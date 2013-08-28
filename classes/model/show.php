@@ -6,6 +6,8 @@ class Model_Show extends \Orm\Model
     protected static $_properties = array(
         'id',
         'start_on',
+        'ups',
+        'downs',
         'duration',
         'title',
         'description',
@@ -284,16 +286,8 @@ class Model_Show extends \Orm\Model
         // GET FILES FROM BLOCK FOR DURATION //
         ///////////////////////////////////////
 
-        // set up initial parameters
-        $seconds = $this->duration_seconds();
-        $gathered_files = array();
-        $total_filled_seconds = 0;
-        $musical_key = null;
-        $energy = null;
         // forward to gathering loop (and so the crazy begins)
-        $this->block->gather_files($seconds, $gathered_files, $total_filled_seconds, $musical_key, $energy);
-        // success
-        return $gathered_files;
+        return $this->block->files($this->duration_seconds(), null, $this->block);
 
     }
 

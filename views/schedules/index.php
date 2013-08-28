@@ -47,7 +47,7 @@
                     </div>
                     <div class="cloudcast_section">
                         <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: file().duration"></span></span>
-                        <span class="label label-info"><i class="icon-music"></i> <span data-bind="text: file().genre"></span> (<span data-bind="text: file().musical_key"></span>-<span data-bind="text: file().energy"></span>)</span>
+                        <span class="label label-info"><i class="icon-music"></i> <span data-bind="text: file().genre"></span> (<span data-bind="text: file().key"></span>-<span data-bind="text: file().energy"></span>)</span>
                     </div>
                 </div>
             </div>
