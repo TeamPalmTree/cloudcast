@@ -3,6 +3,20 @@
 class Model_Block extends \Orm\Model
 {
 
+    protected $parent_block;
+    protected $top_block;
+    protected $gathered_files = array();
+    protected $filled_seconds = 0;
+    protected $current_harmonic_key;
+    protected $current_harmonic_energy;
+    protected $current_harmonic_genre;
+    protected $current_separate_similar;
+    protected $current_key;
+    protected $current_energy;
+    protected $current_genre;
+    protected $weighted_block_weights;
+    protected $ordered_block_items;
+
     protected static $_properties = array(
         'id',
         'harmonic_key',
@@ -33,20 +47,6 @@ class Model_Block extends \Orm\Model
         '1' => 'Yes',
         '2' => 'Inherit',
     );
-
-    protected $parent_block;
-    protected $top_block;
-    protected $gathered_files = array();
-    protected $filled_seconds = 0;
-    protected $current_harmonic_key;
-    protected $current_harmonic_energy;
-    protected $current_harmonic_genre;
-    protected $current_separate_similar;
-    protected $current_key;
-    protected $current_energy;
-    protected $current_genre;
-    protected $weighted_block_weights;
-    protected $ordered_block_items;
 
     public static function all($except_id = null)
     {
@@ -450,36 +450,36 @@ class Model_Block extends \Orm\Model
         // now create a duplicate array to track compatible files
         $compatible_files = $files;
 
-        ///////////////////////////////////////////
-        // ATTEMPT SET REDUCTION BY HARMONIC KEY //
-        ///////////////////////////////////////////
+        ///////////////////////////////////////////////////
+        // ATTEMPT SET REDUCTION BY SIMILAR FILE REMOVAL //
+        ///////////////////////////////////////////////////
 
         // attempt reduce file set by harmonic key
-        if ($this->current_harmonic_key = '1')
-            $compatible_files = $this->harmonic_key_files($compatible_files);
+        if ($this->current_separate_similar == '1')
+            $compatible_files = $this->separate_similar_files($compatible_files);
 
         /////////////////////////////////////////////
         // ATTEMPT SET REDUCTION BY HARMONIC GENRE //
         /////////////////////////////////////////////
 
         // attempt reduce file set by harmonic key
-        if ($this->current_harmonic_genre = '1')
+        if ($this->current_harmonic_genre == '1')
             $compatible_files = $this->harmonic_genre_files($compatible_files);
 
-        ///////////////////////////////////////////////////
-        // ATTEMPT SET REDUCTION BY SIMILAR FILE REMOVAL //
-        ///////////////////////////////////////////////////
+        ///////////////////////////////////////////
+        // ATTEMPT SET REDUCTION BY HARMONIC KEY //
+        ///////////////////////////////////////////
 
         // attempt reduce file set by harmonic key
-        if ($this->current_separate_similar = '1')
-            $compatible_files = $this->separate_similar_files($compatible_files);
+        if ($this->current_harmonic_key == '1')
+            $compatible_files = $this->harmonic_key_files($compatible_files);
 
         //////////////////////////////////
         // SORT BY CLOSEST ENERGY LEVEL //
         //////////////////////////////////
 
         // sort files by closest energy
-        if ($this->current_harmonic_energy = '1')
+        if ($this->current_harmonic_energy == '1')
             $this->harmonic_energy_files($compatible_files);
 
         /////////////////////////
@@ -546,7 +546,7 @@ class Model_Block extends \Orm\Model
 
         // if we have no original key, keep files intact
         // this will give us a starting point and initiate the show
-        if (!$this->current_energy)
+        if (!$this->current_genre)
             return $files;
 
         // keep track of harmonic files
@@ -555,11 +555,8 @@ class Model_Block extends \Orm\Model
         foreach ($files as $file)
         {
             // if we find a genre match, we are good
-            if ($file->genre == $this->current_energy)
-            {
+            if ($file->genre == $this->current_genre)
                 $harmonic_genre_files[$file->id] = $file;
-                break;
-            }
         }
 
         // if we have no harmonic files, return original set
@@ -583,28 +580,43 @@ class Model_Block extends \Orm\Model
         // loop through files making sure we don't have a similar one
         foreach ($files as $file)
         {
+            // first split out the artists
+            $file_scraped_artists = $file->scraped_artists();
+            // now scrape the title
+            $file_scraped_title = $file->scraped_title();
 
-            // reset the similarity product to 1
-            $similarity_product = 1;
+            // reset similar found
+            $similar_found = false;
             // loop through all gathered files
             foreach ($similar_gathered_files as $similar_gathered_file)
             {
 
-                // left calculate weighted levenshtein file similarity score
-                $left_artist_similarity = levenshtein($file->artist, $similar_gathered_file->artist, 0, 1, 1);
-                $left_title_similarity = levenshtein($file->title, $similar_gathered_file->title, 0, 1, 1);
-                // right calculate weighted levenshtein file similarity score
-                $right_artist_similarity = levenshtein($similar_gathered_file->artist, $file->artist, 0, 1, 1);
-                $right_title_similarity = levenshtein($similar_gathered_file->title, $file->title, 0, 1, 1);
-                // calculate similarity product (a single zero will mean similarity detected)
-                $similarity_product *=
-                    $left_artist_similarity * $left_title_similarity * $right_artist_similarity * $right_title_similarity;
+                // first split out the artists
+                $similar_gathered_file_scraped_artists = $similar_gathered_file->scraped_artists();
+                // now scrape the title
+                $similar_gathered_file_scraped_title = $similar_gathered_file->scraped_title();
+
+                // compute intersected artists
+                $intersected_artists = array_intersect($file_scraped_artists, $similar_gathered_file_scraped_artists);
+                // compare artists
+                if (count($intersected_artists) > 0)
+                {
+                    $similar_found = true;
+                    break;
+                }
+
+                // compare titles
+                if ($file_scraped_title == $similar_gathered_file_scraped_title)
+                {
+                    $similar_found = true;
+                    break;
+                }
 
             }
 
             // after looking through the last X number of songs for similarity
-            // add it if we didn't encounter a zero product (similar file)
-            if ($similarity_product > 0)
+            // make sure no similar found
+            if (!$similar_found)
                 $separate_similar_files[$file->id] = $file;
 
         }
@@ -731,7 +743,7 @@ class Model_Block extends \Orm\Model
 
                 // merge next block files into end of current files array
                 if ($block_item_duration_seconds > 0)
-                    $block_item->child_block->gather_files($block_item_duration_seconds, $this, $this->top_block);
+                    $block_item->child_block->files($block_item_duration_seconds, $this, $this->top_block);
                 // update key and energy to lower block's current
                 $this->current_key = $block_item->child_block->current_key;
                 $this->current_energy = $block_item->child_block->current_energy;

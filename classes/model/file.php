@@ -3,6 +3,9 @@
 class Model_File extends \Orm\Model
 {
 
+    protected $scraped_artists;
+    protected $scraped_title;
+
     protected static $_properties = array(
         'id',
         'found_on',
@@ -47,9 +50,57 @@ class Model_File extends \Orm\Model
         'Intro',
     );
 
+    protected static $artist_delimiters = array(
+        'feat',
+        'feat\.',
+        'vs',
+        'vs\.',
+        'versus',
+        '\&',
+        '\,',
+    );
+
+    protected static $artist_splitter;
+    protected static $title_scraper = '/([\s]*\(.*\)[\s]*)|([\s]*\[.*\][\s]*)/';
+
+    protected static function artist_splitter()
+    {
+
+        // see if the splitter is already set
+        if (self::$artist_splitter)
+            return self::$artist_splitter;
+
+        $artist_splitters = array();
+        // create the splitter
+        foreach (self::$artist_delimiters as $artist_delimiter)
+            $artist_splitters[] = '([\s]+' . $artist_delimiter . '[\s]+)';
+        // set and success
+        self::$artist_splitter = '/' . implode('|', $artist_splitters) . '/';
+        return self::$artist_splitter;
+
+    }
+
     public function duration_seconds()
     {
         return Helper::duration_seconds($this->duration);
+    }
+
+    public function scraped_artists()
+    {
+        // see if it is already set
+        if ($this->scraped_artists)
+            return $this->scraped_artists;
+        $this->scraped_artists = preg_split(self::artist_splitter(), strtolower($this->artist));
+        return $this->scraped_artists;
+    }
+
+    public function scraped_title()
+    {
+        // see if it is already set
+        if ($this->scraped_title)
+            return $this->scraped_title;
+        $this->scraped_title = preg_replace(self::$title_scraper, '', strtolower($this->title));
+        return $this->scraped_title;
     }
 
     public function populate($scanned_file)
