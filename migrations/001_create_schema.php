@@ -505,7 +505,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'show_input_port',
                 'type' => 'text',
-                'value' => '10000',
+                'value' => '12000',
                 'category' => 'inputs'
             ))->execute();
 
@@ -513,7 +513,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'talkover_input_port',
                 'type' => 'text',
-                'value' => '11000',
+                'value' => '12001',
                 'category' => 'inputs'
             ))->execute();
 
@@ -521,7 +521,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'master_input_port',
                 'type' => 'text',
-                'value' => '12000',
+                'value' => '12002',
                 'category' => 'inputs'
             ))->execute();
 
