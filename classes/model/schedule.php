@@ -7,6 +7,7 @@ class Model_Schedule extends \Orm\Model
         'id',
         'start_on',
         'end_at',
+        'available',
         'ups',
         'downs',
         'show_id',
@@ -30,6 +31,7 @@ class Model_Schedule extends \Orm\Model
             ->related('show')
             ->related('schedule_files')
             ->related('schedule_files.file')
+            ->where('available', '1')
             ->where('end_at', '>', $server_datetime_string)
             ->order_by(array(
                 'start_on' => 'asc',
@@ -96,6 +98,7 @@ class Model_Schedule extends \Orm\Model
         $current_schedule = Model_Schedule::query()
             ->related('show')
             ->related('show.users')
+            ->where('available', '1')
             ->where('start_on', '<=', $server_datetime_string)
             ->where('end_at', '>', $server_datetime_string)
             ->get_one();
@@ -114,6 +117,7 @@ class Model_Schedule extends \Orm\Model
         // the lowest id that has been played
         $next_schedules = Model_Schedule::query()
             ->related('show')
+            ->where('available', '1')
             ->where('start_on', '>', $server_datetime_string)
             ->order_by('start_on', 'asc')
             ->rows_limit(1)

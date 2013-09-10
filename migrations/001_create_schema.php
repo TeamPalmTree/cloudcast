@@ -218,6 +218,7 @@ class Create_Schema
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
                 'start_on' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
                 'end_at' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
+                'available' => array('type' => 'boolean', 'default' => '1'),
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'show_id' => array('constraint' => 11, 'type' => 'int'),

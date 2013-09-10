@@ -36,6 +36,7 @@ class Model_Schedule_File extends \Orm\Model
             ->related('schedule.show')
             ->related('file')
             ->where('played_on', '!=', null)
+            ->where('schedule.available', '1')
             ->order_by('played_on', 'desc')
             ->rows_limit(1)
             ->get();
@@ -100,6 +101,7 @@ class Model_Schedule_File extends \Orm\Model
             ->related('schedule.show')
             ->related('file')
             ->where('played_on', null)
+            ->where('schedule.available', '1')
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
             ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
             ->order_by('id', 'asc')

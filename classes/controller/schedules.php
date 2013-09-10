@@ -26,8 +26,13 @@ class Controller_Schedules extends Controller_Cloudcast
 
     public function get_delete($id)
     {
-        if ($schedule = Model_Schedule::find($id))
-            $schedule->delete();
+        // find the schedule
+        $schedule = Model_Schedule::find($id);
+        // disable the schedule
+        $schedule->available = '0';
+        // save
+        $schedule->save();
+        // success
         return $this->response('SUCCESS');
     }
 
@@ -236,6 +241,7 @@ class Controller_Schedules extends Controller_Cloudcast
             'show_id' => $show->id,
             'ups' => '0',
             'downs' => '0',
+            'available' => '1'
         ));
 
         // save
@@ -330,6 +336,7 @@ class Controller_Schedules extends Controller_Cloudcast
                 'show_id' => $show->id,
                 'ups' => '0',
                 'downs' => '0',
+                'available' => '1'
             ));
 
             // save
@@ -342,6 +349,7 @@ class Controller_Schedules extends Controller_Cloudcast
     {
 
         return Model_Schedule::query()
+            ->where('available', '1')
             ->or_where_open()
             ->where('start_on', '<=', $start_on_datetime_string)
             ->where('end_at', '>', $start_on_datetime_string)
@@ -367,6 +375,7 @@ class Controller_Schedules extends Controller_Cloudcast
             ->related('show')
             ->related('show.block')
             ->related('schedule_files')
+            ->where('available', '1')
             ->where('end_at', '>', $server_datetime_string)
             ->get();
 

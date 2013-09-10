@@ -321,6 +321,8 @@ class Model_File extends \Orm\Model
             $delimiter = '=';
         elseif (strpos($search_string_and_or, '~') !== false)
             $delimiter = '~';
+        elseif (strpos($search_string_and_or, '!~') !== false)
+            $delimiter = '!~';
 
         ////////////////////////
         // GET COLUMN & VALUE //
@@ -369,6 +371,15 @@ class Model_File extends \Orm\Model
                 throw new Exception('Invalid Like Value');
             // set delimiter/value
             $delimiter = 'LIKE';
+            $value = '%' . $value . '%';
+        }
+        else if ($delimiter == '!~')
+        {
+            // verify at least one char
+            if (strlen($value) == 0)
+                throw new Exception('Invalid Not Like Value');
+            // set delimiter/value
+            $delimiter = 'NOT LIKE';
             $value = '%' . $value . '%';
         }
 
