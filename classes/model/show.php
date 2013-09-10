@@ -202,6 +202,13 @@ class Model_Show extends \Orm\Model
         $this->title = Input::post('title');
         $this->description = Input::post('description');
 
+        // set ups/downs
+        if (!$this->ups or !$this->downs)
+        {
+            $this->ups = 0;
+            $this->downs = 0;
+        }
+
         // add block
         if (Input::post('blocked'))
         {

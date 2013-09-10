@@ -350,14 +350,16 @@ class Controller_Schedules extends Controller_Cloudcast
 
         return Model_Schedule::query()
             ->where('available', '1')
-            ->or_where_open()
-            ->where('start_on', '<=', $start_on_datetime_string)
-            ->where('end_at', '>', $start_on_datetime_string)
-            ->or_where_close()
-            ->or_where_open()
-            ->where('start_on', '<', $end_at_datetime_string)
-            ->where('end_at', '>=', $end_at_datetime_string)
-            ->or_where_close()
+            ->and_where_open()
+                ->or_where_open()
+                    ->where('start_on', '<=', $start_on_datetime_string)
+                    ->where('end_at', '>', $start_on_datetime_string)
+                ->or_where_close()
+                ->or_where_open()
+                    ->where('start_on', '<', $end_at_datetime_string)
+                    ->where('end_at', '>=', $end_at_datetime_string)
+                ->or_where_close()
+            ->and_where_close()
             ->count() > 0;
 
     }

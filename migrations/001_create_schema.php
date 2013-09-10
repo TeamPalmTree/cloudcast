@@ -338,28 +338,28 @@ class Create_Schema
             ->set(array(
                 'name' => 'schedule',
                 'status' => '0',
-                'enabled' => '0',
+                'enabled' => '1',
             ))->execute();
 
         \DB::insert('inputs')
             ->set(array(
                 'name' => 'show',
                 'status' => '0',
-                'enabled' => '0',
+                'enabled' => '1',
             ))->execute();
 
         \DB::insert('inputs')
             ->set(array(
                 'name' => 'talkover',
                 'status' => '0',
-                'enabled' => '0',
+                'enabled' => '1',
             ))->execute();
 
         \DB::insert('inputs')
             ->set(array(
                 'name' => 'master',
                 'status' => '0',
-                'enabled' => '0',
+                'enabled' => '1',
             ))->execute();
 
         // SETTINGS

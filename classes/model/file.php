@@ -48,6 +48,7 @@ class Model_File extends \Orm\Model
         'Jingle',
         'Bumper',
         'Intro',
+        'Set',
     );
 
     protected static $artist_delimiters = array(
@@ -194,8 +195,7 @@ class Model_File extends \Orm\Model
 
     public static function search(
         $search_string,
-        $restrict_genres,
-        $restrict_available,
+        $restrict,
         $limit,
         $randomize,
         $index
@@ -206,18 +206,23 @@ class Model_File extends \Orm\Model
         // GET SEARCH QUERY //
         //////////////////////
 
-        $search_query = self::search_query($search_string);
+        // get a copy of the restricted genres, lower cased
+        $restricted_genres = array_map('strtolower', self::$restricted_genres);
+        // run the query; any use of a restricted genre will remove its restriction
+        $search_query = self::search_query($search_string, $restricted_genres);
 
-        //////////////////
-        // RESTRICTIONS //
-        //////////////////
+        //////////////
+        // RESTRICT //
+        //////////////
 
-        // see if we remove some genres from the search
-        if ($restrict_genres)
-            $search_query->where('genre', 'not in', self::$restricted_genres);
-        // restrict to available
-        if ($restrict_available)
+        // remove certain genres and unavailable files
+        if ($restrict)
+        {
+            // remove some genres from the search
+            $search_query->where('genre', 'not in', $restricted_genres);
+            // restrict to available
             $search_query->where('available', true);
+        }
 
         ///////////////////////
         // RANDOMIZE & LIMIT //
@@ -244,7 +249,9 @@ class Model_File extends \Orm\Model
 
     }
 
-    protected static function search_query(&$search_string)
+    protected static function search_query(
+        &$search_string,
+        &$restricted_genres)
     {
 
         try
@@ -263,7 +270,7 @@ class Model_File extends \Orm\Model
                 if ($search_string_and == '')
                     continue;
                 // process and
-                self::search_query_and($search_string_and, $search_query, $server_datetime);
+                self::search_query_and($search_string_and, $restricted_genres, $search_query, $server_datetime);
             }
 
             // success
@@ -277,7 +284,11 @@ class Model_File extends \Orm\Model
 
     }
 
-    protected static function search_query_and(&$search_string_and, $search_query, $server_datetime)
+    protected static function search_query_and(
+        &$search_string_and,
+        &$restricted_genres,
+        $search_query,
+        $server_datetime)
     {
 
         // start and condition
@@ -291,7 +302,7 @@ class Model_File extends \Orm\Model
             if ($search_string_and_or == '')
                 continue;
             // process or
-            self::search_query_and_or($search_string_and_or, $search_query, $server_datetime);
+            self::search_query_and_or($search_string_and_or, $restricted_genres, $search_query, $server_datetime);
         }
 
         // close and condition
@@ -299,7 +310,11 @@ class Model_File extends \Orm\Model
 
     }
 
-    protected static function search_query_and_or(&$search_string_and_or, $search_query, $server_datetime)
+    protected static function search_query_and_or(
+        &$search_string_and_or,
+        &$restricted_genres,
+        $search_query,
+        $server_datetime)
     {
 
         ////////////////////////
@@ -334,22 +349,34 @@ class Model_File extends \Orm\Model
         if (count($search_string_and_or_parts) != 2)
             throw new Exception('Invalid Where Clause');
 
-        // get column/value
-        $column = trim($search_string_and_or_parts[0]);
-        $value = trim($search_string_and_or_parts[1]);
+        // get column/value, trimmed and lowercase
+        $column = strtolower(trim($search_string_and_or_parts[0]));
+        $value = strtolower(trim($search_string_and_or_parts[1]));
+
+        /////////////////////////////////////
+        // REMOVE RESTRICTED GENRE IF USED //
+        /////////////////////////////////////
+
+        // we must query against genre
+        if ($column == 'genre')
+        {
+            // then check for the restricted genre, and remove it if it exists
+            if (($restricted_genres_key = array_search(strtolower($value), $restricted_genres)) !== false)
+                unset($restricted_genres[$restricted_genres_key]);
+        }
 
         //////////////////////
         // COLUMN FUNCTIONS //
         //////////////////////
 
         // listener rating (0-5)
-        if (stripos($column, 'listener_rating') === 0)
+        if (strpos($column, 'listener_rating') === 0)
             self::search_query_listener_rating($column);
         // popularity rating (0-5)
-        else if (stripos($column, 'popularity_rating') === 0)
+        else if (strpos($column, 'popularity_rating') === 0)
             self::search_query_listener_rating($column, $server_datetime);
         // total ups + downs = votes
-        else if (stripos($column, 'votes') === 0)
+        else if (strpos($column, 'votes') === 0)
             self::search_query_votes($column);
 
         /////////////////////
@@ -357,7 +384,7 @@ class Model_File extends \Orm\Model
         /////////////////////
 
         // date ago
-        if (stripos($value, 'date_ago') === 0)
+        if (strpos($value, 'date_ago') === 0)
             self::search_query_date_ago($value, $server_datetime);
 
         ///////////////////
@@ -418,7 +445,7 @@ class Model_File extends \Orm\Model
         // grab innards
         $date_ago_string = substr($value, 9, strlen($value) - 10);
         // create date interval
-        $dateinterval = new DateInterval('P' . $date_ago_string);
+        $dateinterval = new DateInterval('P' . strtoupper($date_ago_string));
         // clone server datetime
         $datetime = clone $server_datetime;
         // subtract years

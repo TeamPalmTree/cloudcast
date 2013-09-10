@@ -11,7 +11,6 @@
         </div>
     </div>
     <div class="cloudcast_content-one">
-
         <table class="table">
             <thead>
                 <tr>
@@ -83,6 +82,8 @@
                 </tr>
             </tbody>
         </table>
+
+        <h4>Total Files: <?php echo $files_count; ?></h4>
 
     </div>
 </div>

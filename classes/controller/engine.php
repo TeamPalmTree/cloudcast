@@ -425,4 +425,9 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
+    public function get_vote()
+    {
+
+    }
+
 }

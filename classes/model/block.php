@@ -360,8 +360,7 @@ class Model_Block extends \Orm\Model
         //////////////////////////
 
         // get base query files
-        $base_files = Model_File::search(
-            $this->file_query, true, true, null, true, true);
+        $base_files = Model_File::search($this->file_query, true, null, true, true);
         // start the weighted sets with base files
         $weighted_files = array($base_files);
 
@@ -378,7 +377,7 @@ class Model_Block extends \Orm\Model
         {
             $weighted_files[$block_weight->weight] = Model_File::search(
                 $this->file_query . "\n" .  $block_weight->file_query,
-                true, true, null, true, true);
+                true, null, true, true);
         }
 
         // success

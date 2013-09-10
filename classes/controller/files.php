@@ -14,6 +14,8 @@ class Controller_Files extends Controller_Cloudcast
 
         // create view
         $view = View::forge('files/index');
+        // set files total count
+        $view->files_count = Model_File::query()->count();
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;
@@ -58,8 +60,9 @@ class Controller_Files extends Controller_Cloudcast
 
         // get the query
         $query = Input::get('query');
+        $restrict = (Input::get('restrict') == 'true');
         // search with 100 limit while randomizing and restricting genres
-        $files = Model_File::search($query, false, false, 100, false, false);
+        $files = Model_File::search($query, $restrict, 100, false, false);
         // success
         return $this->response($files);
 
