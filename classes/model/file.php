@@ -334,10 +334,10 @@ class Model_File extends \Orm\Model
             $delimiter = '!=';
         elseif (strpos($search_string_and_or, '=') !== false)
             $delimiter = '=';
-        elseif (strpos($search_string_and_or, '~') !== false)
-            $delimiter = '~';
         elseif (strpos($search_string_and_or, '!~') !== false)
             $delimiter = '!~';
+        elseif (strpos($search_string_and_or, '~') !== false)
+            $delimiter = '~';
 
         ////////////////////////
         // GET COLUMN & VALUE //
