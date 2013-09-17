@@ -17,6 +17,7 @@ class Create_Schema
                 'track' => array('type' => 'smallint', 'null' => true),
                 'BPM' => array('type' => 'smallint', 'null' => true),
                 'rating' => array('type' => 'smallint', 'null' => true),
+                'relevance' => array('type' => 'smallint', 'null' => true),
                 'bit_rate' => array('constraint' => 11, 'type' => 'int'),
                 'sample_rate' => array('constraint' => 11, 'type' => 'int'),
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
@@ -56,7 +57,19 @@ class Create_Schema
                 'initial_energy' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'initial_genre' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'file_query' => array('type' => 'text'),
-            ), array('id'), false, 'InnoDB', 'utf8_general_ci');
+                'backup_block_id' => array('constraint' => 11, 'type' => 'int', 'null' => true),
+            ), array('id'), false, 'InnoDB', 'utf8_general_ci',
+            array(
+                array(
+                    'key' => 'backup_block_id',
+                    'reference' => array(
+                        'table' => 'blocks',
+                        'column' => 'id',
+                    ),
+                    'on_delete' => 'CASCADE',
+                ),
+            )
+        );
 
         \DBUtil::create_table('block_weights', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
@@ -150,6 +163,9 @@ class Create_Schema
                 'duration' => array('constraint' => 255, 'type' => 'varchar'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'description' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'sweepers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'jingles_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'bumpers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'block_id' => array('constraint' => 11, 'type' => 'int', 'null' => true),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',
             array(

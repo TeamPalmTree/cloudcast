@@ -22,34 +22,17 @@ class Controller_Files extends Controller_Cloudcast
 
     }
 
-    public function get_activate()
+    public function post_deactivate()
     {
 
-        // get id to search for
-        $id = Input::get('id');
-        // get the file
-        $file = Model_File::find($id);
-        // verify the file is physically there
-        if (!is_file($file->name))
-            return $this->response('FILE_NOT_FOUND');
-        // set file available and persist
-        $file->available = '1';
-        $file->save();
-        // success
-        return $this->response('SUCCESS');
-
-    }
-
-    public function get_deactivate()
-    {
-
-        // get id to search for
-        $id = Input::get('id');
-        // get the file
-        $file = Model_File::find($id);
-        // set file available and persist
-        $file->available = '0';
-        $file->save();
+        // get ids to search for
+        $ids = Input::post('ids');
+        // update available status for files
+        $query = DB::update('files')
+            ->set(array('available' => '0'))
+            ->where('id', 'in', $ids);
+        // save
+        $query->execute();
         // success
         return $this->response('SUCCESS');
 
@@ -155,12 +138,13 @@ class Controller_Files extends Controller_Cloudcast
 
     }
 
-    public function get_genre($genre)
+    protected function promos($genre)
     {
 
-        // query files
+        // query available files
         $files = Model_File::query()
             ->where('genre', $genre)
+            ->where('available', '1')
             ->get();
 
         $file_names = array();
@@ -177,6 +161,21 @@ class Controller_Files extends Controller_Cloudcast
         // send response
         return $this->response($file_names);
 
+    }
+
+    public function get_sweepers()
+    {
+        return $this->promos('Sweeper');
+    }
+
+    public function get_jingles()
+    {
+        return $this->promos('Jingle');
+    }
+
+    public function get_bumpers()
+    {
+        return $this->promos('Bumper');
     }
 
 }

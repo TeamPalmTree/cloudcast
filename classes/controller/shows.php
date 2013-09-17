@@ -53,6 +53,7 @@ class Controller_Shows extends Controller_Cloudcast
         $view = View::forge('shows/form');
         $view->header = 'Create Show';
         $view->action = '/shows/create';
+        $view->promos_album = Model_Setting::get_value('station_name');
         // set view vars
         $this->template->title = 'Create';
         $this->template->content = $view;
@@ -92,12 +93,6 @@ class Controller_Shows extends Controller_Cloudcast
         if ($show = Model_Show::find($id))
             $show->delete();
         Response::redirect('/shows');
-    }
-
-    public function action_schedule()
-    {
-        $this->template->title = 'Shows &raquo; Edit';
-        $this->template->content = View::forge('shows/schedule');
     }
 
 }

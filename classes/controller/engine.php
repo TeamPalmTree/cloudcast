@@ -197,7 +197,7 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function get_next_queue()
+    public function get_next_queue_file()
     {
 
         /////////////////////////////////////
@@ -217,15 +217,15 @@ class Controller_Engine extends Controller_Cloudcast {
         ///////////////////////////////
 
         // create new queue
-        $next_queue = new Model_Queue();
+        $next_queue_file = new Model_Queue_File();
         // populate
-        $next_queue->schedule_file_id = $next_schedule_file->id;
-        $next_queue->show_title = $next_schedule_file->schedule->show->title;
-        $next_queue->file_name = $next_schedule_file->file->name;
-        $next_queue->file_artist = $next_schedule_file->file->artist;
-        $next_queue->file_title = $next_schedule_file->file->title;
+        $next_queue_file->schedule_id = $next_schedule_file->schedule->id;
+        $next_queue_file->schedule_file_id = $next_schedule_file->id;
+        $next_queue_file->file_name = $next_schedule_file->file->name;
+        $next_queue_file->file_artist = $next_schedule_file->file->artist;
+        $next_queue_file->file_title = $next_schedule_file->file->title;
         // send queue response
-        return $this->response($next_queue);
+        return $this->response($next_queue_file);
 
     }
 
@@ -253,14 +253,17 @@ class Controller_Engine extends Controller_Cloudcast {
         if (!Auth::login($credentials->username, $credentials->password))
             return $this->response('INVALID_USER');
 
-        //////////////////////
-        // GET CURRENT SHOW //
-        //////////////////////
+        //////////////////////////
+        // GET CURRENT SCHEDULE //
+        //////////////////////////
 
         // get server datetime
         $server_datetime = Helper::server_datetime();
         // get the current schedule file
         $current_schedule = Model_Schedule::the_current($server_datetime);
+        // verify current schedule
+        if (!$current_schedule)
+            return $this->response('INVALID_CURRENT_SCHEDULE');
 
         /////////////////////////
         // VERIFY INPUT ACCESS //
@@ -353,7 +356,7 @@ class Controller_Engine extends Controller_Cloudcast {
         // get the stream
         $stream = Model_Stream::find($id);
         // verify stream
-        if ($stream == null)
+        if (!$stream)
             return $this->response('INVALID_STREAM');
 
         ///////////////////////////////
@@ -365,7 +368,7 @@ class Controller_Engine extends Controller_Cloudcast {
         // get currently playing file
         $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
         // if we have nothing current, we are done
-        if ($current_schedule_file == null)
+        if (!$current_schedule_file)
             return $this->response('INVALID_CURRENT_SCHEDULE_FILE');
 
         /////////////////////
@@ -422,6 +425,151 @@ class Controller_Engine extends Controller_Cloudcast {
         $stream_statistic->save();
         // success
         return $this->response('SUCCESS');
+
+    }
+
+    protected function schedule_promos($schedule_id, $genre)
+    {
+
+        ///////////////////
+        // FIND SCHEDULE //
+        ///////////////////
+
+        // get the schedule by id
+        $schedule = Model_Schedule::find($schedule_id);
+        // verify current schedule
+        if (!$schedule)
+            return $this->response('INVALID_SCHEDULE');
+
+        //////////////////////
+        // GET PROMOS ALBUM //
+        //////////////////////
+
+        $album = null;
+        // use the genre to determine which album to pull
+        switch ($genre)
+        {
+            case 'Sweeper':
+                $album = $schedule->sweepers_album;
+                break;
+            case 'Jingle':
+                $album = $schedule->jingles_album;
+                break;
+            case 'Bumper':
+                $album = $schedule->bumpers_album;
+                break;
+        }
+
+        ///////////////////////////////
+        // GET ALBUM FILES FOR GENRE //
+        ///////////////////////////////
+
+        // if we have no album, we are done
+        if (!$album)
+            $this->response("NONE");
+
+        // query files
+        $files = Model_File::query()
+            ->where('genre', $genre)
+            ->where('album', $album)
+            ->where('available', '1')
+            ->get();
+
+        $file_names = array();
+        // flatten files
+        foreach ($files as $file)
+            $file_names[] = $file->name;
+
+        // implode file names
+        $file_names = implode("\n", $file_names);
+        // see if we have any
+        if ($file_names == "")
+            $this->response("NONE");
+
+        // send response
+        return $this->response($file_names);
+
+    }
+
+    public function get_schedule_sweepers($schedule_id)
+    {
+        return $this->schedule_promos($schedule_id, 'Sweeper');
+    }
+
+    public function get_schedule_jingles($schedule_id)
+    {
+        return $this->schedule_promos($schedule_id, 'Jingle');
+    }
+
+    public function get_schedule_bumpers($schedule_id)
+    {
+        return $this->schedule_promos($schedule_id, 'Bumper');
+    }
+
+    public function get_queue_schedule($schedule_id)
+    {
+
+        ///////////////////
+        // FIND SCHEDULE //
+        ///////////////////
+
+        // get the schedule by id
+        $schedule = Model_Schedule::find($schedule_id);
+        // verify current schedule
+        if (!$schedule)
+            return $this->response('INVALID_SCHEDULE');
+
+        ///////////////////////////////
+        // CREATE AND POPULATE QUEUE //
+        ///////////////////////////////
+
+        // create new queue
+        $queue_schedule = new Model_Queue_Schedule();
+        // get show
+        $show = $schedule->show;
+        // populate show info
+        $queue_schedule->show_id = $show->id;
+        $queue_schedule->show_title = $show->title;
+
+        ///////////////////////////////////
+        // POPULATE PROMO AVAILABILITIES //
+        ///////////////////////////////////
+
+        // get sweepers album
+        $sweepers_album = $schedule->sweepers_album;
+        if ($sweepers_album)
+        {
+            $queue_schedule->sweepers_available = Model_File::query()
+                ->where('genre', 'Sweeper')
+                ->where('album', $sweepers_album)
+                ->where('available', '1')
+                ->count() > 0;
+        }
+
+        // get jingles album
+        $jingles_album = $schedule->jingles_album;
+        if ($jingles_album)
+        {
+            $queue_schedule->jingles_available = Model_File::query()
+                    ->where('genre', 'Jingle')
+                    ->where('album', $jingles_album)
+                    ->where('available', '1')
+                    ->count() > 0;
+        }
+
+        // get bumpers album
+        $bumpers_album = $schedule->bumpers_album;
+        if ($bumpers_album)
+        {
+            $queue_schedule->bumpers_available = Model_File::query()
+                    ->where('genre', 'Bumper')
+                    ->where('album', $bumpers_album)
+                    ->where('available', '1')
+                    ->count() > 0;
+        }
+
+        // send queue response
+        return $this->response($queue_schedule);
 
     }
 

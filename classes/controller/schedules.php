@@ -239,6 +239,9 @@ class Controller_Schedules extends Controller_Cloudcast
             'start_on' => $show_start_on_datetime_string,
             'end_at' => $show_end_at_datetime_string,
             'show_id' => $show->id,
+            'sweepers_album' => $show->sweepers_album,
+            'jingles_album' => $show->jingles_album,
+            'bumpers_album' => $show->bumpers_album,
             'ups' => '0',
             'downs' => '0',
             'available' => '1'
@@ -334,6 +337,9 @@ class Controller_Schedules extends Controller_Cloudcast
                 'start_on' => $schedule_start_on_datetime_string,
                 'end_at' => $schedule_end_at_datetime_string,
                 'show_id' => $show->id,
+                'sweepers_album' => $show->sweepers_album,
+                'jingles_album' => $show->jingles_album,
+                'bumpers_album' => $show->bumpers_album,
                 'ups' => '0',
                 'downs' => '0',
                 'available' => '1'

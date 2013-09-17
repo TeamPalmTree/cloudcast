@@ -33,14 +33,8 @@
 </head>
 <body>
 <?php echo $modals; ?>
-<div class="cloudcast_display">
-    <?php echo $display; ?>
-</div>
-<div class="cloudcast_navigation">
-    <?php echo $navigation; ?>
-</div>
-<div class="cloudcast_content">
-    <?php echo $content; ?>
-</div>
+<?php echo $display; ?>
+<?php echo $navigation; ?>
+<?php echo $content; ?>
 </body>
 </html>

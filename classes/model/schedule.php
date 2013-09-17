@@ -10,6 +10,9 @@ class Model_Schedule extends \Orm\Model
         'available',
         'ups',
         'downs',
+        'sweepers_album',
+        'jingles_album',
+        'bumpers_album',
         'show_id',
     );
 

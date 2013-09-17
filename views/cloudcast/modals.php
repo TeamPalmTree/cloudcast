@@ -1,4 +1,4 @@
-<div id="cloudcast_modal-success" class="modal hide cloudcast_modal-success">
+<div id="cloudcast-modal-success" class="modal hide cloudcast-modal-success">
     <div class="modal-body">
         <?php echo implode('</p><p>', e((array) Session::get_flash('success'))); ?>
     </div>
@@ -6,7 +6,7 @@
         <button class="btn" data-dismiss="modal" aria-hidden="true">OK</button>
     </div>
 </div>
-<div id="cloudcast_modal-error" class="modal hide cloudcast_modal-error">
+<div id="cloudcast-modal-error" class="modal hide cloudcast-modal-error">
     <div class="modal-body">
         <?php echo implode('</p><p>', e((array) Session::get_flash('error'))); ?>
     </div>
@@ -14,7 +14,7 @@
         <button class="btn" data-dismiss="modal" aria-hidden="true">OK</button>
     </div>
 </div>
-<div id="cloudcast_modal-delete" class="modal hide cloudcast_modal-error">
+<div id="cloudcast-modal-delete" class="modal hide cloudcast-modal-error">
     <div class="modal-body">
         Are you sure?
     </div>

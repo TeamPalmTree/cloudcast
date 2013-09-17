@@ -17,30 +17,27 @@ class Controller_Cloudcast extends Controller_Shared
         // get some auth parameters
         $key = Input::get('key');
         $rest_method = get_class($this) . '.' . $method;
+        // load cloudcast configuration
+        Config::load('cloudcast', true);
+        // get cc key
+        $cloudcast_key = Config::get('cloudcast.key');
 
         $is_restful = false;
         // if we have a key, validate against that
         // else validate againt simpleauth
-        if ($key)
+        if ($key == $cloudcast_key)
         {
-            // load cloudcast configuration
-            Config::load('cloudcast', true);
-            // get cc key
-            $cloudcast_key = Config::get('cloudcast.key');
-            // set authorized
-            if ($key != $cloudcast_key)
-                throw new HttpServerErrorException;
-            // we are restful
+            // we are restful & authorized
             $is_restful = true;
         }
         elseif (in_array($rest_method, self::$anonymous_rest_methods))
         {
-            // we are restful
+            // we are restful & authorized
             $is_restful = true;
         }
         elseif (!Auth::check())
         {
-            // redirect to welcome
+            // we failed to authorize
             Response::redirect();
             return;
         }

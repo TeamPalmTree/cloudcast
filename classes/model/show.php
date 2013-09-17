@@ -11,6 +11,9 @@ class Model_Show extends \Orm\Model
         'duration',
         'title',
         'description',
+        'sweepers_album',
+        'jingles_album',
+        'bumpers_album',
         'block_id',
     );
 
@@ -196,18 +199,19 @@ class Model_Show extends \Orm\Model
     public function populate()
     {
 
+        // initialize
+        if ($this->id == 0)
+        {
+            // set up/down votes
+            $this->ups = 0;
+            $this->downs = 0;
+        }
+
         // update show
         $this->start_on = Helper::user_datetime_string_to_server_datetime_string(Input::post('user_start_on'));
         $this->duration = Input::post('duration');
         $this->title = Input::post('title');
         $this->description = Input::post('description');
-
-        // set ups/downs
-        if (!$this->ups or !$this->downs)
-        {
-            $this->ups = 0;
-            $this->downs = 0;
-        }
 
         // add block
         if (Input::post('blocked'))
@@ -276,6 +280,19 @@ class Model_Show extends \Orm\Model
                 ));
             }
         }
+
+        // promos enabled
+        $sweepers_enabled = Input::post('sweepers_enabled');
+        $jingles_enabled = Input::post('jingles_enabled');
+        $bumpers_enabled = Input::post('bumpers_enabled');
+        // get promos albums
+        $sweepers_album = Input::post('sweepers_album');
+        $jingles_album = Input::post('jingles_album');
+        $bumpers_album = Input::post('bumpers_album');
+        // set promos albums
+        $this->sweepers_album = $sweepers_enabled ? (($sweepers_album != '') ? $sweepers_album : null) : null;
+        $this->jingles_album = $jingles_enabled ? (($jingles_album != '') ? $jingles_album : null) : null;
+        $this->bumpers_album = $bumpers_enabled ? (($bumpers_album != '') ? $bumpers_album : null) : null;
 
     }
 

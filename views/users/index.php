@@ -1,7 +1,7 @@
 <script>
     var users_js = <?php echo Format::forge($users)->to_json(); ?>
 </script>
-<div id="users_index">
+<div id="users-index" class="cloudcast-section">
     <table class="table">
         <thead>
         <tr>
@@ -18,10 +18,10 @@
         <tbody data-bind="foreach: users">
         <tr>
             <td>
-                <div class="cloudcast_section">
+                <div class="cloudcast-item-section">
                     <a name="delete" class="btn btn-mini btn-danger" href="#" data-bind="click: $parent.delete"><i class="icon-remove"></i></a>
                 </div>
-                <div class="cloudcast_section">
+                <div class="cloudcast-item-section">
                     <a class="btn btn-mini" href="#" data-bind="attr: { href: 'users/edit/' + username }"><i class="icon-edit"></i></a>
                 </div>
             </td>

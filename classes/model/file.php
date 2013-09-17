@@ -18,6 +18,7 @@ class Model_File extends \Orm\Model
         'bit_rate',
         'ups',
         'downs',
+        'relevance',
         'sample_rate',
         'name',
         'duration',
@@ -134,6 +135,13 @@ class Model_File extends \Orm\Model
             $changed = true;
         }
 
+        // set relevance
+        if (!$this->relevance)
+        {
+            $this->relevance = 1;
+            $changed = true;
+        }
+
         // set date
         $this->populate_field('date', $scanned_file, $changed);
         // set track
@@ -221,7 +229,7 @@ class Model_File extends \Orm\Model
             // remove some genres from the search
             $search_query->where('genre', 'not in', $restricted_genres);
             // restrict to available
-            $search_query->where('available', true);
+            $search_query->where('available', '1');
         }
 
         ///////////////////////

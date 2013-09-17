@@ -3,19 +3,22 @@
 class Model_Block extends \Orm\Model
 {
 
+    // standard properties
     protected $parent_block;
     protected $top_block;
     protected $gathered_files = array();
     protected $filled_seconds = 0;
+    protected $weighted_block_weights;
+    protected $ordered_block_items;
+    // inheritable properties
     protected $current_harmonic_key;
     protected $current_harmonic_energy;
     protected $current_harmonic_genre;
     protected $current_separate_similar;
+    // current properties
     protected $current_key;
     protected $current_energy;
     protected $current_genre;
-    protected $weighted_block_weights;
-    protected $ordered_block_items;
 
     protected static $_properties = array(
         'id',
@@ -29,6 +32,15 @@ class Model_Block extends \Orm\Model
         'initial_energy',
         'initial_genre',
         'file_query',
+        'backup_block_id',
+    );
+
+    protected static $_belongs_to = array(
+        'backup_block' => array(
+            'key_from' => 'backup_block_id',
+            'model_to' => 'Model_Block',
+            'key_to' => 'id',
+        ),
     );
 
     protected static $_has_many = array(
@@ -130,7 +142,6 @@ class Model_Block extends \Orm\Model
         $this->harmonic_genre = Input::post('harmonic_genre');
         $this->separate_similar = Input::post('separate_similar');
         $this->file_query = Input::post('file_query');
-
         // get initial key and energy
         $initial_key = Input::post('initial_key');
         $initial_energy = Input::post('initial_energy');
@@ -446,52 +457,74 @@ class Model_Block extends \Orm\Model
         // verify we have some still, else we fail
         if (count($files) == 0)
             return null;
-        // now create a duplicate array to track compatible files
-        $compatible_files = $files;
 
-        ///////////////////////////////////////////////////
-        // ATTEMPT SET REDUCTION BY SIMILAR FILE REMOVAL //
-        ///////////////////////////////////////////////////
+        ////////////////////////////////
+        // MAP COMPATIBLE FILES ARRAY //
+        ////////////////////////////////
+
+        // add a weight to each file
+        $compatibles = array_map(
+            function($file)
+            {
+                return array(
+                    'file' => $file,
+                    'score' => 0
+                );
+            },
+            $files
+        );
+
+        //////////////////////////////
+        // COMPATIBILITY REDUCTIONS //
+        //////////////////////////////
 
         // attempt reduce file set by harmonic key
         if ($this->current_separate_similar == '1')
-            $compatible_files = $this->separate_similar_files($compatible_files);
-
-        /////////////////////////////////////////////
-        // ATTEMPT SET REDUCTION BY HARMONIC GENRE //
-        /////////////////////////////////////////////
-
-        // attempt reduce file set by harmonic key
-        if ($this->current_harmonic_genre == '1')
-            $compatible_files = $this->harmonic_genre_files($compatible_files);
-
-        ///////////////////////////////////////////
-        // ATTEMPT SET REDUCTION BY HARMONIC KEY //
-        ///////////////////////////////////////////
+            $compatibles = $this->separate_similar_compatibles_reduction($compatibles);
 
         // attempt reduce file set by harmonic key
         if ($this->current_harmonic_key == '1')
-            $compatible_files = $this->harmonic_key_files($compatible_files);
+            $compatibles = $this->harmonic_key_compatibles_reduction($compatibles);
 
-        //////////////////////////////////
-        // SORT BY CLOSEST ENERGY LEVEL //
-        //////////////////////////////////
+        ///////////////////////////
+        // COMPATIBILITY SCORING //
+        ///////////////////////////
 
-        // sort files by closest energy
+        // score genre compatibility
+        if ($this->current_harmonic_genre == '1')
+            $this->harmonic_genre_compatibles_scoring($compatibles);
+
+        // score energy compatibility
         if ($this->current_harmonic_energy == '1')
-            $this->harmonic_energy_files($compatible_files);
+            $this->harmonic_energy_compatibles_scoring($compatibles);
+
+        ///////////////////////////
+        // SORT BY COMPATIBILITY //
+        ///////////////////////////
+
+        // sort files by energy closeness
+        usort($compatibles, function($a, $b)
+        {
+            // compare
+            if ($a['score'] > $b['score'])
+                return 1;
+            if ($a['score'] < $b['score'])
+                return -1;
+            return 0;
+        });
 
         /////////////////////////
         // CLAIM & GATHER FILE //
         /////////////////////////
 
         // claim file
-        $claimed_file = current($compatible_files);
-        unset($files[$claimed_file->id]);
+        $claimed_compatible = current($compatibles);
+        $claimed_compatible_file = $claimed_compatible['file'];
+        unset($files[$claimed_compatible_file->id]);
         // gather claimed file
-        $this->gather_file($claimed_file);
+        $this->gather_file($claimed_compatible_file);
         // success
-        return $claimed_file;
+        return $claimed_compatible_file;
 
     }
 
@@ -505,68 +538,7 @@ class Model_Block extends \Orm\Model
         $this->top_block->gathered_files[$file->id] = $file;
     }
 
-    protected function harmonic_key_files(&$files)
-    {
-
-        // if we have no original key, keep files intact
-        // this will give us a starting point and initiate the show
-        if (!$this->current_key)
-            return $files;
-
-        // keep track of harmonic files
-        $harmonic_key_files = array();
-        // get harmonic musical keys
-        $harmonic_keys = CamelotEasyMixWheel::harmonic_keys($this->current_key);
-        // loop through search files until we find a file that matches the current musical key
-        foreach ($files as $file)
-        {
-            // loop through each musical key option
-            foreach ($harmonic_keys as $harmonic_key)
-            {
-                // if we find a musical key match, we are good
-                if ($file->key == $harmonic_key)
-                {
-                    $harmonic_key_files[$file->id] = $file;
-                    break;
-                }
-            }
-        }
-
-        // if we have no harmonic files, return original set
-        if (count($harmonic_key_files) == 0)
-            return $files;
-        // success
-        return $harmonic_key_files;
-
-    }
-
-    protected function harmonic_genre_files(&$files)
-    {
-
-        // if we have no original key, keep files intact
-        // this will give us a starting point and initiate the show
-        if (!$this->current_genre)
-            return $files;
-
-        // keep track of harmonic files
-        $harmonic_genre_files = array();
-        // loop through search files until we find a file that matches the current genre
-        foreach ($files as $file)
-        {
-            // if we find a genre match, we are good
-            if ($file->genre == $this->current_genre)
-                $harmonic_genre_files[$file->id] = $file;
-        }
-
-        // if we have no harmonic files, return original set
-        if (count($harmonic_genre_files) == 0)
-            return $files;
-        // success
-        return $harmonic_genre_files;
-
-    }
-
-    protected function separate_similar_files(&$files)
+    protected function separate_similar_compatibles_reduction(&$compatibles)
     {
 
         // get the number songs to look backwards for similar files
@@ -575,14 +547,16 @@ class Model_Block extends \Orm\Model
         $similar_gathered_files = array_slice($this->top_block->gathered_files, -1 * $similar_files_count, $similar_files_count, true);
 
         // keep track of different (un-similar) files
-        $separate_similar_files = array();
+        $separate_similar_compatibles = array();
         // loop through files making sure we don't have a similar one
-        foreach ($files as $file)
+        foreach ($compatibles as $compatible)
         {
+            // get compatible file
+            $compatible_file = $compatible['file'];
             // first split out the artists
-            $file_scraped_artists = $file->scraped_artists();
+            $compatible_file_scraped_artists = $compatible_file->scraped_artists();
             // now scrape the title
-            $file_scraped_title = $file->scraped_title();
+            $compatible_file_scraped_title = $compatible_file->scraped_title();
 
             // reset similar found
             $similar_found = false;
@@ -596,7 +570,7 @@ class Model_Block extends \Orm\Model
                 $similar_gathered_file_scraped_title = $similar_gathered_file->scraped_title();
 
                 // compute intersected artists
-                $intersected_artists = array_intersect($file_scraped_artists, $similar_gathered_file_scraped_artists);
+                $intersected_artists = array_intersect($compatible_file_scraped_artists, $similar_gathered_file_scraped_artists);
                 // compare artists
                 if (count($intersected_artists) > 0)
                 {
@@ -605,7 +579,7 @@ class Model_Block extends \Orm\Model
                 }
 
                 // compare titles
-                if ($file_scraped_title == $similar_gathered_file_scraped_title)
+                if ($compatible_file_scraped_title == $similar_gathered_file_scraped_title)
                 {
                     $similar_found = true;
                     break;
@@ -616,19 +590,76 @@ class Model_Block extends \Orm\Model
             // after looking through the last X number of songs for similarity
             // make sure no similar found
             if (!$similar_found)
-                $separate_similar_files[$file->id] = $file;
+                $separate_similar_compatibles[] = $compatible;
 
         }
 
         // if we have no harmonic files, return original set
-        if (count($separate_similar_files) == 0)
-            return $files;
+        if (count($separate_similar_compatibles) == 0)
+            return $compatibles;
         // success
-        return $separate_similar_files;
+        return $separate_similar_compatibles;
 
     }
 
-    protected function harmonic_energy_files(&$files)
+    protected function harmonic_key_compatibles_reduction(&$compatibles)
+    {
+
+        // if we have no original key, keep files intact
+        // this will give us a starting point and initiate the show
+        if (!$this->current_key)
+            return $compatibles;
+
+        // keep track of harmonic files
+        $harmonic_key_compatibles = array();
+        // get harmonic musical keys
+        $harmonic_keys = CamelotEasyMixWheel::harmonic_keys($this->current_key);
+        // loop through search files until we find a file that matches the current musical key
+        foreach ($compatibles as $compatible)
+        {
+            // loop through each musical key option
+            foreach ($harmonic_keys as $harmonic_key)
+            {
+                // if we find a musical key match, we are good
+                if ($compatible['file']->key == $harmonic_key)
+                {
+                    $harmonic_key_compatibles[] = $compatible;
+                    break;
+                }
+            }
+        }
+
+        // if we have no harmonic files, return original set
+        if (count($harmonic_key_compatibles) == 0)
+            return $compatibles;
+        // success
+        return $harmonic_key_compatibles;
+
+    }
+
+    protected function harmonic_genre_compatibles_scoring(&$compatibles)
+    {
+
+        // if we have no current genre, we can do no scoring
+        if (!$this->current_genre)
+            return;
+
+        // get current scraped genres
+        $current_scraped_genres = explode('.', strtolower($this->current_genre));
+        // loop through search files until we find a file that matches the current genre
+        foreach ($compatibles as $compatible)
+        {
+            // get compatible file scraped genres
+            $compatible_file_scraped_genres = explode('.', strtolower($compatible['file']->genre));
+            // get the difference in scraped genre arrays
+            $genre_differences = array_diff($current_scraped_genres, $compatible_file_scraped_genres);
+            // adjust score by array difference
+            $compatible['score'] -= count($genre_differences);
+        }
+
+    }
+
+    protected function harmonic_energy_compatibles_scoring(&$compatibles)
     {
 
         // if we have no original energy,
@@ -636,19 +667,10 @@ class Model_Block extends \Orm\Model
         if (!$this->current_energy)
             return;
 
-        // sort files by energy closeness
-        usort($files, function($a, $b)
-        {
-            // calculate the abs value difference between energy levels
-            $a_energy_diff = (int)$a->energy - (int)$this->current_energy;
-            $b_energy_diff = (int)$b->energy - (int)$this->current_energy;
-            // compare
-            if ($a_energy_diff > $b_energy_diff)
-                return 1;
-            if ($a_energy_diff < $b_energy_diff)
-                return -1;
-            return 0;
-        });
+        // loop through compatbiles
+        // subtract the energy difference from the overall score
+        foreach ($compatibles as $compatible)
+            $compatible['score'] -= abs($compatible['file']->energy - $this->current_energy);
 
     }
 
