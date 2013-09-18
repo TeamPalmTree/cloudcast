@@ -59,8 +59,8 @@ class Model_Schedule extends \Orm\Model
             }
 
             // set show start/end times adjust to user timezone
-            $schedule->show->user_start_on_timeday = $schedule->show->user_start_on_timeday();
-            $schedule->show->user_end_at_timeday = $schedule->show->user_end_at_timeday();
+            $schedule->user_start_on_timeday = $schedule->user_start_on_timeday();
+            $schedule->user_end_at_timeday = $schedule->user_end_at_timeday();
             // make files an array
             $schedule->schedule_files = array_values($schedule->schedule_files);
             // add schedule to current date
@@ -88,6 +88,21 @@ class Model_Schedule extends \Orm\Model
     public function start_on_datetime()
     {
         return Helper::server_datetime($this->start_on);
+    }
+
+    public function end_at_datetime()
+    {
+        return Helper::server_datetime($this->end_at);
+    }
+
+    public function user_start_on_timeday()
+    {
+        return Helper::server_datetime_to_user_timeday($this->start_on_datetime());
+    }
+
+    public function user_end_at_timeday()
+    {
+        return Helper::server_datetime_to_user_timeday($this->end_at_datetime());
     }
 
     public static function the_current($server_datetime)

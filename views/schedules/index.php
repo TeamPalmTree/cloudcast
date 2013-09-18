@@ -62,8 +62,8 @@
                                                 <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                             </div>
                                             <div class="cloudcast-item-time">
-                                                <span class="cloudcast-item-time-start" data-bind="text: show.user_start_on_timeday"></span>
-                                                <span class="cloudcast-item-time-end" data-bind="text: show.user_end_at_timeday"></span>
+                                                <span class="cloudcast-item-time-start" data-bind="text: user_start_on_timeday"></span>
+                                                <span class="cloudcast-item-time-end" data-bind="text: user_end_at_timeday"></span>
                                             </div>
                                             <div class="cloudcast-item-section">
                                                 <a href="#" class="btn btn-mini" data-bind="attr: { title: expanded() ? 'Collapse' : 'Expand' }, click: expand_collapse, clickBubble: false">

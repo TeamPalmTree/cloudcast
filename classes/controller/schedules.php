@@ -70,6 +70,7 @@ class Controller_Schedules extends Controller_Cloudcast
             // if we run into a file that isn't queued, we are done
             if (!$schedule_file->queued)
                 break;
+
             // get the file ids in order
             $file_id = array_shift($file_ids);
             // verify that it matches the schedule files

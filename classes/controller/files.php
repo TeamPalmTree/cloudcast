@@ -77,8 +77,9 @@ class Controller_Files extends Controller_Cloudcast
         // get the query
         $query = Input::get('query');
         $restrict = (Input::get('restrict') == 'true');
+        $randomize = (Input::get('randomize') == 'true');
         // search with 100 limit while randomizing and restricting genres
-        $files = Model_File::search($query, $restrict, 100, false, false);
+        $files = Model_File::search($query, $restrict, 100, $randomize, false);
         // success
         return $this->response($files);
 
@@ -103,7 +104,7 @@ class Controller_Files extends Controller_Cloudcast
         // scan directory for tags
         $scanned_files = TagScanner::scan_files($files_directory);
         // loop over scanned files to update DB
-        foreach ($scanned_files as $scanned_file_name => $scanned_file)
+        foreach ($scanned_files as $scanned_file_name => &$scanned_file)
         {
 
             ///////////////////////////

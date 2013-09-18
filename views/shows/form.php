@@ -134,7 +134,7 @@
             <div class="control-group">
                 <?php echo Form::label('Jingles Album', 'jingles_album', array('class' => 'control-label')); ?>
                 <div class="controls">
-                    <input name="jingle_album" type="text" data-bind="value: jingles_album" placeholder="Jingles Album" />
+                    <input name="jingles_album" type="text" data-bind="value: jingles_album" placeholder="Jingles Album" />
                 </div>
             </div>
         </div>

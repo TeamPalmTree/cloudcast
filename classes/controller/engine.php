@@ -526,16 +526,15 @@ class Controller_Engine extends Controller_Cloudcast {
         if (!$schedule)
             return $this->response('INVALID_SCHEDULE');
 
-        ///////////////////////////////
-        // CREATE AND POPULATE QUEUE //
-        ///////////////////////////////
+        /////////////////////////////////
+        // CREATE QUEUE, POPULATE SHOW //
+        /////////////////////////////////
 
         // create new queue
         $queue_schedule = new Model_Queue_Schedule();
         // get show
         $show = $schedule->show;
         // populate show info
-        $queue_schedule->show_id = $show->id;
         $queue_schedule->show_title = $show->title;
 
         ///////////////////////////////////

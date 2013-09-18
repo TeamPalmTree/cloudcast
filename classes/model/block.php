@@ -208,6 +208,7 @@ class Model_Block extends \Orm\Model
         // SET CURRENT VALUES //
         ////////////////////////
 
+        // reset and set block properties
         $this->files_set($parent_block, $top_block);
 
         /////////////////////////////
@@ -230,15 +231,18 @@ class Model_Block extends \Orm\Model
     {
 
         //////////////////////
-        // SET PARENT & TOP //
+        // RESET PROPERTIES //
         //////////////////////
 
         $this->parent_block = $parent_block;
         $this->top_block = $top_block;
+        $this->gathered_files = array();
+        $this->filled_seconds = 0;
+        $this->current_genre = null;
 
-        //////////////////////////////
-        // SET OTHER CURRENT VALUES //
-        //////////////////////////////
+        ////////////////////////////////
+        // SET INHERITABLE PROPERTIES //
+        ////////////////////////////////
 
         // if we have no parent, we at the top
         if (!$parent_block)
@@ -301,7 +305,7 @@ class Model_Block extends \Orm\Model
     protected function query_files($seconds)
     {
 
-        // total dateinterval consumed so far
+        // total consumed so far
         $filled_seconds = 0;
 
         /////////////////////////////
@@ -426,6 +430,7 @@ class Model_Block extends \Orm\Model
 
     protected function random_files(&$weighted_files)
     {
+
         $random_files = null;
         $cumulative_weights_sum = 0;
         // first get the sum of all weights
@@ -433,7 +438,7 @@ class Model_Block extends \Orm\Model
         // get a random number up to that sum
         $random_number = rand(1, $weights_sum);
         // loop over weighted sets
-        foreach ($weighted_files as $weight => $files)
+        foreach ($weighted_files as $weight => &$files)
         {
             // add to weights sum
             $cumulative_weights_sum += $weight;
@@ -506,9 +511,9 @@ class Model_Block extends \Orm\Model
         usort($compatibles, function($a, $b)
         {
             // compare
-            if ($a['score'] > $b['score'])
-                return 1;
             if ($a['score'] < $b['score'])
+                return 1;
+            if ($a['score'] > $b['score'])
                 return -1;
             return 0;
         });
@@ -549,7 +554,7 @@ class Model_Block extends \Orm\Model
         // keep track of different (un-similar) files
         $separate_similar_compatibles = array();
         // loop through files making sure we don't have a similar one
-        foreach ($compatibles as $compatible)
+        foreach ($compatibles as &$compatible)
         {
             // get compatible file
             $compatible_file = $compatible['file'];
@@ -615,7 +620,7 @@ class Model_Block extends \Orm\Model
         // get harmonic musical keys
         $harmonic_keys = CamelotEasyMixWheel::harmonic_keys($this->current_key);
         // loop through search files until we find a file that matches the current musical key
-        foreach ($compatibles as $compatible)
+        foreach ($compatibles as &$compatible)
         {
             // loop through each musical key option
             foreach ($harmonic_keys as $harmonic_key)
@@ -647,7 +652,7 @@ class Model_Block extends \Orm\Model
         // get current scraped genres
         $current_scraped_genres = explode('.', strtolower($this->current_genre));
         // loop through search files until we find a file that matches the current genre
-        foreach ($compatibles as $compatible)
+        foreach ($compatibles as &$compatible)
         {
             // get compatible file scraped genres
             $compatible_file_scraped_genres = explode('.', strtolower($compatible['file']->genre));
@@ -669,7 +674,7 @@ class Model_Block extends \Orm\Model
 
         // loop through compatbiles
         // subtract the energy difference from the overall score
-        foreach ($compatibles as $compatible)
+        foreach ($compatibles as &$compatible)
             $compatible['score'] -= abs($compatible['file']->energy - $this->current_energy);
 
     }

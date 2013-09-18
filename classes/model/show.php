@@ -281,18 +281,14 @@ class Model_Show extends \Orm\Model
             }
         }
 
-        // promos enabled
-        $sweepers_enabled = Input::post('sweepers_enabled');
-        $jingles_enabled = Input::post('jingles_enabled');
-        $bumpers_enabled = Input::post('bumpers_enabled');
         // get promos albums
         $sweepers_album = Input::post('sweepers_album');
         $jingles_album = Input::post('jingles_album');
         $bumpers_album = Input::post('bumpers_album');
         // set promos albums
-        $this->sweepers_album = $sweepers_enabled ? (($sweepers_album != '') ? $sweepers_album : null) : null;
-        $this->jingles_album = $jingles_enabled ? (($jingles_album != '') ? $jingles_album : null) : null;
-        $this->bumpers_album = $bumpers_enabled ? (($bumpers_album != '') ? $bumpers_album : null) : null;
+        $this->sweepers_album = Input::post('sweepers') ? (($sweepers_album != '') ? $sweepers_album : null) : null;
+        $this->jingles_album = Input::post('jingles') ? (($jingles_album != '') ? $jingles_album : null) : null;
+        $this->bumpers_album = Input::post('bumpers') ? (($bumpers_album != '') ? $bumpers_album : null) : null;
 
     }
 
