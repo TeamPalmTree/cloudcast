@@ -256,6 +256,7 @@ class Create_Schema
                 'played_on' => array('type' => 'timestamp', 'null' => true),
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'queued' => array('type' => 'boolean', 'default' => '0'),
                 'schedule_id' => array('constraint' => 11, 'type' => 'int'),
                 'file_id' => array('constraint' => 11, 'type' => 'int'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',

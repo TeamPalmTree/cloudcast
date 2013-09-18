@@ -3,16 +3,17 @@
 </script>
 <div class="cloudcast-section">
     <div class="cloudcast-section-inner">
-        <div class="cloudcast-header">
-            <h4><?php echo $header; ?></h4>
-            <div class="cloudcast-header-right">
-                <button type="submit" class="btn btn-primary" form="streams-form">SAVE</button>
-                <a href="/streams" class="btn">CANCEL</a>
+        <div class="cloudcast-super-header-form">
+            <div class="cloudcast-super-header-section">
+                <h4><?php echo isset($stream) ? 'Edit ' . $stream->name : 'Create Stream'; ?></h4>
             </div>
-            <div class="clearfix"></div>
+            <div class="cloudcast-super-header-section-right">
+                <button type="submit" class="btn btn-mini btn-primary" form="streams-form">SAVE</button>
+                <a href="/streams" class="btn btn-mini">CANCEL</a>
+            </div>
         </div>
         <!-- stream form -->
-        <?php echo Form::open(array('id' => 'streams-form', 'action' => $action, 'class' => 'form-horizontal', 'data-bind' => 'with: stream')); ?>
+        <?php echo Form::open(array('id' => 'streams-form', 'action' => isset($stream) ? '/streams/edit/' . $stream->id : '/streams/create', 'class' => 'form-horizontal', 'data-bind' => 'with: stream')); ?>
         <!-- stream -->
         <div class="control-group">
             <?php echo Form::label('Name', 'name', array('class' => 'control-label')); ?>

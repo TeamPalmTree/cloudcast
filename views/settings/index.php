@@ -1,11 +1,12 @@
 <div class="cloudcast-section">
     <div class="cloudcast-section-inner">
-        <div class="cloudcast-header">
-            <h4>Settings</h4>
-            <div class="cloudcast-header-right">
-                <button type="submit" class="btn btn-primary" form="settings-index">SAVE</button>
+        <div class="cloudcast-super-header-form">
+            <div class="cloudcast-super-header-section">
+                <h4>Settings</h4>
             </div>
-            <div class="clearfix"></div>
+            <div class="cloudcast-super-header-section-right">
+                <button type="submit" class="btn btn-mini btn-primary" form="settings-index">SAVE</button>
+            </div>
         </div>
 
         <!-- settings form -->
@@ -19,9 +20,7 @@
         if ($setting->category != $category):
             $category = $setting->category;
         ?>
-        <div class="cloudcast-header">
-            <h5><?php echo Helper::human_name($category); ?></h5>
-        </div>
+        <h5><?php echo Helper::human_name($category); ?></h5>
         <?php endif; ?>
         <div class="control-group">
             <?php echo Form::label($setting->human_name(), $setting->name, array('class' => 'control-label')); ?>

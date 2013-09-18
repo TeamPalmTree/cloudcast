@@ -212,6 +212,13 @@ class Controller_Engine extends Controller_Cloudcast {
         if (!$next_schedule_file)
             $this->response('NONE');
 
+        /////////////////////////////////
+        // SET SCHEDULE FILE TO QUEUED //
+        /////////////////////////////////
+
+        $next_schedule_file->queued = '1';
+        $next_schedule_file->save();
+
         ///////////////////////////////
         // CREATE AND POPULATE QUEUE //
         ///////////////////////////////

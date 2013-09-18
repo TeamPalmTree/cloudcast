@@ -3,16 +3,17 @@
 </script>
 <div class="cloudcast-section">
     <div class="cloudcast-section-inner">
-        <div class="cloudcast-header">
-            <h4><?php echo $header; ?></h4>
-            <div class="cloudcast-header-right">
-                <button type="submit" class="btn btn-primary" form="user-form">SAVE</button>
-                <a href="/users" class="btn">CANCEL</a>
+        <div class="cloudcast-super-header-form">
+            <div class="cloudcast-super-header-section">
+                <h4><?php echo isset($user) ? 'Edit ' . $user->username : 'Create User'; ?></h4>
             </div>
-            <div class="clearfix"></div>
+            <div class="cloudcast-super-header-section-right">
+                <button type="submit" class="btn btn-mini btn-primary" form="user-form">SAVE</button>
+                <a href="/users" class="btn btn-mini">CANCEL</a>
+            </div>
         </div>
         <!-- user form -->
-        <?php echo Form::open(array('id' => 'user-form', 'action' => $action, 'class' => 'form-horizontal', 'data-bind' => 'with: user')); ?>
+        <?php echo Form::open(array('id' => 'user-form', 'action' => isset($user) ? '/users/edit/' . $user->id : '/users/create', 'class' => 'form-horizontal', 'data-bind' => 'with: user')); ?>
         <div class="control-group">
             <?php echo Form::label('Username', 'username', array('class' => 'control-label')); ?>
             <div class="controls">

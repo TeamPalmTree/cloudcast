@@ -8,6 +8,7 @@ class Model_Schedule_File extends \Orm\Model
         'played_on',
         'ups',
         'downs',
+        'queued',
         'schedule_id',
         'file_id',
     );

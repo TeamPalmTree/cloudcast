@@ -1,21 +1,41 @@
-<div data-bind="with: file_finder">
-    <div class="cloudcast-header">
-        <h4>Files</h4>
-        <div class="cloudcast-header-right">
-            <a title="Clear" class="btn btn-mini btn-danger" href="#" data-bind="click: clear"><i class="icon-remove"></i></a>
-            <a title="Check All" class="btn btn-mini" href="#" data-bind="click: toggle_select"><i class="icon-ok"></i></a>
-            <a title="Add" class="btn btn-mini" href="#" data-bind="click: $parent.add_selected_files"><i class="icon-arrow-right"></i></a>
-        </div>
-    </div>
-    <?php echo Form::textarea('query', null, array('class' => 'cloudcast-sidebar-query', 'rows' => '3', 'placeholder' => 'Query', 'data-bind' => "value: query, valueUpdate: 'afterkeydown'" )); ?>
-    <div data-bind="foreach: files">
-        <div class="cloudcast-sidebar-item">
-            <label class="checkbox" data-bind="popover: { title: title, content: description, container: 'body', trigger: 'hover', placement: 'right', html: true, delay: 1000 }">
-                <input type="checkbox" data-bind="checked: selected">
-                <strong><span class="cloudcast-popover" data-bind="text: title"></span></strong>
-            </label>
-            <div><i class="icon-user"></i> <span data-bind="text: artist"></span></div>
-            <div><i class="icon-time"></i> <span data-bind="text: duration"></span></div>
-        </div>
-    </div>
+<div class="cloudcast-section-sidebar-content" data-bind="with: file_finder">
+    <table>
+        <tr>
+            <td class="cloudcast-section-sidebar-content-toolbar">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <ul class="nav">
+                            <li><a href="#">Files</a></li>
+                        </ul>
+                        <ul class="nav pull-right">
+                            <li><a href="#" data-bind="click: clear"><i class="icon-remove"></i></a></li>
+                            <li><a href="#" data-bind="click: select_all"><i class="icon-ok"></i></a></li>
+                            <li><a href="#" data-bind="click: $root.add_files"><i class="icon-arrow-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="cloudcast-section-sidebar-content-query">
+                <?php echo Form::textarea('query', null, array('rows' => '3', 'placeholder' => 'Query', 'data-bind' => "value: query, valueUpdate: 'afterkeydown'" )); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="cloudcast-section-sidebar-content-bottom">
+                <div class="cloudcast-section-sidebar-content-bottom-inner">
+                    <div data-bind="foreach: files">
+                        <div class="cloudcast-section-sidebar-item">
+                            <label class="checkbox" data-bind="event: { contextmenu: show_info }"">
+                                <input type="checkbox" data-bind="checked: selected">
+                                <strong><span class="cloudcast-popover" data-bind="text: title"></span></strong>
+                            </label>
+                            <div><i class="icon-user"></i> <span data-bind="text: artist"></span></div>
+                            <div><i class="icon-time"></i> <span data-bind="text: duration"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>

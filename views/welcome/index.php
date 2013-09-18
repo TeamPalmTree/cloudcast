@@ -18,7 +18,7 @@
     <input name="password" type="password" placeholder="Password" />
 </div>
 <div class="control-group">
-    <button type="submit" class="btn btn-primary" form="welcome-form">LOGIN</button>
+    <button type="submit" class="btn btn-mini btn-primary" form="welcome-form">LOGIN</button>
 </div>
 <?php echo Form::close(); ?>
 </div>

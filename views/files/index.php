@@ -2,14 +2,28 @@
     <table>
         <tr>
             <td class="cloudcast-section-sidebar">
-                <div class="cloudcast-section-sidebar-inner">
-                    <div class="cloudcast-header">
-                        <h4>Query</h4>
-                        <div class="cloudcast-header-right">
-                            <a class="btn btn-mini btn-danger" href="#" data-bind="click: clear"><i class="icon-remove"></i></a>
-                        </div>
-                    </div>
-                    <?php echo Form::textarea('query', null, array('class' => 'cloudcast-sidebar-query', 'rows' => '5', 'placeholder' => 'Query', 'data-bind' => "value: query, valueUpdate: 'afterkeydown'" )); ?>
+                <div class="cloudcast-section-sidebar-content">
+                    <table>
+                        <tr>
+                            <td class="cloudcast-section-sidebar-content-toolbar">
+                                <div class="navbar">
+                                    <div class="navbar-inner">
+                                        <ul class="nav">
+                                            <li><a href="#">Query</a></li>
+                                        </ul>
+                                        <ul class="nav pull-right">
+                                            <li><a href="#" data-bind="click: clear"><i class="icon-remove"></i></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="cloudcast-section-sidebar-content-query">
+                                <?php echo Form::textarea('query', null, array('class' => 'cloudcast-section-sidebar-query', 'rows' => '5', 'placeholder' => 'Query', 'data-bind' => "value: query, valueUpdate: 'afterkeydown'" )); ?>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </td>
             <td class="cloudcast-section-content">
@@ -26,14 +40,13 @@
                                         </a>
                                         <div id="files-collapse" class="nav-collapse collapse">
                                             <ul class="nav">
-                                                <li><a href="#" data-bind="click: select"><i class="icon-check"></i></a></li>
+                                                <li><a href="#" data-bind="click: select_all"><i class="icon-check"></i></a></li>
                                                 <li><a href="#" data-bind="click: deactivate"><i class="icon-ban-circle"></i> DEACTIVATE</a></li>
                                                 <li><a href="#"><i class="icon-ok-sign"></i> ACTIVATE</a></li>
-                                                <li class="divider-vertical"></li>
                                                 <li><a href="#">RELEVANCE</a></li>
                                                 <li class="navbar-form">
-                                                    <input type="text" class="span1" placeholder="">
-                                                    <button class="btn">SET</button>
+                                                    <input type="text" class="span1" data-bind="value: relevance">
+                                                    <button class="btn" data-bind="click: set_relevance">SET</button>
                                                 </li>
                                             </ul>
                                             <ul class="nav pull-right">
@@ -50,7 +63,7 @@
                     </tr>
                     <tr>
                         <td class="cloudcast-section-content-bottom">
-                            <div>
+                            <div class="cloudcast-section-content-bottom-content">
                                 <table class="table">
                                     <thead>
                                         <tr>
@@ -86,9 +99,9 @@
                                         </tr>
                                     </thead>
                                     <tbody data-bind="foreach: files">
-                                        <tr data-bind="css: { 'selected': selected }">
+                                        <tr data-bind="css: { 'selected': selected }, click: select">
                                             <td>
-                                                <input type="checkbox" data-bind="attr: { value: id }, checked: $root.selected_file_ids" />
+                                                <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                             </td>
                                             <td data-bind="text: artist"></td>
                                             <td data-bind="text: title"></td>

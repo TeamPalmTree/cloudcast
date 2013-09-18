@@ -47,8 +47,6 @@ class Controller_Users extends Controller_Cloudcast
         $groups = Config::get('simpleauth.groups');
         // render create form
         $view = View::forge('users/form');
-        $view->header = 'Create User';
-        $view->action = '/users/create';
         $view->groups = $groups;
         // set view vars
         $this->template->title = 'Create';
@@ -77,8 +75,6 @@ class Controller_Users extends Controller_Cloudcast
         $groups = Config::get('simpleauth.groups');
         // render create form
         $view = View::forge('users/form');
-        $view->header = 'Edit ' . $username;
-        $view->action = '/users/edit/' . $username;
         $view->user = $user;
         $view->groups = $groups;
         // set view vars

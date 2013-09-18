@@ -79,9 +79,9 @@ h1,h2,h3,h4,h5,h6 {
   }
 }
 
-///////////////
-// CLOUDCAST //
-///////////////
+/////////////
+// WELCOME //
+/////////////
 
 .cloudcast-welcome-logo {
   position: absolute;
@@ -101,6 +101,10 @@ h1,h2,h3,h4,h5,h6 {
   margin-top: 40px;
   margin-left: -110px;
 }
+
+/////////////
+// DISPLAY //
+/////////////
 
 .cloudcast-display {
   position: absolute;
@@ -183,6 +187,11 @@ h1,h2,h3,h4,h5,h6 {
 .cloudcast-display-status-input {
   position: absolute;
   bottom: @spacing;
+  margin: 0px;
+}
+
+.cloudcast-display-status-input > .enabled {
+  background-color: @accentColor1;
 }
 
 .cloudcast-display-progress {
@@ -199,6 +208,10 @@ h1,h2,h3,h4,h5,h6 {
   right: 16px;
 }
 
+////////////////
+// NAVIGATION //
+////////////////
+
 .cloudcast-navigation {
   position: absolute;
   left: 0px;
@@ -206,6 +219,10 @@ h1,h2,h3,h4,h5,h6 {
   top: 100px;
   height: 40px;
 }
+
+////////////
+// MODALS //
+////////////
 
 .cloudcast-modal-error {
   color: #b94a48;
@@ -219,23 +236,47 @@ h1,h2,h3,h4,h5,h6 {
   border-color: #d6e9c6;
 }
 
+.cloudcast-modal-info {
+  color: white;
+  background-color: @backgroundColor2;
+  border-color: @backgroundColor3;
+}
+
 .cloudcast-header {
   margin-bottom: @spacing;
 }
 
 .cloudcast-super-header {
   display: block;
-  margin-bottom: @spacing;
-  background-color: @backgroundColor2;
-  padding: 3px 6px 3px 6px;
+  padding: (@spacing / 2) @spacing @spacing 0px;
+  border-bottom: 1px solid @backgroundColor3;
 }
 
-.cloudcast-header h1,
-.cloudcast-header h2,
-.cloudcast-header h3,
-.cloudcast-header h4,
-.cloudcast-header h5,
-.cloudcast-header h6,
+.cloudcast-super-header-form {
+  display: block;
+  padding: (@spacing / 2) @spacing @spacing 0px;
+  border-bottom: 1px solid @backgroundColor3;
+  margin-bottom: @spacing * 2;
+}
+
+.cloudcast-super-header-section {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: @spacing;
+}
+
+.cloudcast-super-header-section-right {
+  display: inline-block;
+  vertical-align: middle;
+  float: right;
+}
+
+.cloudcast-super-header-section h1,
+.cloudcast-super-header-section h2,
+.cloudcast-super-header-section h3,
+.cloudcast-super-header-section h4,
+.cloudcast-super-header-section h5,
+.cloudcast-super-header-section h6,
 {
   display: inline;
   vertical-align: middle;
@@ -265,9 +306,14 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .cloudcast-item {
-  margin-top: @spacing;
-  margin-bottom: @spacing;
   cursor: default;
+  border-bottom: 1px solid @backgroundColor2;
+  padding-bottom: @spacing;
+  padding-top: @spacing;
+}
+
+.cloudcast-item.selected {
+  background-color: @backgroundColor2;
 }
 
 .cloudcast-item-time {
@@ -310,6 +356,17 @@ h1,h2,h3,h4,h5,h6 {
   margin-right: @spacing;
 }
 
+.cloudcast-item-section-right {
+  display: inline-block;
+  vertical-align: middle;
+  float: right;
+}
+
+.cloudcast-item-section > input {
+  margin: 0px;
+}
+
+
 .cloudcast-show-files {
   position: absolute;
   left: 0px;
@@ -339,8 +396,8 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .cloudcast-section-inner {
-  padding-right: @spacing * 3;
-  padding-left: @spacing * 3;
+  padding-right: @spacing * 2;
+  padding-left: @spacing * 2;
   padding-top: @spacing * 2;
   padding-bottom: @spacing * 2;
 }
@@ -351,18 +408,67 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .cloudcast-section-sidebar {
-  width: 200px;
+  width: 209px;
   background-color: @backgroundColor2;
   vertical-align: top;
+  border-right: 1px solid black;
 }
 
 .cloudcast-section-sidebar-inner {
   height: 100%;
   overflow: auto;
-  padding-right: @spacing * 3;
-  padding-left: @spacing * 3;
+  padding-right: @spacing * 2;
+  padding-left: @spacing * 2;
   padding-top: @spacing * 2;
   padding-bottom: @spacing * 2;
+}
+
+.cloudcast-section-sidebar-content {
+  width: 100%;
+  height: 100%;
+}
+
+.cloudcast-section-sidebar-content > table {
+  width: 100%;
+  height: 100%;
+  table-layout: fixed;
+}
+
+.cloudcast-section-sidebar-content-toolbar {
+  height: 42px;
+}
+
+.cloudcast-section-sidebar-content-toolbar > .navbar {
+  margin-bottom: 0px;
+}
+
+.cloudcast-section-sidebar-content-query {
+  height: auto;
+  vertical-align: top;
+}
+
+.cloudcast-section-sidebar-content-query > textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.cloudcast-section-sidebar-content-bottom {
+  height: 100%;
+  vertical-align: top;
+}
+
+.cloudcast-section-sidebar-content-bottom-inner {
+  height: 100%;
+  overflow: auto;
+  padding-right: @spacing * 2;
+  padding-left: @spacing * 2;
+  padding-top: @spacing * 2;
+  padding-bottom: @spacing * 2;
+}
+
+.cloudcast-section-sidebar-content-bottom-content-inner {
+
 }
 
 .cloudcast-section-content {
@@ -379,8 +485,8 @@ h1,h2,h3,h4,h5,h6 {
 .cloudcast-section-content-inner {
   height: 100%;
   overflow: auto;
-  padding-right: @spacing * 3;
-  padding-left: @spacing * 3;
+  padding-right: @spacing * 2;
+  padding-left: @spacing * 2;
   padding-top: @spacing * 2;
   padding-bottom: @spacing * 2;
 }
@@ -398,10 +504,17 @@ h1,h2,h3,h4,h5,h6 {
   vertical-align: top;
 }
 
-.cloudcast-section-content-bottom div {
+.cloudcast-section-content-bottom-content {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+.cloudcast-section-content-bottom-content-inner {
+  padding-right: @spacing * 2;
+  padding-left: @spacing * 2;
+  padding-top: @spacing * 2;
+  padding-bottom: @spacing * 2;
 }
 
 .cloudcast-tooltip {
@@ -412,13 +525,6 @@ h1,h2,h3,h4,h5,h6 {
 .cloudcast-popover {
   color: white;
   text-decoration: underline;
-}
-
-.cloudcast-sidebar-query {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: @spacing;
 }
 
 /////////////

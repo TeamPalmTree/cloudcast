@@ -5,22 +5,25 @@
     <table>
         <tr>
             <td class="cloudcast-section-sidebar">
-                <div class="cloudcast-section-sidebar-inner">
-                    <?php echo $files_finder; ?>
-                </div>
+                <?php echo $files_finder; ?>
             </td>
             <td class="cloudcast-section-content">
                 <div class="cloudcast-section-content-inner">
-                    <div class="cloudcast-header">
-                        <h4><?php echo $header; ?></h4>
-                        <div class="cloudcast-header-right">
-                            <button type="submit" class="btn btn-primary" form="blocks-form">SAVE</button>
-                            <a href="/blocks" class="btn">CANCEL</a>
+                    <div class="cloudcast-super-header-form">
+                        <div class="cloudcast-super-header-section">
+                            <h4><?php echo isset($block) ? 'Edit ' . $block->title : 'Create Block'; ?></h4>
+                        </div>
+                        <div class="cloudcast-super-header-section-right">
+                            <button type="submit" class="btn btn-mini btn-primary" form="blocks-form">SAVE</button>
+                            <?php if (isset($block)): ?>
+                                <a href="/blocks/layout/<?php echo $block->id; ?>" class="btn btn-mini">LAYOUT</a>
+                            <?php endif; ?>
+                            <a href="/blocks" class="btn btn-mini">CANCEL</a>
                         </div>
                         <div class="clearfix"></div>
                     </div>
                     <!-- block form -->
-                    <?php echo Form::open(array('id' => 'blocks_formm', 'action' => $action, 'class' => 'form-horizontal', 'data-bind' => 'with: block')); ?>
+                    <?php echo Form::open(array('id' => 'blocks_formm', 'action' => isset($block) ? '/blocks/edit/' . $block->id : '/blocks/create', 'class' => 'form-horizontal', 'data-bind' => 'with: block')); ?>
                     <!-- block -->
                     <div class="control-group">
                         <?php echo Form::label('Title', 'title', array('class' => 'control-label')); ?>
@@ -52,8 +55,8 @@
                         <div class="control-group" data-bind="foreach: block_weights">
                             <div class="controls">
                                 <input type="text" data-bind="value: weight, attr: { name: 'block_weights[' + $index() + '][weight]' }" placeholder="Weight"/>
-                                <button name="remove" type="button" class="btn btn-danger" data-bind="visible: ($parent.block_weights().length > 1), click: $parent.remove_block_weight"><i class="icon-remove"></i></button>
-                                <button name="add" type="button" class="btn btn-info" data-bind="visible: $index() == ($parent.block_weights().length - 1), click: $parent.add_block_weight"><i class="icon-plus"></i></button>
+                                <button name="remove" type="button" class="btn btn-mini btn-danger" data-bind="visible: ($parent.block_weights().length > 1), click: $parent.remove_block_weight"><i class="icon-remove"></i></button>
+                                <button name="add" type="button" class="btn btn-mini btn-info" data-bind="visible: $index() == ($parent.block_weights().length - 1), click: $parent.add_block_weight"><i class="icon-plus"></i></button>
                             </div>
                             <div class="controls">
                                 <?php echo Form::textarea('file_query', null, array('rows' => '3', 'placeholder' => 'Weight Query', 'data-bind' => "value: file_query, valueUpdate: 'afterkeydown', attr: { name: 'block_weights[' + \$index() + '][file_query]' }" )); ?>

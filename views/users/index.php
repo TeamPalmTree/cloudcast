@@ -19,10 +19,10 @@
         <tr>
             <td>
                 <div class="cloudcast-item-section">
-                    <a name="delete" class="btn btn-mini btn-danger" href="#" data-bind="click: $parent.delete"><i class="icon-remove"></i></a>
+                    <a name="delete" title="Delete" class="btn btn-mini btn-danger" href="#" data-bind="click: $parent.delete"><i class="icon-remove"></i></a>
                 </div>
                 <div class="cloudcast-item-section">
-                    <a class="btn btn-mini" href="#" data-bind="attr: { href: 'users/edit/' + username }"><i class="icon-edit"></i></a>
+                    <a class="btn btn-mini" title="Edit" href="#" data-bind="attr: { href: 'users/edit/' + username }"><i class="icon-edit"></i></a>
                 </div>
             </td>
             <td><strong><span data-bind="text: username"></span></strong></td>

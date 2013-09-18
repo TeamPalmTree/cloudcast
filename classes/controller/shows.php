@@ -51,8 +51,6 @@ class Controller_Shows extends Controller_Cloudcast
 
         // render create form
         $view = View::forge('shows/form');
-        $view->header = 'Create Show';
-        $view->action = '/shows/create';
         $view->promos_album = Model_Setting::get_value('station_name');
         // set view vars
         $this->template->title = 'Create';
@@ -79,8 +77,6 @@ class Controller_Shows extends Controller_Cloudcast
 
         // render create form
         $view = View::forge('shows/form');
-        $view->header = 'Edit ' . $show->title;
-        $view->action = '/shows/edit/' . $show->id;
         $view->show = $show;
         // set view vars
         $this->template->title = 'Edit';

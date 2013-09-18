@@ -4,15 +4,16 @@
 </script>
 <div class="cloudcast-section">
     <div class="cloudcast-section-inner">
-        <div class="cloudcast-header">
-            <h4><?php echo $header; ?></h4>
-            <div class="cloudcast-header-right">
-                <button type="submit" class="btn btn-primary" form="shows-form">SAVE</button>
-                <a href="/shows" class="btn">CANCEL</a>
+        <div class="cloudcast-super-header-form">
+            <div class="cloudcast-super-header-section">
+                <h4><?php echo isset($show) ? 'Edit ' . $show->title : 'Create Show'; ?></h4>
             </div>
-            <div class="clearfix"></div>
+            <div class="cloudcast-super-header-section-right">
+                <button type="submit" class="btn btn-mini btn-primary" form="shows-form">SAVE</button>
+                <a href="/shows" class="btn btn-mini">CANCEL</a>
+            </div>
         </div>
-        <?php echo Form::open(array('id' => 'shows-form', 'action' => $action, 'class' => 'form-horizontal', 'data-bind' => 'with: show')); ?>
+        <?php echo Form::open(array('id' => 'shows-form', 'action' => isset($show) ? '/shows/edit/' . $show->id : '/shows/create', 'class' => 'form-horizontal', 'data-bind' => 'with: show')); ?>
         <div class="control-group">
             <?php echo Form::label('Title', 'title', array('class' => 'control-label')); ?>
             <div class="controls">
@@ -162,8 +163,8 @@
             <div class="control-group" data-bind="foreach: users">
                 <div class="controls">
                     <input class="typeahead" type="text" placeholder="Username" data-bind="typeahead: username, typeaheadOptions: { source: $parents[1].query_users }, attr: { name: 'users[' + $index() + '][username]' }" />
-                    <button name="remove" type="button" class="btn btn-danger" data-bind="visible: ($parent.users().length > 1), click: $parent.remove_user"><i class="icon-remove"></i></button>
-                    <button name="add" type="button" class="btn btn-info" data-bind="visible: $index() == ($parent.users().length - 1), click: $parent.add_user"><i class="icon-plus"></i></button>
+                    <button name="remove" type="button" class="btn btn-mini btn-danger" data-bind="visible: ($parent.users().length > 1), click: $parent.remove_user"><i class="icon-remove"></i></button>
+                    <button name="add" type="button" class="btn btn-mini btn-info" data-bind="visible: $index() == ($parent.users().length - 1), click: $parent.add_user"><i class="icon-plus"></i></button>
                 </div>
             </div>
         </div>

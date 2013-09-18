@@ -41,9 +41,6 @@ class Controller_Streams extends Controller_Cloudcast
         // render create form
         $view = View::forge('streams/form');
         // set view vars
-        $view->header = 'Create Stream';
-        $view->action = '/streams/create';
-        // set view vars
         $this->template->title = 'Create';
         $this->template->content = $view;
 
@@ -69,8 +66,6 @@ class Controller_Streams extends Controller_Cloudcast
         // render create form
         $view = View::forge('streams/form');
         // set view vars
-        $view->header = 'Edit ' . $stream->name;
-        $view->action = '/streams/edit/' . $stream->id;
         $view->set('stream', $stream, false);
         // set view vars
         $this->template->title = 'Edit';

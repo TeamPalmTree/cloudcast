@@ -1,6 +1,6 @@
 <div id="shows-index" class="cloudcast-section">
     <div class="cloudcast-section-inner">
-        <div class="cloudcast-header">
+        <div class="cloudcast-super-header">
             <h4>Single Shows</h4>
         </div>
         <?php foreach ($single_shows as $show): ?>
@@ -26,11 +26,11 @@
                 </div>
             </div>
         <?php endforeach; ?>
-        <div class="cloudcast-header">
+        <div class="cloudcast-super-header">
             <h4>Repeating Shows</h4>
         </div>
         <?php foreach ($repeat_days as $day => $shows): ?>
-        <div class="cloudcast-header">
+        <div class="cloudcast-super-header">
             <h5><?php echo $day; ?></h5>
         </div>
         <?php foreach ($shows as $show): ?>
@@ -44,13 +44,17 @@
             </div>
             <div class="cloudcast-item-section">
                 <a title="Edit" class="btn btn-mini" href="/shows/edit/<?php echo $show->id; ?>"><i class="icon-edit"></i></a>
-                <?php if ($show->block != null): ?><a title="Layout" href="/blocks/layout/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-stop"></i> <?php echo $show->block->title; ?></a><?php endif; ?>
             </div>
             <div class="cloudcast-item-section">
                 <strong><?php echo $show->title; ?></strong>
             </div>
             <div class="cloudcast-item-section">
+                <?php if ($show->block != null): ?><a title="Edit" href="/blocks/edit/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-edit"></i><i class="icon-stop"></i></a><?php endif; ?>
+                <?php if ($show->block != null): ?><a title="Layout" href="/blocks/layout/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-list"></i><i class="icon-stop"></i></a><?php endif; ?>
+            </div>
+            <div class="cloudcast-item-section-right">
                 <?php if ($show->block == null): ?><span class="label label-warning"><i class="icon-warning-sign"></i> NO BLOCK</span><?php endif; ?>
+                <?php if ($show->block != null): ?><span class="label label-info"><i class="icon-stop"></i> <?php echo $show->block->title; ?></span><?php endif; ?>
                 <?php if (count($show->users) > 0): ?><span class="label label-info"><i class="icon-headphones"></i> HOSTED</span><?php endif; ?>
             </div>
         </div>

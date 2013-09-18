@@ -1,14 +1,28 @@
-<div data-bind="with: file_viewer">
-    <div class="cloudcast-header">
-        <h4>Files</h4>
-    </div>
-    <div data-bind="foreach: files">
-        <div class="cloudcast-sidebar-item">
-            <label data-bind="popover: { title: title, content: description, container: 'body', trigger: 'hover', placement: 'right', html: true, delay: 1000 }">
-                <i class="icon-music"></i>
-                <strong><span class="cloudcast-popover" data-bind="text: title"></span></strong>
-            </label>
-            <div><i class="icon-user"></i> <span data-bind="text: artist"></span></div>
-        </div>
-    </div>
+<div class="cloudcast-section-sidebar-content" data-bind="with: file_viewer">
+    <table>
+        <tr>
+            <td class="cloudcast-section-sidebar-content-toolbar">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <ul class="nav">
+                            <li><a href="#">Files</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="cloudcast-section-sidebar-content-bottom">
+                <div class="cloudcast-section-sidebar-content-bottom-inner" data-bind="foreach: files">
+                    <div class="cloudcast-section-sidebar-item">
+                        <label data-bind="event: { contextmenu: show_info }">
+                            <i class="icon-music"></i>
+                            <strong><span class="cloudcast-popover" data-bind="text: title"></span></strong>
+                        </label>
+                        <div><i class="icon-user"></i> <span data-bind="text: artist"></span></div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>

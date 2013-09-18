@@ -38,6 +38,39 @@ class Controller_Files extends Controller_Cloudcast
 
     }
 
+    public function post_activate()
+    {
+
+        // get ids to search for
+        $ids = Input::post('ids');
+        // update available status for files
+        $query = DB::update('files')
+            ->set(array('available' => '1'))
+            ->where('id', 'in', $ids);
+        // save
+        $query->execute();
+        // success
+        return $this->response('SUCCESS');
+
+    }
+
+    public function post_set_relevance()
+    {
+
+        // get relevance and ids to search for
+        $relevance = Input::post('relevance');
+        $ids = Input::post('ids');
+        // update relevance for files
+        $query = DB::update('files')
+            ->set(array('relevance' => $relevance))
+            ->where('id', 'in', $ids);
+        // save
+        $query->execute();
+        // success
+        return $this->response('SUCCESS');
+
+    }
+
     public function get_search()
     {
 

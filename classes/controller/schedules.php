@@ -24,16 +24,20 @@ class Controller_Schedules extends Controller_Cloudcast
 
     }
 
-    public function get_delete($id)
+    public function post_deactivate()
     {
-        // find the schedule
-        $schedule = Model_Schedule::find($id);
-        // disable the schedule
-        $schedule->available = '0';
+
+        // get ids to search for
+        $ids = Input::post('ids');
+        // update available status for schedules
+        $query = DB::update('schedules')
+            ->set(array('available' => '0'))
+            ->where('id', 'in', $ids);
         // save
-        $schedule->save();
+        $query->execute();
         // success
         return $this->response('SUCCESS');
+
     }
 
     public function post_save()
@@ -45,42 +49,53 @@ class Controller_Schedules extends Controller_Cloudcast
 
         // get posted schedule id
         $schedule_id = Input::post('id');
-        // get posted schedule files
-        $schedule_files = Input::post('schedule_files');
         // find schedule in database
         $schedule = Model_Schedule::query()
+            ->related('schedule_files')
             ->where('id', $schedule_id)
             ->get_one();
         // verify we found it
         if (!$schedule)
             return $this->response('SCHEDULE_NOT_FOUND');
 
-        ///////////////////////////////////////////////
-        // VERIFY SCHEDULE MODIFICATION RESTRICTIONS //
-        ///////////////////////////////////////////////
+        ///////////////////////////////////////////
+        // VERIFY SCHEDULE DTO IN SYNC WITH LIVE //
+        ///////////////////////////////////////////
 
-        // get server datetime
-        $server_datetime = Helper::server_datetime();
-        // get schedule datetime
-        $schedule_datetime = $schedule->start_on_datetime();
-        // verify the start date of the schedule is in the future
-        if ($schedule_datetime <= $server_datetime)
-            return $this->response('SCHEDULE_LOCKED');
+        // get posted file ids
+        $file_ids = Input::post('file_ids');
+        // loop through live files, looking up to the last queued
+        foreach ($schedule->schedule_files as $schedule_file)
+        {
+            // if we run into a file that isn't queued, we are done
+            if (!$schedule_file->queued)
+                break;
+            // get the file ids in order
+            $file_id = array_shift($file_ids);
+            // verify that it matches the schedule files
+            if ($schedule_file->file->id != $file_id)
+                return $this->response('SCHEDULE_OUT_OF_SYNC');
+        }
 
         ////////////////////////
         // ADD SCHEDULE FILES //
         ////////////////////////
 
+        // get posted file ids
+        $file_ids = Input::post('file_ids');
         // clear schedule files
         Model_Schedule::clear_files($schedule_id);
         // setup schedule files array
         $schedule->schedule_files = array();
         // loop over DTO schedule files
-        foreach ($schedule_files as $schedule_file)
+        foreach ($file_ids as $file_id)
         {
             $schedule->schedule_files[] = Model_Schedule_File::forge(array(
                 'schedule_id' => $schedule_id,
-                'file_id' => $schedule_file['file_id'],
+                'file_id' => $file_id,
+                'ups' => '0',
+                'downs' => '0',
+                'queued' => '0'
             ));
         }
 
@@ -418,6 +433,7 @@ class Controller_Schedules extends Controller_Cloudcast
                 $schedule_file->file_id = $file->id;
                 $schedule_file->ups = 0;
                 $schedule_file->downs = 0;
+                $schedule_file->queued = '0';
                 // save schedule file
                 $schedule_file->save();
             }

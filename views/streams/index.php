@@ -17,7 +17,7 @@
             <div class="cloudcast-item-section">
                 <strong data-bind="text: name"></strong>
             </div>
-            <div class="cloudcast-item-section">
+            <div class="cloudcast-item-section-right">
                 <span class="badge badge-info"><i class="icon-volume-up"></i> <span data-bind="text: type_name"></span></span>
             </div>
         </div>

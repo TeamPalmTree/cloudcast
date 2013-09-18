@@ -27,34 +27,29 @@
                 <div class="cloudcast-display-status-time">
                     <span data-bind="text: updated_on_time"></span>
                 </div>
-                <div class="btn-group cloudcast-display-status-input">
+                <ul class="nav nav-pills cloudcast-display-status-input">
                     <!-- schedule input -->
-                    <button class="btn"
-                            data-bind="css: { 'btn-primary': schedule_input_active, 'active': schedule_input_enabled }, popover: { title: 'Schedule Input', templateId: 'schedule_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function(data, event) { $parent.toggle_input_enabled('schedule') }">
-                        <i class="icon-road"></i>
-                    </button>
+                    <li data-bind="css: { 'active': schedule_input_active }, popover: { title: 'Schedule Input', templateId: 'schedule_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function() { $parent.toggle_input_enabled('schedule') }">
+                        <a href="#"><i class="icon-road" data-bind="css: { 'icon-white': schedule_input_enabled }"></i></a>
+                    </li>
                     <!-- show input -->
-                    <button class="btn"
-                            data-bind="css: { 'btn-primary': show_input_active, 'active': show_input_enabled }, popover: { title: 'Show Input', templateId: 'show_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function(data, event) { $parent.toggle_input_enabled('show') }">
-                        <i class="icon-headphones"></i>
-                    </button>
+                    <li data-bind="css: { 'active': show_input_active }, popover: { title: 'Show Input', templateId: 'show_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function() { $parent.toggle_input_enabled('show') }">
+                        <a href="#"><i class="icon-headphones" data-bind="css: { 'icon-white': show_input_enabled }"></i></a>
+                    </li>
                     <!-- talkover input -->
-                    <button class="btn"
-                            data-bind="css: { 'btn-primary': talkover_input_active, 'active': talkover_input_enabled }, popover: { title: 'Talkover Input', templateId: 'talkover_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function(data, event) { $parent.toggle_input_enabled('talkover') }">
-                        <i class="icon-bullhorn"></i>
-                    </button>
+                    <li data-bind="css: { 'active': talkover_input_active }, popover: { title: 'Talkover Input', templateId: 'talkover_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function() { $parent.toggle_input_enabled('talkover') }">
+                        <a href="#"><i class="icon-bullhorn" data-bind="css: { 'icon-white': talkover_input_enabled }"></i></a>
+                    </li>
                     <!-- master input -->
-                    <button class="btn"
-                            data-bind="css: { 'btn-primary': master_input_active, 'active': master_input_enabled }, popover: { title: 'Master Input', templateId: 'master_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function(data, event) { $parent.toggle_input_enabled('master') }">
-                        <i class="icon-glass"></i>
-                    </button>
-                </div>
+                    <li data-bind="css: { 'active': master_input_active }, popover: { title: 'Master Input', templateId: 'master_input_popover', container: 'body', trigger: 'hover', placement: 'bottom' }, click: function() { $parent.toggle_input_enabled('master') }">
+                        <a href="#"><i class="icon-glass" data-bind="css: { 'icon-white': master_input_enabled }"></i></a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
     <div class="cloudcast-display-logo"></div>
 </div>
-
 <script id="schedule_input_popover" type="text/html">
     <i class="icon-ok-circle" data-bind="visible: schedule_input_enabled"></i>
     <i class="icon-ban-circle" data-bind="visible: !schedule_input_enabled()"></i>

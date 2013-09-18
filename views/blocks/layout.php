@@ -5,30 +5,28 @@
     <table>
         <tr>
             <td class="cloudcast-section-sidebar">
-                <div class="cloudcast-section-sidebar-inner">
-                    <?php echo $blocks_finder; ?>
-                </div>
+                <?php echo $blocks_finder; ?>
             </td>
             <td class="cloudcast-section-sidebar">
-                <div class="cloudcast-section-sidebar-inner">
-                    <?php echo $files_finder; ?>
-                </div>
+                <?php echo $files_finder; ?>
             </td>
             <td class="cloudcast-section-content">
                 <div class="cloudcast-section-content-inner">
-                    <div class="cloudcast-header">
-                        <h4>Layout <?php echo $block->title; ?></h4>
-                        <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: total_duration"></span></span>
-                        <span class="label label-info"><strong>%</strong> <span data-bind="text: total_percentage"></span></span>
-                        <div class="cloudcast-header-right">
-                            <button type="submit" class="btn btn-primary" form="block_layout_form">SAVE</button>
-                            <a href="/blocks" class="btn">CANCEL</a>
+                    <div class="cloudcast-super-header">
+                        <div class="cloudcast-super-header-section">
+                            <h4>Layout <?php echo $block->title; ?></h4>
+                            <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: total_duration"></span></span>
+                            <span class="label label-info"><strong>%</strong> <span data-bind="text: total_percentage"></span></span>
                         </div>
-                        <div class="clearfix"></div>
+                        <div class="cloudcast-super-header-section-right">
+                            <button type="submit" class="btn btn-mini btn-primary" form="block_layout_form">SAVE</button>
+                            <a href="/blocks/edit/<?php echo $block->id; ?>" class="btn btn-mini">EDIT</a>
+                            <a href="/blocks" class="btn btn-mini">CANCEL</a>
+                        </div>
                     </div>
                     <?php echo Form::open(array('id' => 'block_layout_form', 'action' => '/blocks/layout/' . $block->id)); ?>
                     <div data-bind="sortable: block_items">
-                        <div class="cloudcast-super-item">
+                        <div class="cloudcast-item">
 
                             <input type="hidden" data-bind="attr: { name: 'titles[' + $index() + ']' }, value: title" />
                             <div class="cloudcast-item-section">
