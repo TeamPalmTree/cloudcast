@@ -524,6 +524,14 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
+                'name' => 'jingle_ready_delay_seconds',
+                'type' => 'text',
+                'value' => '30.0',
+                'category' => 'jingles'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
                 'name' => 'show_input_port',
                 'type' => 'text',
                 'value' => '12000',

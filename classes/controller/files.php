@@ -190,10 +190,9 @@ class Controller_Files extends Controller_Cloudcast
 
         // implode file names
         $file_names = implode("\n", $file_names);
-        // if we have none, return none
+        // see if we have any
         if ($file_names == "")
-            $file_names = "NONE";
-
+            return $this->response("NONE");
         // send response
         return $this->response($file_names);
 
