@@ -62,6 +62,7 @@ class Controller_Schedules extends Controller_Cloudcast
         // VERIFY SCHEDULE DTO IN SYNC WITH LIVE //
         ///////////////////////////////////////////
 
+        $keep_schedule_file_ids = array();
         // get posted file ids
         $file_ids = Input::post('file_ids');
         // loop through live files, looking up to the last queued
@@ -73,25 +74,36 @@ class Controller_Schedules extends Controller_Cloudcast
 
             // get the file ids in order
             $file_id = array_shift($file_ids);
+            // verify that we have a file id
+            if (!$file_id)
+                return $this->response('SCHEDULE_OUT_OF_SYNC');
             // verify that it matches the schedule files
             if ($schedule_file->file->id != $file_id)
                 return $this->response('SCHEDULE_OUT_OF_SYNC');
+
+            // add file id to list of file id's we cannot delete
+            $keep_schedule_file_ids[] = $schedule_file->id;
         }
 
-        ////////////////////////
-        // ADD SCHEDULE FILES //
-        ////////////////////////
+        ///////////////////////////////////////
+        // DELETE LIVE UNUSED SCHEDULE FILES //
+        ///////////////////////////////////////
 
-        // get posted file ids
-        $file_ids = Input::post('file_ids');
-        // clear schedule files
-        Model_Schedule::clear_files($schedule_id);
-        // setup schedule files array
-        $schedule->schedule_files = array();
-        // loop over DTO schedule files
+        // get schedule file ids we need to delete
+        $flipped_keep_schedule_file_ids = array_flip($keep_schedule_file_ids);
+        $delete_schedule_files = array_diff_key($schedule->schedule_files, $flipped_keep_schedule_file_ids);
+        $delete_schedule_files_ids = array_keys($delete_schedule_files);
+        // delete schedule files that are not queued or played
+        Model_Schedule_File::delete_many($delete_schedule_files_ids);
+
+        ///////////////////////////////
+        // INSERT NEW SCHEDULE FILES //
+        ///////////////////////////////
+
+        // loop over remaining DTO schedule files
         foreach ($file_ids as $file_id)
         {
-            $schedule->schedule_files[] = Model_Schedule_File::forge(array(
+            Model_Schedule_File::insert(array(
                 'schedule_id' => $schedule_id,
                 'file_id' => $file_id,
                 'ups' => '0',
@@ -100,12 +112,6 @@ class Controller_Schedules extends Controller_Cloudcast
             ));
         }
 
-        /////////////
-        // SUCCESS //
-        /////////////
-
-        // save schedule
-        $schedule->save();
         // send response
         return $this->response('SUCCESS');
 

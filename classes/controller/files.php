@@ -16,6 +16,8 @@ class Controller_Files extends Controller_Cloudcast
         $view = View::forge('files/index');
         // set files total count
         $view->files_count = Model_File::query()->count();
+        $view->available_files_count = Model_File::query()->where('available', '1')->count();
+        $view->unavailable_files_count = Model_File::query()->where('available', '0')->count();
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;

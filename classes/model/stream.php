@@ -59,7 +59,7 @@ class Model_Stream extends \Orm\Model
 
         // get all streams
         $streams = Model_Stream::query()
-            ->select('name', 'active', 'type')
+            ->select('name', 'active', 'type', 'mount')
             ->order_by('name', 'asc')
             ->get();
 
@@ -73,6 +73,7 @@ class Model_Stream extends \Orm\Model
                 'name' => $stream->name,
                 'active' => $stream->active,
                 'type_name' => self::$types[$stream->type],
+                'mount' => $stream->mount
             );
             // add to display streams
             $display_streams[] = $display_stream;

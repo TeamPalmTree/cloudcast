@@ -18,7 +18,10 @@
                 <strong data-bind="text: name"></strong>
             </div>
             <div class="cloudcast-item-section-right">
-                <span class="badge badge-info"><i class="icon-volume-up"></i> <span data-bind="text: type_name"></span></span>
+                <span class="label"><i class="icon-volume-up"></i> <span data-bind="text: type_name().toUpperCase()"></span></span>
+                <!-- ko if: mount -->
+                <span class="label"><i class="icon-hdd"></i> <span data-bind="text: mount().toUpperCase()"></span></span>
+                <!-- /ko -->
             </div>
         </div>
     </div>

@@ -27,7 +27,7 @@
                                             </ul>
                                             <ul class="nav pull-right">
                                                 <li class="divider-vertical"></li>
-                                                <li><a href="#">Selected Schedules: <span data-bind="text: selected_schedule_ids_count"></span></a></li>
+                                                <li><a href="#">Selected Schedules: <span data-bind="text: selected_schedules_count"></span></a></li>
                                             </ul>
                                             <!-- /ko -->
                                             <!-- ko if: editing_schedule -->
@@ -40,7 +40,7 @@
                                             </ul>
                                             <ul class="nav pull-right">
                                                 <li class="divider-vertical"></li>
-                                                <li><a href="#">Selected Schedule Files: <span data-bind="text: editing_schedule().selected_schedule_file_ids_count"></span></a></li>
+                                                <li><a href="#">Selected Schedule Files: <span data-bind="text: editing_schedule().selected_schedule_files_count"></span></a></li>
                                             </ul>
                                             <!-- /ko -->
                                         </div>
@@ -57,7 +57,7 @@
                                         <h4 data-bind="text: date"></h4>
                                     </div>
                                     <div data-bind="foreach: schedules">
-                                        <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: select">
+                                        <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule()) select(); }">
                                             <div class="cloudcast-item-section" data-bind="visible: !$root.editing_schedule()">
                                                 <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                             </div>
@@ -78,19 +78,25 @@
                                                 <strong><span data-bind="text: show.title"></span></strong>
                                             </div>
                                             <div class="cloudcast-item-section-right">
-                                                <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: total_duration"></span></span>
+                                                <div class="cloudcast-item-section-right-section">
+                                                    <span class="label" data-bind="visible: jingles_album"><i class="icon-bell"></i> JINGLES</span>
+                                                    <span class="label" data-bind="visible: bumpers_album"><i class="icon-bell"></i> BUMPERS</span>
+                                                    <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS</span>
+                                                </div>
+                                                <div class="cloudcast-item-section-right-section">
+                                                    <span class="label label-info"><i class="icon-music"></i> <span data-bind="text: schedule_files().length"></span> FILES</span>
+                                                    <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: total_duration"></span></span>
+                                                </div>
                                             </div>
                                         </div>
                                         <!-- ko if: expanded -->
                                         <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}">
                                             <div class="cloudcast-item"
-                                                 data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, click: function() { if ($parent.editing()) select(); }">
-                                                <!-- ko if: $parent.editing -->
-                                                <div class="cloudcast-item-section">
+                                                 data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, click: function() { if ($parent.editing() && !played_on() && (queued() == '0')) select(); }">
+                                                <div class="cloudcast-item-section" data-bind="visible: $parent.editing() && !played_on() && (queued() == '0')">
                                                     <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                                 </div>
-                                                <!-- /ko -->
-                                                <div class="cloudcast-item-section" data-bind="visible: queued() == '1' || played_on">
+                                                <div class="cloudcast-item-section" data-bind="visible: queued() == '1' || played_on()">
                                                     <span class="label label-warning" data-bind="visible: queued() == '1'"><i class="icon-download-alt"></i> QUEUED</span>
                                                     <span class="label label-success" data-bind="visible: played_on"><i class="icon-ok"></i> PLAYED</span>
                                                 </div>

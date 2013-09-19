@@ -237,6 +237,9 @@ class Create_Schema
                 'available' => array('type' => 'boolean', 'default' => '1'),
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'sweepers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'jingles_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'bumpers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'show_id' => array('constraint' => 11, 'type' => 'int'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',
             array(

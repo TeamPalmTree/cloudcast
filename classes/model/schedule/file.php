@@ -153,4 +153,22 @@ class Model_Schedule_File extends \Orm\Model
 
     }
 
+    public static function delete_many($schedule_file_ids)
+    {
+        // verify we have some
+        if (count($schedule_file_ids) == 0)
+            return;
+        // delete schedule files at DB level
+        DB::delete('schedule_files')
+            ->where('id', 'in', $schedule_file_ids)
+            ->execute();
+    }
+
+    public static function insert($schedule_file)
+    {
+        DB::insert('schedule_files')
+            ->set($schedule_file)
+            ->execute();
+    }
+
 }

@@ -145,11 +145,4 @@ class Model_Schedule extends \Orm\Model
 
     }
 
-    public static function clear_files($schedule_id)
-    {
-        $query = DB::delete('schedule_files');
-        $query->where('schedule_id', $schedule_id);
-        $query->execute();
-    }
-
 }

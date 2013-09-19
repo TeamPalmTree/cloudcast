@@ -491,8 +491,7 @@ class Controller_Engine extends Controller_Cloudcast {
         $file_names = implode("\n", $file_names);
         // see if we have any
         if ($file_names == "")
-            $this->response("NONE");
-
+            return $this->response("NONE");
         // send response
         return $this->response($file_names);
 

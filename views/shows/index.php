@@ -52,10 +52,15 @@
                 <?php if ($show->block != null): ?><a title="Edit" href="/blocks/edit/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-edit"></i><i class="icon-stop"></i></a><?php endif; ?>
                 <?php if ($show->block != null): ?><a title="Layout" href="/blocks/layout/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-list"></i><i class="icon-stop"></i></a><?php endif; ?>
             </div>
+            <div class="cloudcast-item-section">
+                <?php if ($show->block != null): ?><span class="label label-info"><i class="icon-stop"></i> <?php echo $show->block->title; ?></span><?php endif; ?>
+            </div>
             <div class="cloudcast-item-section-right">
                 <?php if ($show->block == null): ?><span class="label label-warning"><i class="icon-warning-sign"></i> NO BLOCK</span><?php endif; ?>
-                <?php if ($show->block != null): ?><span class="label label-info"><i class="icon-stop"></i> <?php echo $show->block->title; ?></span><?php endif; ?>
                 <?php if (count($show->users) > 0): ?><span class="label label-info"><i class="icon-headphones"></i> HOSTED</span><?php endif; ?>
+                <span class="label" data-bind="visible: jingles_album"><i class="icon-bell"></i> JINGLES</span>
+                <span class="label" data-bind="visible: bumpers_album"><i class="icon-bell"></i> BUMPERS</span>
+                <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS</span>
             </div>
         </div>
         <?php endforeach; ?>

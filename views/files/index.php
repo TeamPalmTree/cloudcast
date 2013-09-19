@@ -51,9 +51,8 @@
                                             </ul>
                                             <ul class="nav pull-right">
                                                 <li class="divider-vertical"></li>
-                                                <li><a href="#">Selected Files: <span data-bind="text: selected_file_ids_count"></span></a></li>
-                                                <li class="divider-vertical"></li>
-                                                <li><a href="#">Total Files: <?php echo $files_count; ?></a></li>
+                                                <li><a href="#">Selected: <span data-bind="text: selected_file_ids_count"></span></a></li>
+                                                <li><a href="#">Total: <?php echo $files_count; ?> (A<?php echo $available_files_count; ?>, U<?php echo $unavailable_files_count; ?>)</a></li>
                                             </ul>
                                         </div>
                                     </div>
