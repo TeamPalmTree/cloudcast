@@ -4,7 +4,8 @@ class Controller_Cloudcast extends Controller_Shared
 {
 
     protected static $anonymous_rest_methods = array(
-        'Controller_Engine.status'
+        'Controller_Engine.status',
+        'Controller_Engine.vote'
     );
 
     public function router($method, $params)
