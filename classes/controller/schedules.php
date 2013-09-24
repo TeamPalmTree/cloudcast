@@ -24,6 +24,10 @@ class Controller_Schedules extends Controller_Cloudcast
 
     }
 
+    public function post_dates() {
+        return $this->response(Model_Schedule::dates());
+    }
+
     public function post_deactivate()
     {
 
@@ -264,6 +268,7 @@ class Controller_Schedules extends Controller_Cloudcast
             'sweepers_album' => $show->sweepers_album,
             'jingles_album' => $show->jingles_album,
             'bumpers_album' => $show->bumpers_album,
+            'sweeper_interval' => $show->sweeper_interval,
             'ups' => '0',
             'downs' => '0',
             'available' => '1'
@@ -362,6 +367,7 @@ class Controller_Schedules extends Controller_Cloudcast
                 'sweepers_album' => $show->sweepers_album,
                 'jingles_album' => $show->jingles_album,
                 'bumpers_album' => $show->bumpers_album,
+                'sweeper_interval' => $show->sweeper_interval,
                 'ups' => '0',
                 'downs' => '0',
                 'available' => '1'

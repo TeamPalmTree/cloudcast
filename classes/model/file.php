@@ -22,6 +22,7 @@ class Model_File extends \Orm\Model
         'sample_rate',
         'name',
         'duration',
+        'post',
         'title',
         'album',
         'artist',

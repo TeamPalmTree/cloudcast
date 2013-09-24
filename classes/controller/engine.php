@@ -35,6 +35,7 @@ class Controller_Engine extends Controller_Cloudcast {
             $status->current_file_artist = $current_schedule_file->file->artist;
             $status->current_file_title = $current_schedule_file->file->title;
             $status->current_file_duration = $current_schedule_file->file->duration;
+            $status->current_file_post = $current_schedule_file->file->post;
             // current show
             $status->current_show_title = $current_schedule_file->schedule->show->title;
             $status->current_show_duration = $current_schedule_file->schedule->show->duration;
@@ -210,7 +211,7 @@ class Controller_Engine extends Controller_Cloudcast {
         $next_schedule_file = Model_Schedule_File::the_next($server_datetime);
         // if we have none, we are done
         if (!$next_schedule_file)
-            $this->response('NONE');
+            return $this->response('NONE');
 
         /////////////////////////////////
         // SET SCHEDULE FILE TO QUEUED //
@@ -535,6 +536,8 @@ class Controller_Engine extends Controller_Cloudcast {
         $show = $schedule->show;
         // populate show info
         $queue_schedule->show_title = $show->title;
+        // populate sweeper interval
+        $queue_schedule->sweeper_interval = $schedule->sweeper_interval;
 
         ///////////////////////////////////
         // POPULATE PROMO AVAILABILITIES //
@@ -578,8 +581,70 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function get_vote()
+    public function get_vote($schedule_file_id, $vote)
     {
+
+        /////////////////////
+        // VOTE VALIDATION //
+        /////////////////////
+
+        // first make sure the vote is valid
+        if (($vote < -1) or ($vote > 1))
+            return $this->response('INVALID_VOTE');
+        // get the IP of the voter
+        $ip_address = $_SERVER['REMOTE_ADDR'];
+        // see if there is a vote from this IP and schedule file
+        $same_vote = Model_Vote::same($ip_address, $schedule_file_id);
+        // now make sure we haven't had a vote from this IP recently
+        if ($same_vote)
+            return $this->response('VOTE_ALREADY_CAST');
+
+        ///////////////////////
+        // GET SCHEDULE FILE //
+        ///////////////////////
+
+        // get server datetime
+        $server_datetime = Helper::server_datetime();
+        // get the voteable schedule file
+        $schedule_file = Model_Schedule_File::voteable($schedule_file_id, $server_datetime);
+        // verify we found the schedule file
+        if (!$schedule_file)
+            return $this->response('INVALID_SCHEDULE_FILE');
+
+        ////////////////////////
+        // UP/DOWNCOUNT VOTES //
+        ////////////////////////
+
+        // if the vote wasn't neutral
+        if ($vote != 0)
+        {
+            // perform calcs
+            $schedule_file->ups += $vote;
+            $schedule_file->file->ups += $vote;
+            $schedule_file->schedule->ups += $vote;
+            $schedule_file->schedule->show->ups += $vote;
+            // save up/down counts
+            $schedule_file->save();
+        }
+
+        //////////////////
+        // VOTE CASTING //
+        //////////////////
+
+        // get server date time string
+        $server_datetime_string = Helper::server_datetime_string($server_datetime);
+        // create a new vote
+        $new_vote = Model_Vote::forge(array(
+            'vote_cast' => $server_datetime_string,
+            'vote' => $vote,
+            'ip_address' => $ip_address,
+            'schedule_file_id' => $schedule_file_id
+        ));
+
+        // save
+        $new_vote->save();
+        // return
+        return $this->response('SUCCESS');
 
     }
 

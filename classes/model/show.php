@@ -8,6 +8,7 @@ class Model_Show extends \Orm\Model
         'start_on',
         'ups',
         'downs',
+        'sweeper_interval',
         'duration',
         'title',
         'description',
@@ -205,6 +206,8 @@ class Model_Show extends \Orm\Model
             // set up/down votes
             $this->ups = 0;
             $this->downs = 0;
+            // set sweeper interval to zero (automatic)
+            $this->sweeper_interval = 0;
         }
 
         // update show
@@ -289,6 +292,12 @@ class Model_Show extends \Orm\Model
         $this->sweepers_album = Input::post('sweepers') ? (($sweepers_album != '') ? $sweepers_album : null) : null;
         $this->jingles_album = Input::post('jingles') ? (($jingles_album != '') ? $jingles_album : null) : null;
         $this->bumpers_album = Input::post('bumpers') ? (($bumpers_album != '') ? $bumpers_album : null) : null;
+
+        // sweeper interval
+        if (Input::post('sweepers_automatic'))
+            $this->sweeper_interval = '0';
+        else
+            $this->sweeper_interval = Input::post('sweeper_interval');
 
     }
 

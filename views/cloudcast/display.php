@@ -5,8 +5,11 @@
                 <div><strong>CURRENT SONG</strong> <span data-bind="text: current_file_artist"></span> - <span data-bind="text: current_file_title"></span></div>
                 <div class="progress progress-striped cloudcast-display-progress">
                     <div class="bar bar-warning" data-bind="style: { width: current_file_percentage() + '%' }"></div>
-                    <div class="cloudcast-display-progress-elapsed"><span data-bind="text: current_file_elapsed"></span> / <span data-bind="text: current_file_duration"></span></div>
-                    <div class="cloudcast-display-progress-remaining"><span data-bind="text: current_file_remaining"></span> / <span data-bind="text: current_file_duration"></span></div>
+                    <div class="cloudcast-display-progress-post" data-bind="style: { width: current_file_post_percentage() + '%' }"></div>
+                    <div class="cloudcast-display-progress-elapsed">
+                        <span data-bind="text: current_file_post"></span> / <span data-bind="text: current_file_elapsed"></span> / <span data-bind="text: current_file_duration"></span>
+                    </div>
+                    <div class="cloudcast-display-progress-remaining"><span data-bind="text: current_file_remaining"></span></div>
                 </div>
                 <div><strong>NEXT SONG</strong> <span data-bind="text: next_file_artist"></span> - <span data-bind="text: next_file_title"></span></div>
             </div>
@@ -17,7 +20,7 @@
                 <div class="progress progress-striped cloudcast-display-progress">
                     <div class="bar bar-warning" data-bind="style: { width: current_show_percentage() + '%' }"></div>
                     <div class="cloudcast-display-progress-elapsed"><span data-bind="text: current_show_elapsed"></span> / <span data-bind="text: current_show_duration"></span></div>
-                    <div class="cloudcast-display-progress-remaining"><span data-bind="text: current_show_remaining"></span> / <span data-bind="text: current_show_duration"></span></div>
+                    <div class="cloudcast-display-progress-remaining"><span data-bind="text: current_show_remaining"></span></span></div>
                 </div>
                 <div><strong>NEXT SHOW</strong> <span data-bind="text: next_show_title"></span></div>
             </div>

@@ -60,7 +60,9 @@
                 <?php if (count($show->users) > 0): ?><span class="label label-info"><i class="icon-headphones"></i> HOSTED</span><?php endif; ?>
                 <span class="label" data-bind="visible: jingles_album"><i class="icon-bell"></i> JINGLES</span>
                 <span class="label" data-bind="visible: bumpers_album"><i class="icon-bell"></i> BUMPERS</span>
-                <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS</span>
+                <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS
+                    (<?php if ($show->sweeper_interval == '0'): ?>AUTO<?php else: ?><?php echo $show->sweeper_interval; ?><?php endif; ?>)
+                </span>
             </div>
         </div>
         <?php endforeach; ?>

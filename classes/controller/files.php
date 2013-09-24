@@ -73,6 +73,26 @@ class Controller_Files extends Controller_Cloudcast
 
     }
 
+    public function post_set_post()
+    {
+
+        // get post and ids to search for
+        $post = Input::post('post');
+        $ids = Input::post('ids');
+        // support null post
+        if ($post == '')
+            $post = null;
+        // update relevance for files
+        $query = DB::update('files')
+            ->set(array('post' => $post))
+            ->where('id', 'in', $ids);
+        // save
+        $query->execute();
+        // success
+        return $this->response('SUCCESS');
+
+    }
+
     public function get_search()
     {
 

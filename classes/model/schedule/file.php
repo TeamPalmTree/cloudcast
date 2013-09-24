@@ -27,6 +27,7 @@ class Model_Schedule_File extends \Orm\Model
 
     public static function the_current($server_datetime)
     {
+
         ///////////////////////////
         // FIND LAST PLAYED FILE //
         ///////////////////////////
@@ -150,6 +151,24 @@ class Model_Schedule_File extends \Orm\Model
         self::$most_popular_file = Model_File::find($most_popular_file_sum->file_id);
         // success
         return self::$most_popular_file;
+
+    }
+
+    public static function voteable($schedule_file_id, $server_datetime)
+    {
+
+        // get next schedule start on datetime string estimation
+        $server_datetime_string = Helper::server_datetime_string($server_datetime);
+        // get schedule file, and related things we are voting on
+        return Model_Schedule_File::query()
+            ->related('file')
+            ->related('schedule')
+            ->related('schedule.show')
+            ->where('id', $schedule_file_id)
+            ->where('available', '1')
+            ->where('start_on', '<=', $server_datetime_string)
+            ->where('end_at', '>', $server_datetime_string)
+            ->get_one();
 
     }
 

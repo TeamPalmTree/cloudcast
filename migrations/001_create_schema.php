@@ -24,6 +24,7 @@ class Create_Schema
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'name' => array('constraint' => 255, 'type' => 'varchar'),
                 'duration' => array('constraint' => 255, 'type' => 'varchar'),
+                'post' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'artist' => array('constraint' => 255, 'type' => 'varchar'),
@@ -160,6 +161,7 @@ class Create_Schema
                 'start_on' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'sweeper_interval' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'duration' => array('constraint' => 255, 'type' => 'varchar'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'description' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
@@ -237,6 +239,7 @@ class Create_Schema
                 'available' => array('type' => 'boolean', 'default' => '1'),
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
+                'sweeper_interval' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'sweepers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'jingles_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'bumpers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
@@ -282,6 +285,29 @@ class Create_Schema
                 ),
             )
         );
+
+        // VOTES
+
+        \DBUtil::create_table('votes', array(
+                'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
+                'vote_cast' => array('type' => 'timestamp', 'default' => '0000-00-00 00:00:00'),
+                'vote' => array('constraint' => 1, 'type' => 'tinyint', 'default' => '0'),
+                'ip_address' => array('constraint' => 255, 'type' => 'varchar'),
+                'schedule_file_id' => array('constraint' => 11, 'type' => 'int'),
+            ), array('id'), false, 'InnoDB', 'utf8_general_ci',
+            array(
+                array(
+                    'key' => 'schedule_file_id',
+                    'reference' => array(
+                        'table' => 'schedule_files',
+                        'column' => 'id',
+                    ),
+                    'on_delete' => 'CASCADE',
+                ),
+            )
+        );
+
+        \DBUtil::create_index('votes', array('ip_address', 'schedule_file_id'), null, 'unique');
 
         // STREAMS
 
@@ -598,7 +624,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'talkover_quiet_threshold',
                 'type' => 'text',
-                'value' => '-20.0',
+                'value' => '-25.0',
                 'category' => 'talkover'
             ))->execute();
 
@@ -610,6 +636,7 @@ class Create_Schema
         \DBUtil::drop_table('inputs');
         \DBUtil::drop_table('stream_statistics');
         \DBUtil::drop_table('streams');
+        \DBUtil::drop_table('votes');
         \DBUtil::drop_table('schedule_files');
         \DBUtil::drop_table('schedules');
         \DBUtil::drop_table('shows_users');

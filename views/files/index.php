@@ -43,15 +43,20 @@
                                                 <li><a href="#" data-bind="click: select_all"><i class="icon-check"></i></a></li>
                                                 <li><a href="#" data-bind="click: deactivate"><i class="icon-ban-circle"></i> DEACTIVATE</a></li>
                                                 <li><a href="#"><i class="icon-ok-sign"></i> ACTIVATE</a></li>
-                                                <li><a href="#">RELEVANCE</a></li>
-                                                <li class="navbar-form">
+                                                <li data-bind="css: { active: set_mode() == 'relevance' }"><a href="#" data-bind="click: function() { toggle_set_mode('relevance'); }">RELEVANCE</a></li>
+                                                <li class="navbar-form" data-bind="visible: set_mode() == 'relevance'">
                                                     <input type="text" class="span1" data-bind="value: relevance">
                                                     <button class="btn" data-bind="click: set_relevance">SET</button>
+                                                </li>
+                                                <li data-bind="css: { active: set_mode() == 'post' }"><a href="#" data-bind="click: function() { toggle_set_mode('post'); }">POST</a></li>
+                                                <li class="navbar-form" data-bind="visible: set_mode() == 'post'">
+                                                    <input type="text" class="span1" data-bind="value: post" placeholder="00:00:00">
+                                                    <button class="btn" data-bind="click: set_post">SET</button>
                                                 </li>
                                             </ul>
                                             <ul class="nav pull-right">
                                                 <li class="divider-vertical"></li>
-                                                <li><a href="#">Selected: <span data-bind="text: selected_file_ids_count"></span></a></li>
+                                                <li><a href="#">Selected: <span data-bind="text: selected_files_count"></span></a></li>
                                                 <li><a href="#">Total: <?php echo $files_count; ?> (A<?php echo $available_files_count; ?>, U<?php echo $unavailable_files_count; ?>)</a></li>
                                             </ul>
                                         </div>
@@ -71,8 +76,19 @@
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'title' }">Title</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'available' }">Available</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'downs' }">Relevance</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'rating' }">Rating</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'album' }">Album</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'genre' }">Genre</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'BPM' }">BPM</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'key' }">Key</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'energy' }">Energy</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'ups' }">Ups</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'downs' }">Downs</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'duration' }">Duration</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'post' }">Post</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'found_on' }">Found On</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'last_play' }">Last Play</a></th>
+                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'date' }">Date</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'ISRC' }">ISRC</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'composer' }">Composer</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'conductor' }">Conductor</a></th>
@@ -80,20 +96,10 @@
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'label' }">Label</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'language' }">Language</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'mood' }">Mood</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'ups' }">Ups</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'downs' }">Downs</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'found_on' }">Found On</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'last_play' }">Last Play</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'date' }">Date</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'track' }">Track</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'BPM' }">BPM</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'rating' }">Rating</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'bit_rate' }">Bit Rate</a></th>
                                             <th><a href="#" data-bind="orderable: { collection: 'files', field: 'sample_rate' }">Sample Rate</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'duration' }">Duration</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'key' }">Key</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'energy' }">Energy</a></th>
-                                            <th><a href="#" data-bind="orderable: { collection: 'files', field: 'website' }">Website</a></th>
+                                            <th><a href="#">Website</a></th>
                                             <th><a href="#">Name</a></th>
                                         </tr>
                                     </thead>
@@ -106,8 +112,19 @@
                                             <td data-bind="text: title"></td>
                                             <td data-bind="text: available() == '1' ? 'Yes' : 'No'"></td>
                                             <td data-bind="text: relevance"></td>
+                                            <td data-bind="text: rating"></td>
                                             <td data-bind="text: album"></td>
                                             <td data-bind="text: genre"></td>
+                                            <td data-bind="text: BPM"></td>
+                                            <td data-bind="text: key"></td>
+                                            <td data-bind="text: energy"></td>
+                                            <td data-bind="text: ups"></td>
+                                            <td data-bind="text: downs"></td>
+                                            <td data-bind="text: duration"></td>
+                                            <td data-bind="text: post"></td>
+                                            <td data-bind="text: found_on"></td>
+                                            <td data-bind="text: last_play"></td>
+                                            <td data-bind="text: date"></td>
                                             <td data-bind="text: ISRC"></td>
                                             <td data-bind="text: composer"></td>
                                             <td data-bind="text: conductor"></td>
@@ -115,19 +132,9 @@
                                             <td data-bind="text: label"></td>
                                             <td data-bind="text: language"></td>
                                             <td data-bind="text: mood"></td>
-                                            <td data-bind="text: ups"></td>
-                                            <td data-bind="text: downs"></td>
-                                            <td data-bind="text: found_on"></td>
-                                            <td data-bind="text: last_play"></td>
-                                            <td data-bind="text: date"></td>
                                             <td data-bind="text: track"></td>
-                                            <td data-bind="text: BPM"></td>
-                                            <td data-bind="text: rating"></td>
                                             <td data-bind="text: bit_rate"></td>
                                             <td data-bind="text: sample_rate"></td>
-                                            <td data-bind="text: duration"></td>
-                                            <td data-bind="text: key"></td>
-                                            <td data-bind="text: energy"></td>
                                             <td data-bind="text: website"></td>
                                             <td data-bind="text: name"></td>
                                         </tr>

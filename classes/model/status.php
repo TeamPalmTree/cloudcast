@@ -7,6 +7,7 @@ class Model_Status extends \Model
     public $current_file_artist;
     public $current_file_title;
     public $current_file_duration;
+    public $current_file_post;
     // next file
     public $next_file_artist;
     public $next_file_title;

@@ -24,6 +24,9 @@
                                             <ul class="nav">
                                                 <li><a href="#" data-bind="click: select_all"><i class="icon-check"></i></a></li>
                                                 <li><a href="#" data-bind="click: deactivate"><i class="icon-ban-circle"></i> DEACTIVATE SCHEDULES</a></li>
+                                                <li><a href="#">AUTO</a></li>
+                                                <li data-bind="css: { active: auto_refresh }"><a href="#" data-bind="click: toggle_auto_refresh"><i class="icon-refresh"></i> REFRESH</a></li>
+                                                <li data-bind="visible: auto_refresh, css: { active: auto_focus }"><a href="#" data-bind="click: toggle_auto_focus"><i class="icon-facetime-video"></i> FOCUS</a></li>
                                             </ul>
                                             <ul class="nav pull-right">
                                                 <li class="divider-vertical"></li>
@@ -81,7 +84,9 @@
                                                 <div class="cloudcast-item-section-right-section">
                                                     <span class="label" data-bind="visible: jingles_album"><i class="icon-bell"></i> JINGLES</span>
                                                     <span class="label" data-bind="visible: bumpers_album"><i class="icon-bell"></i> BUMPERS</span>
-                                                    <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS</span>
+                                                    <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS
+                                                        (<!-- ko if: sweeper_interval() == '0' -->AUTO<!-- /ko --><!-- ko if: sweeper_interval() > 0 --><span data-bind="text: sweeper_interval"></span><!-- /ko -->)
+                                                    </span>
                                                 </div>
                                                 <div class="cloudcast-item-section-right-section">
                                                     <span class="label label-info"><i class="icon-music"></i> <span data-bind="text: schedule_files().length"></span> FILES</span>
@@ -92,7 +97,7 @@
                                         <!-- ko if: expanded -->
                                         <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}">
                                             <div class="cloudcast-item"
-                                                 data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, click: function() { if ($parent.editing() && !played_on() && (queued() == '0')) select(); }">
+                                                 data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !played_on() && (queued() == '0')) select(); }">
                                                 <div class="cloudcast-item-section" data-bind="visible: $parent.editing() && !played_on() && (queued() == '0')">
                                                     <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                                 </div>

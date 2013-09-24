@@ -10,6 +10,7 @@ class Model_Schedule extends \Orm\Model
         'available',
         'ups',
         'downs',
+        'sweeper_interval',
         'sweepers_album',
         'jingles_album',
         'bumpers_album',
