@@ -581,8 +581,20 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function get_vote($schedule_file_id, $vote)
+    public function get_vote($vote)
     {
+
+        ///////////////////////
+        // GET SCHEDULE FILE //
+        ///////////////////////
+
+        // get server datetime
+        $server_datetime = Helper::server_datetime();
+        // get the voteable schedule file
+        $schedule_file = Model_Schedule_File::the_current($server_datetime);
+        // verify we found the schedule file
+        if (!$schedule_file)
+            return $this->response('INVALID_SCHEDULE_FILE');
 
         /////////////////////
         // VOTE VALIDATION //
@@ -594,22 +606,10 @@ class Controller_Engine extends Controller_Cloudcast {
         // get the IP of the voter
         $ip_address = $_SERVER['REMOTE_ADDR'];
         // see if there is a vote from this IP and schedule file
-        $same_vote = Model_Vote::same($ip_address, $schedule_file_id);
+        $same_vote = Model_Vote::same($ip_address, $schedule_file->id);
         // now make sure we haven't had a vote from this IP recently
         if ($same_vote)
             return $this->response('VOTE_ALREADY_CAST');
-
-        ///////////////////////
-        // GET SCHEDULE FILE //
-        ///////////////////////
-
-        // get server datetime
-        $server_datetime = Helper::server_datetime();
-        // get the voteable schedule file
-        $schedule_file = Model_Schedule_File::voteable($schedule_file_id, $server_datetime);
-        // verify we found the schedule file
-        if (!$schedule_file)
-            return $this->response('INVALID_SCHEDULE_FILE');
 
         ////////////////////////
         // UP/DOWNCOUNT VOTES //
@@ -638,7 +638,7 @@ class Controller_Engine extends Controller_Cloudcast {
             'vote_cast' => $server_datetime_string,
             'vote' => $vote,
             'ip_address' => $ip_address,
-            'schedule_file_id' => $schedule_file_id
+            'schedule_file_id' => $schedule_file
         ));
 
         // save

@@ -51,11 +51,15 @@ class Model_File extends \Orm\Model
         'Bumper',
         'Intro',
         'Set',
+        'News',
+        'Countdown',
     );
 
     protected static $artist_delimiters = array(
         'feat',
         'feat\.',
+        'featuring',
+        'featuring\.',
         'vs',
         'vs\.',
         'versus',

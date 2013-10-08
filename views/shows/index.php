@@ -43,14 +43,14 @@
                 <a name="delete" title="Delete" class="btn btn-mini btn-danger" href="#" data-id="<?php echo $show->id; ?>" data-title="<?php echo $show->title; ?>"><i class="icon-remove"></i></a>
             </div>
             <div class="cloudcast-item-section">
-                <a title="Edit" class="btn btn-mini" href="/shows/edit/<?php echo $show->id; ?>"><i class="icon-edit"></i></a>
+                <a title="Edit Show" class="btn btn-mini" href="/shows/edit/<?php echo $show->id; ?>"><i class="icon-edit"></i></a>
             </div>
             <div class="cloudcast-item-section">
                 <strong><?php echo $show->title; ?></strong>
             </div>
             <div class="cloudcast-item-section">
-                <?php if ($show->block != null): ?><a title="Edit" href="/blocks/edit/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-edit"></i><i class="icon-stop"></i></a><?php endif; ?>
-                <?php if ($show->block != null): ?><a title="Layout" href="/blocks/layout/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-list"></i><i class="icon-stop"></i></a><?php endif; ?>
+                <?php if ($show->block != null): ?><a title="Edit Block" href="/blocks/edit/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-edit"></i><i class="icon-stop"></i></a><?php endif; ?>
+                <?php if ($show->block != null): ?><a title="Layout Block" href="/blocks/layout/<?php echo $show->block->id; ?>" class="btn btn-mini"><i class="icon-list"></i><i class="icon-stop"></i></a><?php endif; ?>
             </div>
             <div class="cloudcast-item-section">
                 <?php if ($show->block != null): ?><span class="label label-info"><i class="icon-stop"></i> <?php echo $show->block->title; ?></span><?php endif; ?>

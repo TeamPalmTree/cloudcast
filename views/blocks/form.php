@@ -14,7 +14,7 @@
                             <h4><?php echo isset($block) ? 'Edit ' . $block->title : 'Create Block'; ?></h4>
                         </div>
                         <div class="cloudcast-super-header-section-right">
-                            <button type="submit" class="btn btn-mini btn-primary" form="blocks-form">SAVE</button>
+                            <button type="submit" class="btn btn-mini btn-primary" form="blocks_formm">SAVE</button>
                             <?php if (isset($block)): ?>
                                 <a href="/blocks/layout/<?php echo $block->id; ?>" class="btn btn-mini">LAYOUT</a>
                             <?php endif; ?>
