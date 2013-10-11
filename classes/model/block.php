@@ -329,7 +329,7 @@ class Model_Block extends \Orm\Model
         /////////////////////////////
 
         // get weighted search files
-        $weighted_files = $this->weighted_files($seconds);
+        $weighted_files = $this->weighted_files();
 
         /////////////////////////////////
         // LOOP UNTIL SECONDS EXCEEDED //
@@ -339,9 +339,9 @@ class Model_Block extends \Orm\Model
         while (true)
         {
 
-            /////////////////////////////////////
-            // VERIFY WE HAVE TIME & FILE SETS //
-            /////////////////////////////////////
+            /////////////////////////
+            // VERIFY WE HAVE TIME //
+            /////////////////////////
 
             // stop if the show is filled
             if ($filled_seconds >= $seconds)
@@ -353,9 +353,32 @@ class Model_Block extends \Orm\Model
 
             // claim weighted file
             $claimed_file = $this->claim_weighted_file($weighted_files);
-            // stop if we are unable to find files
+            // switch to backup block if we cannot find more files
             if (!$claimed_file)
+            {
+
+                //////////////////////////////////////////
+                // SWITCH TO BACKUP BLOCK FOR REMAINDER //
+                //////////////////////////////////////////
+
+                // calculate remaining seconds
+                $remaining_seconds = $seconds - $filled_seconds;
+                // if we have no backup block, we are done
+                if (!$this->backup_block)
+                    break;
+
+                // run the backup block
+                $this->backup_block->files($remaining_seconds, $this, $this->top_block);
+                // update key and energy to lower block's current
+                $this->current_key = $this->backup_block->current_key;
+                $this->current_energy = $this->backup_block->current_energy;
+                $this->current_genre = $this->backup_block->current_genre;
+                // update total seconds filled for this block
+                $filled_seconds += $this->backup_block->filled_seconds;
+                // we are done
                 break;
+
+            }
 
             // update filled seconds with claimed file duration
             $filled_seconds += $claimed_file->duration_seconds();
@@ -367,7 +390,7 @@ class Model_Block extends \Orm\Model
         /////////////
 
         // update filled seconds
-        $this->fill_seconds($seconds);
+        $this->fill_seconds($filled_seconds);
 
     }
 
@@ -383,7 +406,7 @@ class Model_Block extends \Orm\Model
         }
     }
 
-    protected function weighted_files($seconds)
+    protected function weighted_files()
     {
 
         //////////////////////////
@@ -392,13 +415,9 @@ class Model_Block extends \Orm\Model
 
         // get base query files
         $base_files = Model_File::search($this->file_query, true, null, true, true);
-        // if we have no base files
+        // if we have no base files, return an empty array
         if (count($base_files) == 0)
-        {
-            // see if we have a backup block
-            if ($this->backup_block != null)
-                return array($this->backup_block->files($seconds, null, $this->backup_block));
-        }
+            return array();
 
         ////////////////////////////
         // NOW GET WEIGHTED FILES //
@@ -413,9 +432,13 @@ class Model_Block extends \Orm\Model
         // append to the base query each weight
         foreach ($this->weighted_block_weights as $block_weight)
         {
-            $weighted_files[$block_weight->weight] = Model_File::search(
+            // get block weight files
+            $block_weight_files = Model_File::search(
                 $this->file_query . "\n" .  $block_weight->file_query,
                 true, null, true, true);
+            // only add weight files if we have some
+            if (count($block_weight_files) > 0)
+                $weighted_files[$block_weight->weight] = $block_weight_files;
         }
 
         // success
@@ -425,34 +448,79 @@ class Model_Block extends \Orm\Model
 
     protected function claim_weighted_file(&$weighted_files)
     {
+        //////////////////////////////
+        // VERIFY WE HAVE FILE SETS //
+        //////////////////////////////
 
-        /////////////////////////////////////
-        // BASE SET RETURN WITH NO WEIGHTS //
-        /////////////////////////////////////
-
-        // if we have only the base files,
-        // else get a random set based on weights
-        if (count($weighted_files) == 1)
-            return $this->claim_file($weighted_files[0]);
+        // if we have no file sets
+        if (count($weighted_files) == 0)
+            return null;
 
         /////////////////////////////////
         // GET RANDOM SEARCH FILES SET //
         /////////////////////////////////
 
+        $weighted_files_key = null;
         // get random files
-        $random_files = $this->random_files($weighted_files);
+        $source_files = $this->random_files($weighted_files, $weighted_files_key);
         // attempt to claim from random files set
-        $file = $this->claim_file($random_files);
-        // if that failed for whatever reason, claim from base set
+        $file = $this->claim_file($source_files);
+        // if we don't have the file, attempt gather from base
         if (!$file)
-            return $this->claim_file($weighted_files[0]);
-        // else return something from the random set
+        {
+
+            //////////////////////////
+            // USE BASE SET INSTEAD //
+            //////////////////////////
+
+            // see if we still have our base set, use it instead
+            if (array_key_exists(0, $weighted_files))
+            {
+                // attempt to claim from base files set
+                $file = $this->claim_file($source_files);
+                // if we couldn't gather from base, we are doomed
+                if (!$file)
+                    return null;
+
+                // set source files to base set
+                $source_files = $weighted_files[0];
+                // set key
+                $weighted_files_key = 0;
+            }
+            else
+            {
+                // there is nothing we can do
+                return null;
+            }
+
+        }
+
+        ///////////////////////
+        // REMOVE EMPTY SETS //
+        ///////////////////////
+
+        // if the source set is empty, we need to remove it
+        if (count($source_files) == 0)
+            unset($weighted_files[$weighted_files_key]);
+
+        // success
         return $file;
 
     }
 
-    protected function random_files(&$weighted_files)
+    protected function random_files(&$weighted_files, &$weighted_files_key)
     {
+
+        // if we only have one, return it
+        if (count($weighted_files) == 1)
+        {
+            // get first array element
+            $random_files = reset($weighted_files);
+            // set key
+            $weighted_files_key = key($weighted_files);
+            // success
+            return $random_files;
+        }
 
         $random_files = null;
         $cumulative_weights_sum = 0;
@@ -468,7 +536,12 @@ class Model_Block extends \Orm\Model
             // if the random number is less than or = to the cum weights
             // sum, we have found our set :)
             if ($random_number <= $cumulative_weights_sum)
+            {
+                // set key
+                $weighted_files_key = $weight;
+                // success
                 return $files;
+            }
         }
 
     }

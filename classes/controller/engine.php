@@ -196,7 +196,12 @@ class Controller_Engine extends Controller_Cloudcast {
         $scheduled_remaining_seconds = Model_Schedule::remaining_seconds($schedule_file->schedule_id);
         // if we don't have enough files to fill the schedule (due to transitions and such)
         if ($scheduled_remaining_seconds < $actual_remaining_seconds)
-            $schedule_file->schedule->backup_fill($actual_remaining_seconds);
+        {
+            // calculate schedule gap
+            $gap_remaining_seconds = $actual_remaining_seconds - $scheduled_remaining_seconds;
+            // fill up the scheduling gap
+            $schedule_file->schedule->backup_fill($gap_remaining_seconds);
+        }
 
         ////////////////////////////////////
         // UPDATE SCHEDULE FILE PLAY DATE //
