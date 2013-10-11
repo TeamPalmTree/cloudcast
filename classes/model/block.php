@@ -93,6 +93,7 @@ class Model_Block extends \Orm\Model
 
         // get block
         $block = Model_Block::query()
+            ->related('backup_block')
             ->related('block_weights')
             ->where('id', $id)
             ->get_one();
@@ -165,6 +166,20 @@ class Model_Block extends \Orm\Model
                     'file_query' => $block_weight['file_query'],
                 ));
             }
+        }
+
+        // add block
+        if (Input::post('backup_blocked'))
+        {
+            $this->backup_block = Model_Block::find('first', array(
+                'where' => array(
+                    array('title', Input::post('backup_block')),
+                )
+            ));
+        }
+        else
+        {
+            $this->backup_block = null;
         }
 
     }
@@ -296,6 +311,7 @@ class Model_Block extends \Orm\Model
         $this->ordered_block_items = Model_Block_Item::query()
             ->related('file')
             ->related('child_block')
+            ->related('child_block.backup_block')
             ->where('block_id', $this->id)
             ->order_by('id', 'ASC')
             ->get();
@@ -313,7 +329,7 @@ class Model_Block extends \Orm\Model
         /////////////////////////////
 
         // get weighted search files
-        $weighted_files = $this->weighted_files();
+        $weighted_files = $this->weighted_files($seconds);
 
         /////////////////////////////////
         // LOOP UNTIL SECONDS EXCEEDED //
@@ -367,7 +383,7 @@ class Model_Block extends \Orm\Model
         }
     }
 
-    protected function weighted_files()
+    protected function weighted_files($seconds)
     {
 
         //////////////////////////
@@ -376,13 +392,20 @@ class Model_Block extends \Orm\Model
 
         // get base query files
         $base_files = Model_File::search($this->file_query, true, null, true, true);
-        // start the weighted sets with base files
-        $weighted_files = array($base_files);
+        // if we have no base files
+        if (count($base_files) == 0)
+        {
+            // see if we have a backup block
+            if ($this->backup_block != null)
+                return array($this->backup_block->files($seconds, null, $this->backup_block));
+        }
 
         ////////////////////////////
         // NOW GET WEIGHTED FILES //
         ////////////////////////////
 
+        // start the weighted sets with base files
+        $weighted_files = array($base_files);
         // see if we have any weights defined
         if (count($this->weighted_block_weights) == 0)
             return $weighted_files;

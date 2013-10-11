@@ -168,14 +168,35 @@ class Controller_Engine extends Controller_Cloudcast {
     public function get_play_schedule_file($id)
     {
 
+        // get server time
+        $server_datetime = Helper::server_datetime();
+
         ////////////////////////
         // FIND SCHEDULE FILE //
         ////////////////////////
 
         // find the schedule file
         $schedule_file = Model_Schedule_File::query()
+            ->related('schedule')
+            ->related('schedule.show')
+            ->related('schedule.show.block')
+            ->related('schedule.show.block.backup_block')
             ->where('id', $id)
             ->get_one();
+
+        //////////////////////////
+        // BACKUP FILL SCHEDULE //
+        //////////////////////////
+
+        // get the schedule end datetime
+        $schedule_end_at_datetime = Helper::server_datetime($schedule_file->schedule->end_at);
+        // get the difference between schedule end and current time
+        $actual_remaining_seconds = $schedule_end_at_datetime->getTimestamp() - $server_datetime->getTimestamp();
+        // get the scheduled remaining seconds
+        $scheduled_remaining_seconds = Model_Schedule::remaining_seconds($schedule_file->schedule_id);
+        // if we don't have enough files to fill the schedule (due to transitions and such)
+        if ($scheduled_remaining_seconds < $actual_remaining_seconds)
+            $schedule_file->schedule->backup_fill($actual_remaining_seconds);
 
         ////////////////////////////////////
         // UPDATE SCHEDULE FILE PLAY DATE //
@@ -481,6 +502,7 @@ class Controller_Engine extends Controller_Cloudcast {
             ->where('genre', $genre)
             ->where('album', $album)
             ->where('available', '1')
+            ->where('found', '1')
             ->get();
 
         $file_names = array();
@@ -551,6 +573,7 @@ class Controller_Engine extends Controller_Cloudcast {
                 ->where('genre', 'Sweeper')
                 ->where('album', $sweepers_album)
                 ->where('available', '1')
+                ->where('found', '1')
                 ->count() > 0;
         }
 
@@ -562,6 +585,7 @@ class Controller_Engine extends Controller_Cloudcast {
                     ->where('genre', 'Jingle')
                     ->where('album', $jingles_album)
                     ->where('available', '1')
+                    ->where('found', '1')
                     ->count() > 0;
         }
 
@@ -573,6 +597,7 @@ class Controller_Engine extends Controller_Cloudcast {
                     ->where('genre', 'Bumper')
                     ->where('album', $bumpers_album)
                     ->where('available', '1')
+                    ->where('found', '1')
                     ->count() > 0;
         }
 

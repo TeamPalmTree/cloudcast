@@ -78,6 +78,11 @@ class Model_Schedule_File extends \Orm\Model
         $next_schedule_start_on_datetime = $server_datetime;
         // get current schedule file
         $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
+
+        /////////////////////////////////////////////////////////////
+        // FACTOR CURRENT FILE DURATION IN CASE OF SCHEDULE CHANGE //
+        /////////////////////////////////////////////////////////////
+
         // if we have no current file, we need no lookup time adjustments
         if ($current_schedule_file != null)
         {
@@ -89,9 +94,9 @@ class Model_Schedule_File extends \Orm\Model
             $next_schedule_start_on_datetime = Helper::datetime_add_seconds($current_schedule_file_played_on_datetime, $current_schedule_file_duration_seconds);
         }
 
-        ////////////////////////////////////////////
-        // USE CURRENT TO BETTER PREDICT THE NEXT //
-        ////////////////////////////////////////////
+        //////////////////////////////////
+        // DETERMINE NEXT SCHEDULE FILE //
+        //////////////////////////////////
 
         // get next schedule start on datetime string estimation
         $next_schedule_start_on_datetime_string = Helper::server_datetime_string($next_schedule_start_on_datetime);

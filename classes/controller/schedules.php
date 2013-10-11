@@ -410,6 +410,7 @@ class Controller_Schedules extends Controller_Cloudcast
         $schedules = Model_Schedule::query()
             ->related('show')
             ->related('show.block')
+            ->related('show.block.backup_block')
             ->related('schedule_files')
             ->where('available', '1')
             ->where('end_at', '>', $server_datetime_string)

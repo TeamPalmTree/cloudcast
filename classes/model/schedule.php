@@ -146,4 +146,49 @@ class Model_Schedule extends \Orm\Model
 
     }
 
+    public static function remaining_seconds($schedule_id)
+    {
+
+        // get remaining file durations for this schedule
+        $remaining_durations = DB::select()
+            ->select(array('files.duration', 'file_duration'))
+            ->from('schedule_files')
+            ->join('files')->on('schedule_files.file_id', '=', 'files.id')
+            ->where('schedule_files.schedule_id', $schedule_id)
+            ->where('schedule_files.played_on', null)
+            ->execute();
+
+        $remaining_seconds = 0;
+        // sum remaining durations the total seconds
+        foreach ($remaining_durations as $remaining_duration)
+            $remaining_seconds += Helper::duration_seconds($remaining_duration['file_duration']);
+
+        // success
+        return $remaining_seconds;
+
+    }
+
+    public function backup_fill($seconds)
+    {
+
+        // set schedule files
+        $files = $this->show->backup_files($seconds);
+        // generate each schedule file
+        foreach ($files as $file)
+        {
+
+            // create schedule file
+            $schedule_file = Model_Schedule_File::forge();
+            // set properties
+            $schedule_file->schedule_id = $this->id;
+            $schedule_file->file_id = $file->id;
+            $schedule_file->ups = 0;
+            $schedule_file->downs = 0;
+            $schedule_file->queued = '0';
+            // add to array
+            $this->schedule_files[] = $schedule_file;
+        }
+
+    }
+
 }

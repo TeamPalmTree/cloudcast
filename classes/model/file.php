@@ -12,6 +12,7 @@ class Model_File extends \Orm\Model
         'last_play',
         'date',
         'available',
+        'found',
         'track',
         'BPM',
         'rating',
@@ -125,15 +126,22 @@ class Model_File extends \Orm\Model
             $changed = true;
         }
 
-        // set file available
-        if (!$this->available)
+        // set file found
+        if (!$this->found)
+        {
+            $this->found = true;
+            $changed = true;
+        }
+
+        // set file availability
+        if (is_null($this->available))
         {
             $this->available = true;
             $changed = true;
         }
 
         // set ups/downs
-        if (!$this->ups or !$this->downs)
+        if (is_null($this->ups) or is_null(!$this->downs))
         {
             $this->ups = 0;
             $this->downs = 0;
@@ -141,7 +149,7 @@ class Model_File extends \Orm\Model
         }
 
         // set relevance
-        if (!$this->relevance)
+        if (is_null($this->relevance))
         {
             $this->relevance = 1;
             $changed = true;
@@ -286,6 +294,8 @@ class Model_File extends \Orm\Model
                 self::search_query_and($search_string_and, $restricted_genres, $search_query, $server_datetime);
             }
 
+            // restrict to found only
+            $search_query->where('found', '1');
             // success
             return $search_query;
 

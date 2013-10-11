@@ -15,9 +15,17 @@ class Controller_Files extends Controller_Cloudcast
         // create view
         $view = View::forge('files/index');
         // set files total count
-        $view->files_count = Model_File::query()->count();
-        $view->available_files_count = Model_File::query()->where('available', '1')->count();
-        $view->unavailable_files_count = Model_File::query()->where('available', '0')->count();
+        $view->files_count = Model_File::query()
+            ->where('found', '1')
+            ->count();
+        $view->available_files_count = Model_File::query()
+            ->where('available', '1')
+            ->where('found', '1')
+            ->count();
+        $view->unavailable_files_count = Model_File::query()
+            ->where('available', '0')
+            ->where('found', '1')
+            ->count();
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;
@@ -158,19 +166,19 @@ class Controller_Files extends Controller_Cloudcast
         $file_names = array_keys($files);
         // get keys of the scanned list
         $scanned_file_names = array_keys($scanned_files);
-        // intersect the arrays to determine which DB files are available
-        $available_file_names = array_intersect($file_names, $scanned_file_names);
+        // intersect the arrays to determine which DB files are found
+        $found_file_names = array_intersect($file_names, $scanned_file_names);
         // diff the avail and DB files to determine unavailable files
-        $unavailable_file_names = array_diff($file_names, $available_file_names);
+        $lost_file_names = array_diff($file_names, $found_file_names);
         // set available files available
-        foreach ($unavailable_file_names as $unavailable_file_name)
+        foreach ($lost_file_names as $lost_file_name)
         {
             // get the file to mark unavailable
-            $file = $files[$unavailable_file_name];
-            // see if we need to update availability
-            if ($file->available)
+            $file = $files[$lost_file_name];
+            // see if we need to update found
+            if ($file->found)
             {
-                $file->available = false;
+                $file->found = false;
                 $file->save();
             }
         }
@@ -194,6 +202,7 @@ class Controller_Files extends Controller_Cloudcast
         $files = Model_File::query()
             ->where('genre', $genre)
             ->where('available', '1')
+            ->where('found', '1')
             ->get();
 
         $file_names = array();

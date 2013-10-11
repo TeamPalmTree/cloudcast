@@ -320,4 +320,29 @@ class Model_Show extends \Orm\Model
 
     }
 
+    public function backup_files($seconds)
+    {
+        /////////////////////////////////
+        // NO BLOCK == NO BACKUP FILES //
+        /////////////////////////////////
+
+        if ($this->block == null)
+            return array();
+
+        ////////////////////////////////////////
+        // NO BACKUP BLOCK == NO BACKUP FILES //
+        ////////////////////////////////////////
+
+        if ($this->block->backup_block == null)
+            return array();
+
+        ///////////////////////////////////////
+        // GET FILES FROM BLOCK FOR DURATION //
+        ///////////////////////////////////////
+
+        // forward to gathering loop (and so the crazy begins)
+        return $this->block->backup_block->files($seconds, null, $this->block->backup_block);
+
+    }
+
 }

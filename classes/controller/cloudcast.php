@@ -58,7 +58,13 @@ class Controller_Cloudcast extends Controller_Shared
                 'section' => $this->section,
             ));
         }
+        else
+        {
+            // allow access to REST resources
+            header('Access-Control-Allow-Origin: *');
+        }
 
+        header('Access-Control-Allow-Origin: *');
         // forward to FPHP router
         parent::router($method, $params);
 

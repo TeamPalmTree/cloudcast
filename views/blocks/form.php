@@ -63,6 +63,21 @@
                             </div>
                         </div>
                     </div>
+                    <h5>Backup</h5>
+                    <div class="control-group">
+                        <?php echo Form::label('Backup Blocked', 'backup_blocked', array('class' => 'control-label')); ?>
+                        <div class="controls">
+                            <input name="backup_blocked" type="checkbox" data-bind="checked: backup_blocked" />
+                        </div>
+                    </div>
+                    <div id="show_form_block" data-bind="visible: backup_blocked">
+                        <div class="control-group">
+                            <?php echo Form::label('Backup Block', 'backup_block', array('class' => 'control-label')); ?>
+                            <div class="controls">
+                                <input name="backup_block" class="typeahead" type="text" data-bind="typeahead: backup_block().title, typeaheadOptions: { source: $parent.query_blocks }" />
+                            </div>
+                        </div>
+                    </div>
                     <h5>Harmony</h5>
                     <div class="control-group">
                         <?php echo Form::label('Harmonic Key', 'harmonic_key', array('class' => 'control-label')); ?>

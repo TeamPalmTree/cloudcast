@@ -14,6 +14,7 @@ class Create_Schema
                 'last_play' => array('type' => 'timestamp', 'null' => true),
                 'date' => array('type' => 'timestamp'),
                 'available' => array('type' => 'boolean', 'default' => '1'),
+                'found' => array('type' => 'boolean', 'default' => '1'),
                 'track' => array('type' => 'smallint', 'null' => true),
                 'BPM' => array('type' => 'smallint', 'null' => true),
                 'rating' => array('type' => 'smallint', 'null' => true),
@@ -552,7 +553,7 @@ class Create_Schema
             ->set(array(
                 'name' => 'jingle_ready_delay_seconds',
                 'type' => 'text',
-                'value' => '30.0',
+                'value' => '120.0',
                 'category' => 'jingles'
             ))->execute();
 

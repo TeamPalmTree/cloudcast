@@ -42,7 +42,7 @@
                                             <ul class="nav">
                                                 <li><a href="#" data-bind="click: select_all"><i class="icon-check"></i></a></li>
                                                 <li><a href="#" data-bind="click: deactivate"><i class="icon-ban-circle"></i> DEACTIVATE</a></li>
-                                                <li><a href="#"><i class="icon-ok-sign"></i> ACTIVATE</a></li>
+                                                <li><a href="#" data-bind="click: activate"><i class="icon-ok-sign"></i> ACTIVATE</a></li>
                                                 <li data-bind="css: { active: set_mode() == 'relevance' }"><a href="#" data-bind="click: function() { toggle_set_mode('relevance'); }">RELEVANCE</a></li>
                                                 <li class="navbar-form" data-bind="visible: set_mode() == 'relevance'">
                                                     <input type="text" class="span1" data-bind="value: relevance">
