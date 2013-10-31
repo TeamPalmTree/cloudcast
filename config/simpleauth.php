@@ -53,29 +53,6 @@ return array(
 	'multiple_logins' => false,
 
 	/**
-	 * Groups as id => array(name => <string>, roles => <array>)
-	 */
-	'groups' => array(
-		/**
-		 * Examples
-		 * ---
-		 *
-		 * -1   => array('name' => 'Banned', 'roles' => array('banned')),
-		 * 0    => array('name' => 'Guests', 'roles' => array()),
-		 * 1    => array('name' => 'Users', 'roles' => array('user')),
-		 * 50   => array('name' => 'Moderators', 'roles' => array('user', 'moderator')),
-		 * 100  => array('name' => 'Administrators', 'roles' => array('user', 'moderator', 'admin')),
-		 */
-
-        -1   => array('name' => 'Disabled', 'roles' => array('banned')),
-        0    => array('name' => 'Hosts', 'roles' => array('host')),
-        1    => array('name' => 'Guests', 'roles' => array('user')),
-        2    => array('name' => 'DJs', 'roles' => array('host', 'user', 'DJ')),
-        3    => array('name' => 'Program Managers', 'roles' => array('host', 'user', 'DJ', 'manager')),
-        4    => array('name' => 'Administrators', 'roles' => array('administrator')),
-	),
-
-	/**
 	 * Roles as name => array(location => rights)
 	 */
 	'roles' => array(
