@@ -491,4 +491,47 @@ class Model_File extends \Orm\Model
 
     }
 
+    public static function promos($genre, $album)
+    {
+        return Model_File::query()
+            ->where('genre', $genre)
+            ->where('album', $album)
+            ->where('available', '1')
+            ->where('found', '1')
+            ->order_by(DB::expr('RAND()'))
+            ->get();
+    }
+
+    public function transitioned_duration_seconds($previous_genre)
+    {
+
+        /////////////////////////////////////////////////
+        // GET BASE DURATION AND TRANSITION PARAMETERS //
+        /////////////////////////////////////////////////
+
+        // start off with our current file duration
+        $transitioned_duration_seconds = $this->duration_seconds();
+        // get transition parameters
+        $transition_cross_seconds = Model_Setting::get_value('transition_cross_seconds');
+        $transition_fade_seconds = Model_Setting::get_value('transition_fade_seconds');
+        $transition_delay_seconds = Model_Setting::get_value('transition_delay_seconds');
+
+        //////////////////////////////////////////////////
+        // MATCH LIQUIDSOAP TRANSITION FUNCTION TIMINGS //
+        //////////////////////////////////////////////////
+
+        // bumper to file
+        if (($previous_genre == 'Bumper') && ($this->genre != 'Intro'))
+            return $transitioned_duration_seconds + $transition_delay_seconds;
+        // intro to file
+        if ($previous_genre == 'Intro')
+            return $transitioned_duration_seconds + $transition_delay_seconds;
+        // file to sweeper or sweeper to file
+        if (($this->genre == 'Sweeper') or ($previous_genre == 'Sweeper'))
+            return $transitioned_duration_seconds - ((($transition_fade_seconds * 2) - $transition_cross_seconds) / 2);
+        // everything else is back to back
+        return $transitioned_duration_seconds;
+
+    }
+
 }

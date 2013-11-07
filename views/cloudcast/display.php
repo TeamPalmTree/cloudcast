@@ -7,7 +7,9 @@
                     <div class="bar bar-warning" data-bind="style: { width: current_file_percentage() + '%' }"></div>
                     <div class="cloudcast-display-progress-post" data-bind="style: { width: current_file_post_percentage() + '%' }"></div>
                     <div class="cloudcast-display-progress-elapsed">
-                        <span data-bind="text: current_file_post"></span> / <span data-bind="text: current_file_elapsed"></span> / <span data-bind="text: current_file_duration"></span>
+                        <a href="#" data-bind="text: current_file_post, visible: current_file_post, click: $parent.set_post"></a>
+                        <a href="#" data-bind="visible: !current_file_post(), click: $parent.set_post">SET POST</a>
+                        / <span data-bind="text: current_file_elapsed"></span> / <span data-bind="text: current_file_duration"></span>
                     </div>
                     <div class="cloudcast-display-progress-remaining"><span data-bind="text: current_file_remaining"></span></div>
                 </div>

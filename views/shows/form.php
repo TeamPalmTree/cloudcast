@@ -124,17 +124,9 @@
                 </div>
             </div>
             <div class="control-group">
-                <?php echo Form::label('Sweepers Automatic', 'sweepers_automatic', array('class' => 'control-label')); ?>
+                <?php echo Form::label('Sweeper Interval', 'sweeper_interval', array('class' => 'control-label')); ?>
                 <div class="controls">
-                    <input name="sweepers_automatic" type="checkbox" data-bind="checked: sweepers_automatic" />
-                </div>
-            </div>
-            <div data-bind="visible: !sweepers_automatic()">
-                <div class="control-group">
-                    <?php echo Form::label('Sweeper Interval', 'sweeper_interval', array('class' => 'control-label')); ?>
-                    <div class="controls">
-                        <input name="sweeper_interval" type="text" data-bind="value: sweeper_interval" placeholder="Sweeper Interval" />
-                    </div>
+                    <input name="sweeper_interval" type="text" data-bind="value: sweeper_interval" placeholder="Sweeper Interval" />
                 </div>
             </div>
         </div>

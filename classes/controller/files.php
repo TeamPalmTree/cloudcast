@@ -90,10 +90,30 @@ class Controller_Files extends Controller_Cloudcast
         // support null post
         if ($post == '')
             $post = null;
-        // update relevance for files
+        // update post for files
         $query = DB::update('files')
             ->set(array('post' => $post))
             ->where('id', 'in', $ids);
+        // save
+        $query->execute();
+        // success
+        return $this->response('SUCCESS');
+
+    }
+
+    public function get_set_post()
+    {
+
+        // get post and id to search for
+        $post = Input::get('post');
+        $id = Input::get('id');
+        // support null post
+        if ($post == '')
+            $post = null;
+        // update post for file
+        $query = DB::update('files')
+            ->set(array('post' => $post))
+            ->where('id', $id);
         // save
         $query->execute();
         // success
@@ -193,46 +213,6 @@ class Controller_Files extends Controller_Cloudcast
         else
             return $this->response('SUCCESS');
 
-    }
-
-    protected function promos($genre)
-    {
-
-        // query available files
-        $files = Model_File::query()
-            ->where('genre', $genre)
-            ->where('available', '1')
-            ->where('found', '1')
-            ->get();
-
-        $file_names = array();
-        // flatten files
-        foreach ($files as $file)
-            $file_names[] = $file->name;
-
-        // implode file names
-        $file_names = implode("\n", $file_names);
-        // see if we have any
-        if ($file_names == "")
-            return $this->response("NONE");
-        // send response
-        return $this->response($file_names);
-
-    }
-
-    public function get_sweepers()
-    {
-        return $this->promos('Sweeper');
-    }
-
-    public function get_jingles()
-    {
-        return $this->promos('Jingle');
-    }
-
-    public function get_bumpers()
-    {
-        return $this->promos('Bumper');
     }
 
 }

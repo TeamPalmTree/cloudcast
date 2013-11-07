@@ -16,6 +16,8 @@ class Model_Input extends \Orm\Model
 
     protected static $_primary_key = array('name');
 
+    public function active() { return ($this->status == '1') and ($this->enabled == '1'); }
+
     public static function mapped()
     {
 

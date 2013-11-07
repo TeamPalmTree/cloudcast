@@ -14,11 +14,18 @@
 </div>
 <div id="cloudcast-modal-delete" class="modal hide cloudcast-modal-error">
     <div class="modal-body">
-        Are you sure?
     </div>
     <div class="modal-footer">
-        <button name="delete" class="btn btn-danger" aria-hidden="true">Delete</button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button name="delete" class="btn btn-danger" aria-hidden="true">DELETE</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">CANCEL</button>
+    </div>
+</div>
+<div id="cloudcast-modal-edit" class="modal hide cloudcast-modal-edit">
+    <div class="modal-body">
+    </div>
+    <div class="modal-footer">
+        <button name="save" class="btn btn-primary" aria-hidden="true">SAVE</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">CANCEL</button>
     </div>
 </div>
 <div id="cloudcast-modal-info" class="modal hide cloudcast-modal-info">

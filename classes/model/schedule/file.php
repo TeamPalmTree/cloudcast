@@ -39,12 +39,12 @@ class Model_Schedule_File extends \Orm\Model
             ->related('file')
             ->where('played_on', '!=', null)
             ->where('schedule.available', '1')
-            ->order_by('played_on', 'desc')
+            ->order_by('played_on', 'DESC')
             ->rows_limit(1)
             ->get();
 
-        // get first or return null
-        if (!$last_played_schedule_files)
+        // make sure we have one
+        if (count($last_played_schedule_files) == 0)
             return null;
         // get last
         $last_played_schedule_file = current($last_played_schedule_files);
@@ -67,7 +67,7 @@ class Model_Schedule_File extends \Orm\Model
 
     }
 
-    public static function the_next($server_datetime)
+    public static function the_nexts($server_datetime, $queued = false)
     {
 
         ///////////////////////////////
@@ -100,22 +100,68 @@ class Model_Schedule_File extends \Orm\Model
 
         // get next schedule start on datetime string estimation
         $next_schedule_start_on_datetime_string = Helper::server_datetime_string($next_schedule_start_on_datetime);
-        // find the current schedule file
-        // there may be more than one of the same file, find
-        // the lowest id that has been played
+        // get next couple unplayed schedule files
         $next_schedule_files = Model_Schedule_File::query()
             ->related('schedule')
             ->related('schedule.show')
             ->related('file')
             ->where('played_on', null)
+            ->where('skipped', '0')
             ->where('schedule.available', '1')
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
             ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
-            ->order_by('id', 'asc')
-            ->rows_limit(1)
+            ->order_by('id', 'ASC')
+            ->rows_limit(2)
             ->get();
-        // get first or return null
-        return $next_schedule_files ? current($next_schedule_files) : null;
+
+        // if we have zero, we are done
+        if (count($next_schedule_files) == 0)
+            return $next_schedule_files;
+
+        ///////////////////////
+        // VERIFY NOT QUEUED //
+        ///////////////////////
+
+        // get next schedule file
+        $next_schedule_file = current($next_schedule_files);
+        // if queued, we are done
+        if (!$queued && ($next_schedule_file->queued == '1'))
+            return array();
+
+        //////////////////////////////////
+        // SKIP SWEEPERS IF TALKOVER ON //
+        //////////////////////////////////
+
+        // get talkover input status
+        $talkover_input = Model_Input::query()
+            ->where('name', 'talkover')
+            ->get_one();
+
+        // get next genre
+        $next_genre = $next_schedule_file->file->genre;
+        // if talkover input is enabled and connected, ignore sweepers
+        if ($talkover_input->active() && ($next_genre == 'Sweeper'))
+        {
+            // mark schedule file skipped & save
+            $next_schedule_file->skipped = '1';
+            $next_schedule_file->save();
+            // remove the first file
+            array_shift($next_schedule_files);
+            // success
+            return $next_schedule_files;
+
+        }
+
+        ///////////////////////////////////////////////
+        // QUEUE NEXT FILE AFTER BUMPERS OR SWEEPERS //
+        ///////////////////////////////////////////////
+
+        // if the next queue file is a sweeper or bumper, return both
+        // else, just return the first element
+        if (($next_genre == 'Sweeper') or ($next_genre == 'Bumper'))
+            return $next_schedule_files;
+        else
+            return array($next_schedule_file);
 
     }
 
@@ -159,7 +205,7 @@ class Model_Schedule_File extends \Orm\Model
 
     }
 
-    public static function voteable($schedule_file_id, $server_datetime)
+    public static function voteable($id, $server_datetime)
     {
 
         // get next schedule start on datetime string estimation
@@ -169,12 +215,23 @@ class Model_Schedule_File extends \Orm\Model
             ->related('file')
             ->related('schedule')
             ->related('schedule.show')
-            ->where('id', $schedule_file_id)
+            ->where('id', $id)
             ->where('available', '1')
             ->where('start_on', '<=', $server_datetime_string)
             ->where('end_at', '>', $server_datetime_string)
             ->get_one();
 
+    }
+
+    public static function playable($id)
+    {
+        return Model_Schedule_File::query()
+            ->related('schedule')
+            ->related('schedule.show')
+            ->related('schedule.show.block')
+            ->related('schedule.show.block.backup_block')
+            ->where('id', $id)
+            ->get_one();
     }
 
     public static function delete_many($schedule_file_ids)

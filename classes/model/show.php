@@ -292,56 +292,8 @@ class Model_Show extends \Orm\Model
         $this->sweepers_album = Input::post('sweepers') ? (($sweepers_album != '') ? $sweepers_album : null) : null;
         $this->jingles_album = Input::post('jingles') ? (($jingles_album != '') ? $jingles_album : null) : null;
         $this->bumpers_album = Input::post('bumpers') ? (($bumpers_album != '') ? $bumpers_album : null) : null;
-
         // sweeper interval
-        if (Input::post('sweepers_automatic'))
-            $this->sweeper_interval = '0';
-        else
-            $this->sweeper_interval = Input::post('sweeper_interval');
-
-    }
-
-    public function files()
-    {
-
-        //////////////////////////
-        // NO BLOCK == NO FILES //
-        //////////////////////////
-
-        if ($this->block == null)
-            return array();
-
-        ///////////////////////////////////////
-        // GET FILES FROM BLOCK FOR DURATION //
-        ///////////////////////////////////////
-
-        // forward to gathering loop (and so the crazy begins)
-        return $this->block->files($this->duration_seconds(), null, $this->block);
-
-    }
-
-    public function backup_files($seconds)
-    {
-        /////////////////////////////////
-        // NO BLOCK == NO BACKUP FILES //
-        /////////////////////////////////
-
-        if ($this->block == null)
-            return array();
-
-        ////////////////////////////////////////
-        // NO BACKUP BLOCK == NO BACKUP FILES //
-        ////////////////////////////////////////
-
-        if ($this->block->backup_block == null)
-            return array();
-
-        ///////////////////////////////////////
-        // GET FILES FROM BLOCK FOR DURATION //
-        ///////////////////////////////////////
-
-        // forward to gathering loop (and so the crazy begins)
-        return $this->block->backup_block->files($seconds, null, $this->block->backup_block);
+        $this->sweeper_interval = Input::post('sweeper_interval');
 
     }
 

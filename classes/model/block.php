@@ -4,21 +4,22 @@ class Model_Block extends \Orm\Model
 {
 
     // standard properties
-    protected $parent_block;
-    protected $top_block;
-    protected $gathered_files = array();
-    protected $filled_seconds = 0;
-    protected $weighted_block_weights;
-    protected $ordered_block_items;
+    public $parent_block;
+    public $top_block;
+    public $filled_seconds;
+    public $weighted_block_weights;
+    public $ordered_block_items;
     // inheritable properties
-    protected $current_harmonic_key;
-    protected $current_harmonic_energy;
-    protected $current_harmonic_genre;
-    protected $current_separate_similar;
+    public $current_harmonic_key;
+    public $current_harmonic_energy;
+    public $current_harmonic_genre;
+    public $current_separate_similar;
     // current properties
-    protected $current_key;
-    protected $current_energy;
-    protected $current_genre;
+    public $current_key;
+    public $current_energy;
+    public $current_genre;
+    // the current schedule
+    public $schedule;
 
     protected static $_properties = array(
         'id',
@@ -216,90 +217,59 @@ class Model_Block extends \Orm\Model
         
     }
 
-    public function files($seconds, $parent_block, $top_block)
+    public function gather_schedule_files($schedule, $seconds = null)
     {
 
-        ////////////////////////
-        // SET CURRENT VALUES //
-        ////////////////////////
+        ////////////////////
+        // SET PROPERTIES //
+        ////////////////////
 
-        // reset and set block properties
-        $this->files_set($parent_block, $top_block);
+        // set schedule
+        $this->schedule = $schedule;
 
-        /////////////////////////////
-        // NO ITEMS, START QUERIES //
-        /////////////////////////////
+        // set top and parent
+        $this->parent_block = null;
+        $this->top_block = $this;
 
-        // if we have no items, we can use the
-        // current block's criteria to generate
-        // else, we need to do sub-block processing
-        if (count($this->ordered_block_items) == 0)
-            $this->query_files($seconds);
+        // set seconds
+        if ($seconds == null)
+            $seconds = $schedule->duration_seconds();
+
+        // get previous file
+        $previous_file = end($schedule->previous_files);
+        // the current value will either be the initial value for this block, the last previous file's value, or null
+        $this->current_key = $this->initial_key ? $this->initial_key : ($previous_file ? $previous_file->key : null);
+        $this->current_energy = $this->initial_energy ? $this->initial_energy : ($previous_file ? $previous_file->energy : null);
+        $this->current_genre = $this->initial_genre ? $this->initial_genre : ($previous_file ? $previous_file->genre : null);
+
+        // set current harmonic genre
+        if (($this->harmonic_genre == '0') or ($this->harmonic_genre == '2'))
+            $this->current_harmonic_genre = '0';
         else
-            $this->items_files($seconds);
-        // success
-        return $this->gathered_files;
+            $this->current_harmonic_genre = '1';
+
+        // 1 (true) or 2 (inherited) are interpreted as true
+        $this->current_harmonic_key = $this->harmonic_key == '0' ? '0' : '1';
+        $this->current_harmonic_energy = $this->harmonic_energy == '0' ? '0' : '1';
+        $this->current_separate_similar = $this->separate_similar == '0' ? '0' : '1';
+
+        ///////////////////////////////
+        // FORWARD TO ALL PROCESSING //
+        ///////////////////////////////
+
+        // forward
+        $this->gather_files($seconds);
 
     }
 
-    protected function files_set($parent_block, $top_block)
+    protected function gather_files($seconds)
     {
 
         //////////////////////
         // RESET PROPERTIES //
         //////////////////////
 
-        $this->parent_block = $parent_block;
-        $this->top_block = $top_block;
-        $this->gathered_files = array();
         $this->filled_seconds = 0;
-        $this->current_genre = null;
-
-        ////////////////////////////////
-        // SET INHERITABLE PROPERTIES //
-        ////////////////////////////////
-
-        // if we have no parent, we at the top
-        if (!$parent_block)
-        {
-
-            // set current key
-            if ($this->initial_key == null)
-                $this->current_key = null;
-            // set current energy
-            if ($this->initial_energy == null)
-                $this->current_energy = null;
-
-            // set current harmonic genre
-            if (($this->harmonic_genre == '0') or ($this->harmonic_genre == '2'))
-                $this->current_harmonic_genre = '0';
-            else
-                $this->current_harmonic_genre = '1';
-
-            // 1 (true) or 2 (inherited) are interpreted as true
-            $this->current_harmonic_key = $this->harmonic_key == '0' ? '0' : '1';
-            $this->current_harmonic_energy = $this->harmonic_energy == '0' ? '0' : '1';
-            $this->current_separate_similar = $this->separate_similar == '0' ? '0' : '1';
-
-        }
-        else
-        {
-
-            // set current key
-            if ($this->initial_key == null)
-                $this->current_key = $parent_block->current_key;
-            // set current energy
-            if ($this->initial_energy == null)
-                $this->current_energy = $parent_block->current_energy;
-
-            // set current harmonic genre
-            $this->current_harmonic_genre = $this->harmonic_genre == '2' ? $parent_block->current_harmonic_genre : $this->harmonic_genre;
-            // pull values from our parent if we inherit, else from ourselves
-            $this->current_harmonic_key = $this->harmonic_key == '2' ? $parent_block->current_harmonic_key : $this->harmonic_key;
-            $this->current_harmonic_energy = $this->harmonic_energy == '2' ? $parent_block->current_harmonic_energy : $this->harmonic_energy;
-            $this->current_separate_similar = $this->separate_similar == '2' ? $parent_block->current_separate_similar : $this->separate_similar;
-
-        }
 
         ///////////////////////////////
         // SET BLOCK WEIGHTS & ITEMS //
@@ -316,13 +286,22 @@ class Model_Block extends \Orm\Model
             ->order_by('id', 'ASC')
             ->get();
 
+        /////////////////////////////
+        // NO ITEMS, START QUERIES //
+        /////////////////////////////
+
+        // if we have no items, we can use the
+        // current block's criteria to generate
+        // else, we need to do sub-block processing
+        if (count($this->ordered_block_items) == 0)
+            $this->gather_weighted_files($seconds);
+        else
+            $this->gather_items_files($seconds);
+
     }
 
-    protected function query_files($seconds)
+    protected function gather_weighted_files($seconds)
     {
-
-        // total consumed so far
-        $filled_seconds = 0;
 
         /////////////////////////////
         // OBTAIN SEARCH FILE SETS //
@@ -344,66 +323,23 @@ class Model_Block extends \Orm\Model
             /////////////////////////
 
             // stop if the show is filled
-            if ($filled_seconds >= $seconds)
+            if ($this->filled_seconds >= $seconds)
                 break;
 
-            /////////////////////////
-            // CLAIM WEIGHTED FILE //
-            /////////////////////////
+            //////////////////
+            // GATHER FILES //
+            //////////////////
 
-            // claim weighted file
-            $claimed_file = $this->claim_weighted_file($weighted_files);
-            // switch to backup block if we cannot find more files
-            if (!$claimed_file)
+            // then attempt to gather a weighted file
+            if (!$this->gather_weighted_file($weighted_files))
             {
-
-                //////////////////////////////////////////
-                // SWITCH TO BACKUP BLOCK FOR REMAINDER //
-                //////////////////////////////////////////
-
-                // calculate remaining seconds
-                $remaining_seconds = $seconds - $filled_seconds;
-                // if we have no backup block, we are done
-                if (!$this->backup_block)
-                    break;
-
-                // run the backup block
-                $this->backup_block->files($remaining_seconds, $this, $this->top_block);
-                // update key and energy to lower block's current
-                $this->current_key = $this->backup_block->current_key;
-                $this->current_energy = $this->backup_block->current_energy;
-                $this->current_genre = $this->backup_block->current_genre;
-                // update total seconds filled for this block
-                $filled_seconds += $this->backup_block->filled_seconds;
-                // we are done
+                // if weighted gather fails, use the backup block
+                $this->gather_backup_files($seconds);
                 break;
-
             }
 
-            // update filled seconds with claimed file duration
-            $filled_seconds += $claimed_file->duration_seconds();
-
         }
 
-        /////////////
-        // SUCCESS //
-        /////////////
-
-        // update filled seconds
-        $this->fill_seconds($filled_seconds);
-
-    }
-
-    protected function fill_seconds($seconds)
-    {
-        // set initial block to us
-        $block = $this;
-        // update vertically filled seconds
-        while ($block != null)
-        {
-            $block->filled_seconds += $seconds;
-            $block = $block->parent_block;
-        }
     }
 
     protected function weighted_files()
@@ -441,74 +377,45 @@ class Model_Block extends \Orm\Model
                 $weighted_files[$block_weight->weight] = $block_weight_files;
         }
 
+        // sort weights numerically
+        ksort($weighted_files, SORT_NUMERIC);
         // success
         return $weighted_files;
 
     }
 
-    protected function claim_weighted_file(&$weighted_files)
+    protected function gather_weighted_file(&$weighted_files)
     {
-        //////////////////////////////
-        // VERIFY WE HAVE FILE SETS //
-        //////////////////////////////
 
-        // if we have no file sets
-        if (count($weighted_files) == 0)
-            return null;
+        /////////////////////////
+        // CLAIM WEIGHTED FILE //
+        /////////////////////////
 
-        /////////////////////////////////
-        // GET RANDOM SEARCH FILES SET //
-        /////////////////////////////////
-
-        $weighted_files_key = null;
-        // get random files
-        $source_files = $this->random_files($weighted_files, $weighted_files_key);
-        // attempt to claim from random files set
-        $file = $this->claim_file($source_files);
-        // if we don't have the file, attempt gather from base
+        // claim weighted file
+        $file = $this->claim_weighted_file($weighted_files);
+        // verify successful
         if (!$file)
-        {
-
-            //////////////////////////
-            // USE BASE SET INSTEAD //
-            //////////////////////////
-
-            // see if we still have our base set, use it instead
-            if (array_key_exists(0, $weighted_files))
-            {
-                // attempt to claim from base files set
-                $file = $this->claim_file($source_files);
-                // if we couldn't gather from base, we are doomed
-                if (!$file)
-                    return null;
-
-                // set source files to base set
-                $source_files = $weighted_files[0];
-                // set key
-                $weighted_files_key = 0;
-            }
-            else
-            {
-                // there is nothing we can do
-                return null;
-            }
-
-        }
+            return false;
 
         ///////////////////////
-        // REMOVE EMPTY SETS //
+        // GATHER PROMO FILE //
         ///////////////////////
 
-        // if the source set is empty, we need to remove it
-        if (count($source_files) == 0)
-            unset($weighted_files[$weighted_files_key]);
+        // gather promo file
+        $this->gather_promo_file($file);
 
+        /////////////////
+        // GATHER FILE //
+        /////////////////
+
+        // gather file
+        $this->gather_file($file);
         // success
-        return $file;
+        return true;
 
     }
 
-    protected function random_files(&$weighted_files, &$weighted_files_key)
+    protected function random_weighted_files(&$weighted_files, &$random_weight)
     {
 
         // if we only have one, return it
@@ -516,8 +423,8 @@ class Model_Block extends \Orm\Model
         {
             // get first array element
             $random_files = reset($weighted_files);
-            // set key
-            $weighted_files_key = key($weighted_files);
+            // set random weight
+            $random_weight = key($weighted_files);
             // success
             return $random_files;
         }
@@ -537,8 +444,8 @@ class Model_Block extends \Orm\Model
             // sum, we have found our set :)
             if ($random_number <= $cumulative_weights_sum)
             {
-                // set key
-                $weighted_files_key = $weight;
+                // set random weight
+                $random_weight = $weight;
                 // success
                 return $files;
             }
@@ -546,18 +453,77 @@ class Model_Block extends \Orm\Model
 
     }
 
-    protected function claim_file(&$files)
+    protected function claim_weighted_file(&$weighted_files)
+    {
+
+        //////////////////////////////
+        // VERIFY WE HAVE FILE SETS //
+        //////////////////////////////
+
+        // if we have no file sets
+        if (count($weighted_files) == 0)
+            return null;
+
+        /////////////////////////////////
+        // GET RANDOM SEARCH FILES SET //
+        /////////////////////////////////
+
+        $current_weight = null;
+        // get random files
+        $source_files = $this->random_weighted_files($weighted_files, $current_weight);
+
+        //////////////////////////
+        // FIND COMPATIBLE FILE //
+        //////////////////////////
+
+        // attempt to choose from random files set
+        $file = $this->find_compatible_file($source_files);
+        // if we have a file, we are done
+        if ($file)
+            return $file;
+
+        //////////////////////////////////////////
+        // WALK DOWN WEIGHTS TO CONTINUE SEARCH //
+        //////////////////////////////////////////
+
+        // get weighted files weights
+        $weights = array_keys($weighted_files);
+        // get the index of the random weight
+        $weights_index = array_search($current_weight, $weights);
+        // loop while we have lower weights
+        while ($weights_index >= 0)
+        {
+            // get the next weight to check
+            $current_weight = $weights[$weights_index];
+            // get the weighted file set at this weight
+            $source_files = $weighted_files[$current_weight];
+            // attempt to choose from lower weighted files set
+            $file = $this->find_compatible_file($source_files);
+            // did we find a file
+            if ($file)
+                return $file;
+
+            // lower the weights index
+            $weights_index--;
+        }
+
+        // failed for all sets
+        return null;
+
+    }
+
+    protected function find_compatible_file($files)
     {
 
         ///////////////////////////////
-        // REMOVE PRE-GATHERED FILES //
+        // REMOVE LAST FILE FROM SET //
         ///////////////////////////////
 
-        // update the files array with files not already gathered
-        $files = array_diff_key($files, $this->top_block->gathered_files);
-        // verify we have some still, else we fail
-        if (count($files) == 0)
-            return null;
+        // get previous file
+        $previous_file = $this->top_block->schedule->previous_file;
+        // if we have one, remove it from this set
+        if ($previous_file)
+            unset($files[$previous_file->id]);
 
         ////////////////////////////////
         // MAP COMPATIBLE FILES ARRAY //
@@ -614,44 +580,155 @@ class Model_Block extends \Orm\Model
             return 0;
         });
 
-        /////////////////////////
-        // CLAIM & GATHER FILE //
-        /////////////////////////
+        ////////////////////////////
+        // RETURN COMPATIBLE FILE //
+        ////////////////////////////
 
-        // claim file
-        $claimed_compatible = current($compatibles);
-        $claimed_compatible_file = $claimed_compatible['file'];
-        unset($files[$claimed_compatible_file->id]);
-        // gather claimed file
-        $this->gather_file($claimed_compatible_file);
+        // choose first file
+        $compatible = current($compatibles);
         // success
-        return $claimed_compatible_file;
+        return $compatible['file'];
+
+    }
+
+    protected function gather_promo_file($next_file)
+    {
+
+        // get schedule
+        $schedule = $this->top_block->schedule;
+        // if we have no previous file, we cannot do promos
+        if (!$schedule->previous_file)
+            return false;
+
+        // get current/next genre
+        $genre = $schedule->previous_file->genre;
+        $next_genre = $next_file->genre;
+
+        //////////////////
+        // BUMPER CHECK //
+        //////////////////
+
+        if (($genre == 'Ad') && ($next_genre != 'Ad') && ($next_genre != 'Intro'))
+        {
+            // get bumper file
+            $bumper_file = $schedule->bumper_file();
+            // verify we have one, gather
+            if ($bumper_file)
+            {
+                $this->gather_file($bumper_file);
+                return true;
+            }
+        }
+
+        ////////////////////
+        // INSERT SWEEPER //
+        ////////////////////
+
+        if (($genre != 'Ad') && ($genre != 'Intro') && ($next_genre != 'Ad') && ($next_genre != 'Intro'))
+        {
+            // if we have gone through enough file since last sweeper
+            if ($schedule->sweeper_files_count >= $schedule->sweeper_interval)
+            {
+                // get sweeper file
+                $sweeper_file = $schedule->sweeper_file();
+                // verify we have one, gather
+                if ($sweeper_file)
+                {
+                    // insert another sweeper
+                    $this->gather_file($sweeper_file);
+                    // reset sweeper files count
+                    $schedule->sweeper_files_count = 0;
+                    return true;
+                }
+            }
+        }
+
+        // no promo here
+        return false;
 
     }
 
     protected function gather_file($file)
     {
-        // update musical key & energy
-        $this->current_key = $file->key;
-        $this->current_energy = $file->energy;
-        $this->current_genre = $file->genre;
+
+        //
+
+        //////////////////////////////////
+        // CALCULATE ADDITIONAL SECONDS //
+        //////////////////////////////////
+
+        // get schedule
+        $schedule = $this->top_block->schedule;
+        // update filled seconds with transitioned duration
+        $additional_seconds = $file->transitioned_duration_seconds($schedule->previous_file);
+
+        /////////////////////////////////
+        // UPDATE TOP BLOCK PROPERTIES //
+        /////////////////////////////////
+
+        // update previous file
+        $schedule->previous_file = $file;
         // update top block gathered files
-        $this->top_block->gathered_files[$file->id] = $file;
+        $schedule->gathered_files[] = $file;
+        // update sweeper files count
+        $schedule->sweeper_files_count++;
+
+        ///////////////////////////////
+        // UPDATE PROPERTIES UPWARDS //
+        ///////////////////////////////
+
+        // set initial block to us
+        $block = $this;
+        // update vertically filled seconds
+        while ($block != null)
+        {
+
+            // add additional seconds to filled
+            $block->filled_seconds += $additional_seconds;
+            // update current key, energy, genre (if we have a valid new value)
+            if ($file->key)
+                $block->current_key = $file->key;
+            if ($file->energy)
+                $block->current_energy = $file->energy;
+            $block->current_genre = $file->genre;
+            // move upwards
+            $block = $block->parent_block;
+
+        }
+
     }
 
     protected function separate_similar_compatibles_reduction(&$compatibles)
     {
 
+        ///////////////////////////////////
+        // GENERATE PREVIOUS FILES ARRAY //
+        ///////////////////////////////////
+
+        // get schedule
+        $schedule = $this->top_block->schedule;
         // get the number songs to look backwards for similar files
         $similar_files_count = (int)Model_Setting::get_value('similar_files_count');
-        // initially, get a slice of the array back the number of files to check for similarity
-        $similar_gathered_files = array_slice($this->top_block->gathered_files, -1 * $similar_files_count, $similar_files_count, true);
+        // get all potential previous files to check
+        $previous_files = array_merge($schedule->previous_files, $schedule->gathered_files);
+        // verify we have any
+        if (count($previous_files) == 0)
+            return $compatibles;
+
+        //////////////////////////////////////////////////
+        // WEED OUT SIMILAR FILES FROM COMPATIBLES LIST //
+        //////////////////////////////////////////////////
 
         // keep track of different (un-similar) files
         $separate_similar_compatibles = array();
         // loop through files making sure we don't have a similar one
         foreach ($compatibles as &$compatible)
         {
+
+            ///////////////////////////////////////////////////
+            // GET COMPATIBLE FILE AND COMPARISON PARAMETERS //
+            ///////////////////////////////////////////////////
+
             // get compatible file
             $compatible_file = $compatible['file'];
             // first split out the artists
@@ -659,19 +736,36 @@ class Model_Block extends \Orm\Model
             // now scrape the title
             $compatible_file_scraped_title = $compatible_file->scraped_title();
 
+            //////////////////////////////////////////////////////////////
+            // GO BACKWARDS IN PREVIOUS FILES CHECKING FOR SIMILAR FILE //
+            //////////////////////////////////////////////////////////////
+
             // reset similar found
             $similar_found = false;
-            // loop through all gathered files
-            foreach ($similar_gathered_files as $similar_gathered_file)
+            // reset similar files index
+            $previous_files_count = 1;
+            // set previous files pointer to end
+            $previous_file = end($previous_files);
+            // loop through all previous files
+            do
             {
 
-                // first split out the artists
-                $similar_gathered_file_scraped_artists = $similar_gathered_file->scraped_artists();
-                // now scrape the title
-                $similar_gathered_file_scraped_title = $similar_gathered_file->scraped_title();
+                //////////////////////////
+                // VERIFY PREVIOUS FILE //
+                //////////////////////////
 
+                // verify not sweeper/bumper
+                if (($previous_file->genre == 'Sweeper') or ($previous_file->genre == 'Bumper'))
+                    continue;
+
+                //////////////////////////////
+                // SIMILAR ARTIST DETECTION //
+                //////////////////////////////
+
+                // first split out the artists
+                $previous_file_scraped_artists = $previous_file->scraped_artists();
                 // compute intersected artists
-                $intersected_artists = array_intersect($compatible_file_scraped_artists, $similar_gathered_file_scraped_artists);
+                $intersected_artists = array_intersect($compatible_file_scraped_artists, $previous_file_scraped_artists);
                 // compare artists
                 if (count($intersected_artists) > 0)
                 {
@@ -679,14 +773,30 @@ class Model_Block extends \Orm\Model
                     break;
                 }
 
+                /////////////////////////////
+                // SIMILAR TITLE DETECTION //
+                /////////////////////////////
+
+                // now scrape the title
+                $previous_file_scraped_title = $previous_file->scraped_title();
                 // compare titles
-                if ($compatible_file_scraped_title == $similar_gathered_file_scraped_title)
+                if ($compatible_file_scraped_title == $previous_file_scraped_title)
                 {
                     $similar_found = true;
                     break;
                 }
 
-            }
+                /////////////////////////////////////////
+                // VERIFY WE HAVEN'T GONE TOO FAR BACK //
+                /////////////////////////////////////////
+
+                // verify we have not exceeded similar files count (gone too far)
+                if ($previous_files_count == $similar_files_count)
+                    break;
+                // increment previous files count
+                $previous_files_count++;
+
+            } while ($previous_file = prev($previous_files));
 
             // after looking through the last X number of songs for similarity
             // make sure no similar found
@@ -698,6 +808,7 @@ class Model_Block extends \Orm\Model
         // if we have no harmonic files, return original set
         if (count($separate_similar_compatibles) == 0)
             return $compatibles;
+
         // success
         return $separate_similar_compatibles;
 
@@ -733,6 +844,7 @@ class Model_Block extends \Orm\Model
         // if we have no harmonic files, return original set
         if (count($harmonic_key_compatibles) == 0)
             return $compatibles;
+
         // success
         return $harmonic_key_compatibles;
 
@@ -775,7 +887,55 @@ class Model_Block extends \Orm\Model
 
     }
 
-    protected function items_files($seconds)
+    protected function gather_backup_files($seconds)
+    {
+
+        // if we have no backup block, we are done
+        if (!$this->backup_block)
+            return;
+
+        // calculate remaining seconds
+        $remaining_seconds = $seconds - $this->filled_seconds;
+        // run the backup block
+        $this->backup_block->gather_block_files($this, $remaining_seconds);
+
+    }
+
+    public function gather_block_files($parent_block, $seconds)
+    {
+
+        ////////////////////////////////
+        // SET INHERITABLE PROPERTIES //
+        ////////////////////////////////
+
+        // set top and parent
+        $this->parent_block = $parent_block;
+        $this->top_block = $parent_block->top_block;
+
+        // set current key
+        if ($this->initial_key == null)
+            $this->current_key = $parent_block->current_key;
+        // set current energy
+        if ($this->initial_energy == null)
+            $this->current_energy = $parent_block->current_energy;
+
+        // set current harmonic genre
+        $this->current_harmonic_genre = $this->harmonic_genre == '2' ? $parent_block->current_harmonic_genre : $this->harmonic_genre;
+        // pull values from our parent if we inherit, else from ourselves
+        $this->current_harmonic_key = $this->harmonic_key == '2' ? $parent_block->current_harmonic_key : $this->harmonic_key;
+        $this->current_harmonic_energy = $this->harmonic_energy == '2' ? $parent_block->current_harmonic_energy : $this->harmonic_energy;
+        $this->current_separate_similar = $this->separate_similar == '2' ? $parent_block->current_separate_similar : $this->separate_similar;
+
+        ///////////////////////////////
+        // FORWARD TO ALL PROCESSING //
+        ///////////////////////////////
+
+        // forward
+        $this->gather_files($seconds);
+
+    }
+
+    protected function gather_items_files($seconds)
     {
 
         //////////////////
@@ -801,97 +961,96 @@ class Model_Block extends \Orm\Model
         else
             $percentage_seconds = $seconds - $duration_seconds;
 
-        /////////////////////////////
-        // PROCESS EACH BLOCK ITEM //
-        /////////////////////////////
+        ///////////////////////
+        // GATHER ITEM FILES //
+        ///////////////////////
 
-        // total seconds used up
-        $filled_seconds = 0;
-        // loop over each block item
-        foreach ($this->ordered_block_items as $block_item)
+        // reset block items array
+        reset($this->ordered_block_items);
+        // track current block item
+        $current_block_item = current($this->ordered_block_items);
+        // loop until block filled
+        while (true)
         {
+
             //////////////////////////////////
             // VERIFY TIME FOR ANOTHER ITEM //
             //////////////////////////////////
 
             // see if we are over
-            if ($filled_seconds >= $seconds)
+            if ($this->filled_seconds >= $seconds)
                 break;
 
-            // files are cake
-            if ($block_item->file != null)
-            {
-                ////////////////////////
-                // CHECK AVAILABILITY //
-                ////////////////////////
+            //////////////////////////////////////////
+            // GATHER BLOCK ITEM FILE OR ITEM BLOCK //
+            //////////////////////////////////////////
 
-                if (!$block_item->file->available)
+            if ($current_block_item->file)
+            {
+                // else, gather item file
+                if (!$current_block_item->file->available)
                     continue;
 
-                ///////////////////
-                // FILES MOVE IN //
-                ///////////////////
-
-                // gather item file
-                $this->gather_file($block_item->file);
-                // update filled date interval
-                $filled_seconds += $block_item->file->duration_seconds();
+                // gather promo file
+                $this->gather_promo_file($current_block_item->file);
+                // gather file
+                $this->gather_file($current_block_item->file);
             }
             else
             {
-                ///////////////////////////////
-                // BLOCKS REQUIRE PROCESSING //
-                ///////////////////////////////
-
-                // calculate next item duration
-                if ($block_item->duration != null)
-                    $block_item_duration_seconds = $block_item->duration_seconds();
-                else
-                    $block_item_duration_seconds = Helper::percentage_seconds($percentage_seconds, $block_item->percentage);
-
-                ///////////////////////
-                // TRUNCATE OVERHANG //
-                ///////////////////////
-
-                // get remaining time
-                $remaining_seconds = $seconds - $filled_seconds;
-                // if the item duration > remaining, truncate
-                if ($block_item_duration_seconds > $remaining_seconds)
-                    $block_item_duration_seconds = $remaining_seconds;
-
-                /////////////////////
-                // ADD CHILD FILES //
-                /////////////////////
-
-                // merge next block files into end of current files array
-                if ($block_item_duration_seconds > 0)
-                    $block_item->child_block->files($block_item_duration_seconds, $this, $this->top_block);
-                // update key and energy to lower block's current
-                $this->current_key = $block_item->child_block->current_key;
-                $this->current_energy = $block_item->child_block->current_energy;
-                $this->current_genre = $block_item->child_block->current_genre;
-                // update total seconds filled for this block
-                $filled_seconds += $block_item->child_block->filled_seconds;
+                // gather block item block files
+                $this->gather_item_block_files($current_block_item, $percentage_seconds, $seconds);
             }
+
+            /////////////////////////
+            // GET NEXT BLOCK ITEM //
+            /////////////////////////
+
+            // if we have none left, break
+            if (!($current_block_item = next($this->ordered_block_items)))
+                break;
+
         }
-
-        //////////////////
-        // FILL SECONDS //
-        //////////////////
-
-        // update total filled seconds
-        $this->fill_seconds($filled_seconds);
 
         ///////////////////////////////
         // ADDITIONAL CRITERIA FILES //
         ///////////////////////////////
 
         // get remaining time
-        $remaining_seconds = $seconds - $filled_seconds;
+        $remaining_seconds = $seconds - $this->filled_seconds;
         // if, after running through block items, we don't have our duration filled
-        // fill the remainder with our criteria files
+        // fill the remainder with our weighted files
         if ($remaining_seconds > 0)
-            $this->query_files($remaining_seconds);
+            $this->gather_weighted_files($remaining_seconds);
+
+    }
+
+    protected function gather_item_block_files($block_item, $percentage_seconds, $seconds)
+    {
+
+        // calculate next item duration
+        if ($block_item->duration != null)
+            $block_item_duration_seconds = $block_item->duration_seconds();
+        else
+            $block_item_duration_seconds = Helper::percentage_seconds($percentage_seconds, $block_item->percentage);
+
+        ///////////////////////
+        // TRUNCATE OVERHANG //
+        ///////////////////////
+
+        // get remaining time
+        $remaining_seconds = $seconds - $this->filled_seconds;
+        // if the item duration > remaining, truncate
+        if ($block_item_duration_seconds > $remaining_seconds)
+            $block_item_duration_seconds = $remaining_seconds;
+
+        /////////////////////
+        // ADD CHILD FILES //
+        /////////////////////
+
+        // merge next block files into end of current files array
+        if ($block_item_duration_seconds > 0)
+            $block_item->child_block->gather_block_files($this, $block_item_duration_seconds);
 
     }
 

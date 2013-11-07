@@ -4,6 +4,7 @@ class Model_Status extends \Model
 {
 
     // current file
+    public $current_file_id;
     public $current_file_artist;
     public $current_file_title;
     public $current_file_duration;

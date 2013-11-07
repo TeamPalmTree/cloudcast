@@ -85,7 +85,7 @@
                                                     <span class="label" data-bind="visible: jingles_album"><i class="icon-bell"></i> JINGLES</span>
                                                     <span class="label" data-bind="visible: bumpers_album"><i class="icon-bell"></i> BUMPERS</span>
                                                     <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS
-                                                        (<!-- ko if: sweeper_interval() == '0' -->AUTO<!-- /ko --><!-- ko if: sweeper_interval() > 0 --><span data-bind="text: sweeper_interval"></span><!-- /ko -->)
+                                                        (<span data-bind="text: sweeper_interval"></span>)
                                                     </span>
                                                 </div>
                                                 <div class="cloudcast-item-section-right-section">
@@ -94,27 +94,32 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- ko if: expanded -->
-                                        <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}">
+                                        <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}, visible: expanded">
                                             <div class="cloudcast-item"
                                                  data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !played_on() && (queued() == '0')) select(); }">
                                                 <div class="cloudcast-item-section" data-bind="visible: $parent.editing() && !played_on() && (queued() == '0')">
                                                     <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                                 </div>
-                                                <div class="cloudcast-item-section" data-bind="visible: queued() == '1' || played_on()">
+                                                <div class="cloudcast-item-section" data-bind="visible: queued() == '1' || played_on() || skipped() == '1'">
                                                     <span class="label label-warning" data-bind="visible: queued() == '1'"><i class="icon-download-alt"></i> QUEUED</span>
                                                     <span class="label label-success" data-bind="visible: played_on"><i class="icon-ok"></i> PLAYED</span>
+                                                    <span class="label label-success" data-bind="visible: skipped() == '1'"><i class="icon-remove"></i> SKIPPED</span>
                                                 </div>
-                                                <div class="cloudcast-item-section">
+                                                <div class="cloudcast-item-section" data-bind="css: { 'cloudcast-item-section-dim' : (file().genre() == 'Sweeper') || (file().genre() == 'Bumper') }">
                                                     <strong><span data-bind="text: file().artist"></span></strong> - <strong><span data-bind="text: file().title"></span></strong>
                                                 </div>
                                                 <div class="cloudcast-item-section-right">
-                                                    <span class="label label-info"><i class="icon-music"></i> <span data-bind="text: file().genre"></span> (<span data-bind="text: file().key"></span>-<span data-bind="text: file().energy"></span>)</span>
+                                                    <span class="label label-info">
+                                                        <i class="icon-music"></i>
+                                                        <span data-bind="text: file().genre"></span>
+                                                        <span data-bind="visible: file().key() && file().energy()">
+                                                         (<span data-bind="text: file().key"></span>-<span data-bind="text: file().energy"></span>)
+                                                        </span>
+                                                    </span>
                                                     <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: file().duration"></span></span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- /ko -->
                                     </div>
                                 </div>
                             </div>

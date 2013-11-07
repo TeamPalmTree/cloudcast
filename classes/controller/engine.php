@@ -1,6 +1,7 @@
 <?php
 
-class Controller_Engine extends Controller_Cloudcast {
+class Controller_Engine extends Controller_Cloudcast
+{
 
     public function get_status()
     {
@@ -21,17 +22,20 @@ class Controller_Engine extends Controller_Cloudcast {
         //////////////////////////////////////////
 
         $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
-        $next_schedule_file = Model_Schedule_File::the_next($server_datetime);
+        $next_schedule_files = Model_Schedule_File::the_nexts($server_datetime, true);
         $next_schedule = Model_Schedule::the_next($server_datetime);
+        // get the first next schedule files
+        $next_schedule_file = current($next_schedule_files);
 
         ////////////////////////////////////
         // SET CURRENT SCHEDULE FILE DATA //
         ////////////////////////////////////
 
         // current schedule file
-        if ($current_schedule_file != null)
+        if ($current_schedule_file)
         {
             // current file
+            $status->current_file_id = $current_schedule_file->file->id;
             $status->current_file_artist = $current_schedule_file->file->artist;
             $status->current_file_title = $current_schedule_file->file->title;
             $status->current_file_duration = $current_schedule_file->file->duration;
@@ -50,7 +54,7 @@ class Controller_Engine extends Controller_Cloudcast {
         /////////////////////////////////
 
         // next schedule file
-        if ($next_schedule_file != null)
+        if ($next_schedule_file)
         {
             // next file
             $status->next_file_artist = $next_schedule_file->file->artist;
@@ -62,11 +66,8 @@ class Controller_Engine extends Controller_Cloudcast {
         ////////////////////////////
 
         // next schedule
-        if ($next_schedule != null)
-        {
-            // next show
+        if ($next_schedule)
             $status->next_show_title = $next_schedule->show->title;
-        }
 
         ////////////////
         // GET INPUTS //
@@ -168,39 +169,38 @@ class Controller_Engine extends Controller_Cloudcast {
     public function get_play_schedule_file($id)
     {
 
-        // get server time
-        $server_datetime = Helper::server_datetime();
-
-        ////////////////////////
-        // FIND SCHEDULE FILE //
-        ////////////////////////
+        /////////////////////////////////
+        // FIND PLAYABLE SCHEDULE FILE //
+        /////////////////////////////////
 
         // find the schedule file
-        $schedule_file = Model_Schedule_File::query()
-            ->related('schedule')
-            ->related('schedule.show')
-            ->related('schedule.show.block')
-            ->related('schedule.show.block.backup_block')
-            ->where('id', $id)
-            ->get_one();
+        $schedule_file = Model_Schedule_File::playable($id);
 
-        //////////////////////////
-        // BACKUP FILL SCHEDULE //
-        //////////////////////////
+        //////////////////////////////////////////////
+        // BACKUP FILL FOR NON-SWEEPER/BUMPER PLAYS //
+        //////////////////////////////////////////////
 
-        // get the schedule end datetime
-        $schedule_end_at_datetime = Helper::server_datetime($schedule_file->schedule->end_at);
-        // get the difference between schedule end and current time
-        $actual_remaining_seconds = $schedule_end_at_datetime->getTimestamp() - $server_datetime->getTimestamp();
-        // get the scheduled remaining seconds
-        $scheduled_remaining_seconds = Model_Schedule::remaining_seconds($schedule_file->schedule_id);
-        // if we don't have enough files to fill the schedule (due to transitions and such)
-        if ($scheduled_remaining_seconds < $actual_remaining_seconds)
+        // get server time
+        $server_datetime = Helper::server_datetime();
+        // get schedule file genre
+        $genre = $schedule_file->file->genre;
+        // only do this for non-sweepers and bumpers
+        if (($genre != 'Sweeper') and ($genre != 'Bumper'))
         {
-            // calculate schedule gap
-            $gap_remaining_seconds = $actual_remaining_seconds - $scheduled_remaining_seconds;
-            // fill up the scheduling gap
-            $schedule_file->schedule->backup_fill($gap_remaining_seconds);
+            // get the schedule end datetime
+            $schedule_end_at_datetime = Helper::server_datetime($schedule_file->schedule->end_at);
+            // get the difference between schedule end and current time
+            $actual_remaining_seconds = $schedule_end_at_datetime->getTimestamp() - $server_datetime->getTimestamp();
+            // get the scheduled remaining seconds
+            $scheduled_remaining_seconds = Model_Schedule::remaining_seconds($schedule_file->schedule_id);
+            // if we don't have enough files to fill the schedule (due to transitions and such)
+            if ($scheduled_remaining_seconds < $actual_remaining_seconds)
+            {
+                // calculate schedule gap
+                $gap_seconds = $actual_remaining_seconds - $scheduled_remaining_seconds;
+                // fill up the scheduling gap
+                $schedule_file->schedule->backup_fill($gap_seconds);
+            }
         }
 
         ////////////////////////////////////
@@ -208,7 +208,7 @@ class Controller_Engine extends Controller_Cloudcast {
         ////////////////////////////////////
 
         // get server time
-        $server_datetime_string = Helper::server_datetime_string();
+        $server_datetime_string = Helper::server_datetime_string($server_datetime);
         // update play dates
         $schedule_file->played_on = $server_datetime_string;
         $schedule_file->file->last_play = $server_datetime_string;
@@ -224,7 +224,28 @@ class Controller_Engine extends Controller_Cloudcast {
 
     }
 
-    public function get_next_queue_file()
+    public function get_reset_queued()
+    {
+
+        // get server datetime
+        $server_datetime = Helper::server_datetime();
+        // get the current schedule
+        $current_schedule = Model_Schedule::the_current($server_datetime);
+        // verify we got one
+        if ($current_schedule)
+        {
+            // reset queued
+            $current_schedule->reset_queued();
+            // send response
+            return $this->response('SUCCESS');
+        }
+
+        // no schedule
+        return $this->response('NO_CURRENT_SCHEDULE');
+
+    }
+
+    public function get_next_queues()
     {
 
         /////////////////////////////////////
@@ -234,32 +255,81 @@ class Controller_Engine extends Controller_Cloudcast {
         // get server datetime
         $server_datetime = Helper::server_datetime();
         // get next schedule file
-        $next_schedule_file = Model_Schedule_File::the_next($server_datetime);
+        $next_schedule_files = Model_Schedule_File::the_nexts($server_datetime);
         // if we have none, we are done
-        if (!$next_schedule_file)
+        if (count($next_schedule_files) == 0)
             return $this->response('NONE');
 
-        /////////////////////////////////
-        // SET SCHEDULE FILE TO QUEUED //
-        /////////////////////////////////
-
-        $next_schedule_file->queued = '1';
-        $next_schedule_file->save();
-
         ///////////////////////////////
-        // CREATE AND POPULATE QUEUE //
+        // QUEUE NEXT SCHEDULE FILES //
         ///////////////////////////////
+
+        $next_queues = array();
+        // loop over all next schedule files
+        foreach ($next_schedule_files as $next_schedule_file)
+        {
+
+            // create new queue
+            $next_queue = new Model_Queue();
+            // populate
+            $next_queue->show_title = $next_schedule_file->schedule->show->title;
+            $next_queue->schedule_id = $next_schedule_file->schedule->id;
+            $next_queue->schedule_file_id = $next_schedule_file->id;
+            $next_queue->file_name = $next_schedule_file->file->name;
+            $next_queue->file_artist = $next_schedule_file->file->artist;
+            $next_queue->file_title = $next_schedule_file->file->title;
+            $next_queue->file_genre = $next_schedule_file->file->genre;
+            $next_queue->file_duration_seconds = (string)$next_schedule_file->file->duration_seconds();
+            // add to array
+            $next_queues[] = $next_queue;
+
+            // set queued and save
+            $next_schedule_file->queued = '1';
+            $next_schedule_file->save();
+
+        }
+
+        // send next queues response
+        return $this->response($next_queues);
+
+    }
+
+    public function get_queue_schedule($schedule_id)
+    {
+
+        ///////////////////
+        // FIND SCHEDULE //
+        ///////////////////
+
+        // get the schedule by id
+        $schedule = Model_Schedule::find($schedule_id);
+        // verify current schedule
+        if (!$schedule)
+            return $this->response('INVALID_SCHEDULE');
+
+        /////////////////////////////////
+        // CREATE QUEUE, POPULATE SHOW //
+        /////////////////////////////////
 
         // create new queue
-        $next_queue_file = new Model_Queue_File();
-        // populate
-        $next_queue_file->schedule_id = $next_schedule_file->schedule->id;
-        $next_queue_file->schedule_file_id = $next_schedule_file->id;
-        $next_queue_file->file_name = $next_schedule_file->file->name;
-        $next_queue_file->file_artist = $next_schedule_file->file->artist;
-        $next_queue_file->file_title = $next_schedule_file->file->title;
+        $queue_schedule = new Model_Queue_Schedule();
+        // get show
+        $show = $schedule->show;
+        // populate show info
+        $queue_schedule->show_title = $show->title;
+        // populate sweeper interval
+        $queue_schedule->sweeper_interval = $schedule->sweeper_interval;
+
+        ////////////////////////////
+        // POPULATE PROMO ENABLES //
+        ////////////////////////////
+
+        $queue_schedule->sweepers_enabled = $schedule->sweepers_enabled();
+        $queue_schedule->jingles_enabled = $schedule->jingles_enabled();
+        $queue_schedule->bumpers_enabled = $schedule->bumpers_enabled();
+
         // send queue response
-        return $this->response($next_queue_file);
+        return $this->response($queue_schedule);
 
     }
 
@@ -538,77 +608,6 @@ class Controller_Engine extends Controller_Cloudcast {
     public function get_schedule_bumpers($schedule_id)
     {
         return $this->schedule_promos($schedule_id, 'Bumper');
-    }
-
-    public function get_queue_schedule($schedule_id)
-    {
-
-        ///////////////////
-        // FIND SCHEDULE //
-        ///////////////////
-
-        // get the schedule by id
-        $schedule = Model_Schedule::find($schedule_id);
-        // verify current schedule
-        if (!$schedule)
-            return $this->response('INVALID_SCHEDULE');
-
-        /////////////////////////////////
-        // CREATE QUEUE, POPULATE SHOW //
-        /////////////////////////////////
-
-        // create new queue
-        $queue_schedule = new Model_Queue_Schedule();
-        // get show
-        $show = $schedule->show;
-        // populate show info
-        $queue_schedule->show_title = $show->title;
-        // populate sweeper interval
-        $queue_schedule->sweeper_interval = $schedule->sweeper_interval;
-
-        ///////////////////////////////////
-        // POPULATE PROMO AVAILABILITIES //
-        ///////////////////////////////////
-
-        // get sweepers album
-        $sweepers_album = $schedule->sweepers_album;
-        if ($sweepers_album)
-        {
-            $queue_schedule->sweepers_available = Model_File::query()
-                ->where('genre', 'Sweeper')
-                ->where('album', $sweepers_album)
-                ->where('available', '1')
-                ->where('found', '1')
-                ->count() > 0;
-        }
-
-        // get jingles album
-        $jingles_album = $schedule->jingles_album;
-        if ($jingles_album)
-        {
-            $queue_schedule->jingles_available = Model_File::query()
-                    ->where('genre', 'Jingle')
-                    ->where('album', $jingles_album)
-                    ->where('available', '1')
-                    ->where('found', '1')
-                    ->count() > 0;
-        }
-
-        // get bumpers album
-        $bumpers_album = $schedule->bumpers_album;
-        if ($bumpers_album)
-        {
-            $queue_schedule->bumpers_available = Model_File::query()
-                    ->where('genre', 'Bumper')
-                    ->where('album', $bumpers_album)
-                    ->where('available', '1')
-                    ->where('found', '1')
-                    ->count() > 0;
-        }
-
-        // send queue response
-        return $this->response($queue_schedule);
-
     }
 
     public function get_vote($vote)

@@ -175,11 +175,11 @@ class Controller_Schedules extends Controller_Cloudcast
         // get server datetime
         $server_datetime = Helper::server_datetime();
         // get schedule out interval
-        $schedule_out_interval = new DateInterval('P' . $schedule_out_days . 'D');
+        $schedule_out_dateinterval = new DateInterval('P' . $schedule_out_days . 'D');
         // get max schedule out date time
         $max_schedule_out_datetime = clone $server_datetime;
         // get max schedule out datetime
-        $max_schedule_out_datetime->add($schedule_out_interval);
+        $max_schedule_out_datetime->add($schedule_out_dateinterval);
 
         //////////////////////////////////////
         // GENERATE SCHEDULES FOR EACH SHOW //
@@ -253,7 +253,7 @@ class Controller_Schedules extends Controller_Cloudcast
         $show_start_on_datetime_string = Helper::server_datetime_string($show_start_on_datetime);
         $show_end_at_datetime_string = Helper::server_datetime_string($show_end_at_datetime);
         // see if we have a conflict
-        if ($this->schedule_conflicted($show_start_on_datetime_string, $show_end_at_datetime_string))
+        if ($this->is_schedule_conflicted($show_start_on_datetime_string, $show_end_at_datetime_string))
             return;
 
         /////////////////////////////////////
@@ -290,8 +290,10 @@ class Controller_Schedules extends Controller_Cloudcast
         // SETUP REPEAT //
         //////////////////
 
+        // get the DST hours offset
+        $DST_hours_offset = Helper::DST_hours_offset($show_start_on_datetime, $server_datetime);
         // get show hours, minutes, and day
-        $show_start_on_hours = (int)$show_start_on_datetime->format('H');
+        $show_start_on_hours = (int)$show_start_on_datetime->format('H') + $DST_hours_offset;
         $show_start_on_minutes = (int)$show_start_on_datetime->format('i');
         // get show end date time
         $show_repeat_end_on_datetime = $show->show_repeat->end_on_datetime();
@@ -321,7 +323,7 @@ class Controller_Schedules extends Controller_Cloudcast
             // CHECK FOR SHOW STARTED & NOT ENDED //
             ////////////////////////////////////////
 
-            // verify the show has started for this day
+            // verify the show has even started
             if ($schedule_start_on_datetime < $show_start_on_datetime)
                 continue;
             // make sure show is within end time of show
@@ -337,9 +339,9 @@ class Controller_Schedules extends Controller_Cloudcast
             // get the user schedule start on datetime
             $schedule_user_start_on_datetime = Helper::server_datetime_to_user_datetime($schedule_start_on_datetime);
             // get the user day of the schedule start time
-            $schedule_start_on_day = $schedule_user_start_on_datetime->format('l');
-            // verify this day is in the show's repeat schedule
-            if ($show->show_repeat->$schedule_start_on_day === '0')
+            $schedule_user_start_on_day = $schedule_user_start_on_datetime->format('l');
+            // verify this day is in the show repeat schedule
+            if ($show->show_repeat->$schedule_user_start_on_day === '0')
                 continue;
 
             ///////////////////////////////////////////
@@ -352,7 +354,7 @@ class Controller_Schedules extends Controller_Cloudcast
             $schedule_start_on_datetime_string = Helper::server_datetime_string($schedule_start_on_datetime);
             $schedule_end_at_datetime_string = Helper::server_datetime_string($schedule_end_at_datetime);
             // see if we have a conflict
-            if ($this->schedule_conflicted($schedule_start_on_datetime_string, $schedule_end_at_datetime_string))
+            if ($this->is_schedule_conflicted($schedule_start_on_datetime_string, $schedule_end_at_datetime_string))
                 continue;
 
             //////////////////////////////////////////
@@ -379,7 +381,7 @@ class Controller_Schedules extends Controller_Cloudcast
         }
     }
 
-    private function schedule_conflicted($start_on_datetime_string, $end_at_datetime_string)
+    private function is_schedule_conflicted($start_on_datetime_string, $end_at_datetime_string)
     {
 
         return Model_Schedule::query()
@@ -414,43 +416,60 @@ class Controller_Schedules extends Controller_Cloudcast
             ->related('schedule_files')
             ->where('available', '1')
             ->where('end_at', '>', $server_datetime_string)
+            ->order_by('start_on', 'ASC')
             ->get();
 
         ///////////////////////////
         // PROCESS EACH SCHEDULE //
         ///////////////////////////
 
+        // keep track of previous contiguous schedule (to avoid file repeating)
+        $previous_schedule = null;
+        // loop over all schedules to fill
         foreach ($schedules as $schedule)
         {
+
+            //////////////////////////////
+            // VERIFY PREVIOUS SCHEDULE //
+            //////////////////////////////
+
+            // if previous schedule null or ends when this on starts,
+            if (!is_null($previous_schedule) and ($previous_schedule->end_at != $schedule->start_on))
+                $previous_schedule = null;
 
             //////////////////////////////
             // CHECK FOR ALREADY FILLED //
             //////////////////////////////
 
+            // if there are already scheduled files, continue
             if (count($schedule->schedule_files) > 0)
                 continue;
+
+            ////////////////////////
+            // GET PREVIOUS FILES //
+            ////////////////////////
+
+            // get previous schedule file
+            if (is_null($previous_schedule))
+                $previous_files = array();
+            else
+                $previous_files = $previous_schedule->files();
 
             /////////////////////////////////
             // SET SHOW FILES FOR DURATION //
             /////////////////////////////////
 
-            // set schedule files
-            $files = $schedule->show->files();
-            // generate each schedule file
-            foreach ($files as $file)
-            {
+            // fill schedule
+            $schedule->fill($previous_files);
+            // save schedule
+            $schedule->save();
 
-                // create schedule file
-                $schedule_file = Model_Schedule_File::forge();
-                // set properties
-                $schedule_file->schedule_id = $schedule->id;
-                $schedule_file->file_id = $file->id;
-                $schedule_file->ups = 0;
-                $schedule_file->downs = 0;
-                $schedule_file->queued = '0';
-                // save schedule file
-                $schedule_file->save();
-            }
+            ///////////////////////////
+            // SET PREVIOUS SCHEDULE //
+            ///////////////////////////
+
+            // set the previous schedule to us, start/end time check will be done next time around
+            $previous_schedule = $schedule;
 
         }
     }

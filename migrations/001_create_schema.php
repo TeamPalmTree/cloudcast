@@ -264,6 +264,7 @@ class Create_Schema
                 'ups' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'downs' => array('constraint' => 11, 'type' => 'int', 'default' => '0'),
                 'queued' => array('type' => 'boolean', 'default' => '0'),
+                'skipped' => array('type' => 'boolean', 'default' => '0'),
                 'schedule_id' => array('constraint' => 11, 'type' => 'int'),
                 'file_id' => array('constraint' => 11, 'type' => 'int'),
             ), array('id'), false, 'InnoDB', 'utf8_general_ci',
@@ -463,49 +464,25 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
+                'name' => 'transition_cross_seconds',
+                'type' => 'text',
+                'value' => '1.0',
+                'category' => 'transitions'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
                 'name' => 'transition_fade_seconds',
                 'type' => 'text',
-                'value' => '4.0',
+                'value' => '3.5',
                 'category' => 'transitions'
             ))->execute();
 
         \DB::insert('settings')
             ->set(array(
-                'name' => 'transition_seconds',
+                'name' => 'transition_delay_seconds',
                 'type' => 'text',
-                'value' => '5.0',
-                'category' => 'transitions'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'transition_width_seconds',
-                'type' => 'text',
-                'value' => '3.0',
-                'category' => 'transitions'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'transition_power_margin',
-                'type' => 'text',
-                'value' => '4.0',
-                'category' => 'transitions'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'transition_high_power',
-                'type' => 'text',
-                'value' => '-15.0',
-                'category' => 'transitions'
-            ))->execute();
-
-        \DB::insert('settings')
-            ->set(array(
-                'name' => 'transition_medium_power',
-                'type' => 'text',
-                'value' => '-32.0',
+                'value' => '1.0',
                 'category' => 'transitions'
             ))->execute();
 
