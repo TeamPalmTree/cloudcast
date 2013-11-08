@@ -202,6 +202,11 @@ class Controller_Engine extends Controller_Cloudcast
                 $schedule_file->schedule->backup_fill($gap_seconds);
             }
         }
+        else
+        {
+            // take a second off the sweeper
+            $server_datetime->sub(new DateInterval('PT2S'));
+        }
 
         ////////////////////////////////////
         // UPDATE SCHEDULE FILE PLAY DATE //
@@ -391,13 +396,13 @@ class Controller_Engine extends Controller_Cloudcast
                 }
 
                 // get right based on type
-                $access_condition = ($credentials->type == 'show') ? 'show_input.update' : 'talkover_input.update';
+                /*$access_condition = ($credentials->type == 'show') ? 'show_input.update' : 'talkover_input.update';
                 // verify the user is allowed access
                 if (!Auth::has_access($access_condition))
                 {
                     $response = 'USER_NOT_ALLOWED';
                     break;
-                }
+                }*/
 
                 // get user id
                 $user_id = Auth::get_user_id();

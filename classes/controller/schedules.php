@@ -16,8 +16,6 @@ class Controller_Schedules extends Controller_Cloudcast
         $view = View::forge('schedules/index');
         // get file finder
         $view->files_finder = View::forge('files/finder');
-        // get all dated schedules
-        $view->set('schedule_dates', Model_Schedule::dates(), false);
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;

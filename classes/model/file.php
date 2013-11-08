@@ -513,7 +513,6 @@ class Model_File extends \Orm\Model
         $transitioned_duration_seconds = $this->duration_seconds();
         // get transition parameters
         $transition_cross_seconds = Model_Setting::get_value('transition_cross_seconds');
-        $transition_fade_seconds = Model_Setting::get_value('transition_fade_seconds');
         $transition_delay_seconds = Model_Setting::get_value('transition_delay_seconds');
 
         //////////////////////////////////////////////////
@@ -528,7 +527,7 @@ class Model_File extends \Orm\Model
             return $transitioned_duration_seconds + $transition_delay_seconds;
         // file to sweeper or sweeper to file
         if (($this->genre == 'Sweeper') or ($previous_genre == 'Sweeper'))
-            return $transitioned_duration_seconds - ((($transition_fade_seconds * 2) - $transition_cross_seconds) / 2);
+            return $transitioned_duration_seconds - ($transition_cross_seconds / 2);
         // everything else is back to back
         return $transitioned_duration_seconds;
 

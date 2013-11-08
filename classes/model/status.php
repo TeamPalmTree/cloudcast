@@ -12,6 +12,8 @@ class Model_Status extends \Model
     // next file
     public $next_file_artist;
     public $next_file_title;
+    public $next_file_post;
+    public $next_file_duration;
     // current show
     public $current_show_title;
     public $current_show_duration;

@@ -1,6 +1,3 @@
-<script>
-    var schedule_dates_js = <?php echo Format::forge($schedule_dates)->to_json(); ?>
-</script>
 <div id="schedules-index" class="cloudcast-section">
     <table>
         <tr>
@@ -94,18 +91,24 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}, visible: expanded">
+                                        <!-- ko if: expanded -->
+                                        <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}">
                                             <div class="cloudcast-item"
                                                  data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !played_on() && (queued() == '0')) select(); }">
-                                                <div class="cloudcast-item-section" data-bind="visible: $parent.editing() && !played_on() && (queued() == '0')">
+                                                <!-- ko if: $parent.editing() && !played_on() && (queued() == '0') -->
+                                                <div class="cloudcast-item-section">
                                                     <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                                                 </div>
-                                                <div class="cloudcast-item-section" data-bind="visible: queued() == '1' || played_on() || skipped() == '1'">
+                                                <!-- /ko -->
+                                                <!-- ko if: queued() == '1' || played_on() || skipped() == '1' -->
+                                                <div class="cloudcast-item-section">
                                                     <span class="label label-warning" data-bind="visible: queued() == '1'"><i class="icon-download-alt"></i> QUEUED</span>
                                                     <span class="label label-success" data-bind="visible: played_on"><i class="icon-ok"></i> PLAYED</span>
                                                     <span class="label label-success" data-bind="visible: skipped() == '1'"><i class="icon-remove"></i> SKIPPED</span>
                                                 </div>
-                                                <div class="cloudcast-item-section" data-bind="css: { 'cloudcast-item-section-dim' : (file().genre() == 'Sweeper') || (file().genre() == 'Bumper') }">
+                                                <!-- /ko -->
+                                                <div class="cloudcast-item-section"
+                                                     data-bind="css: { 'cloudcast-item-section-dimmed' : (file().genre() == 'Sweeper') || (file().genre() == 'Bumper'), 'cloudcast-item-section-success' : played_on, 'cloudcast-item-section-warning' : (queued() == '1' && !played_on())  }">
                                                     <strong><span data-bind="text: file().artist"></span></strong> - <strong><span data-bind="text: file().title"></span></strong>
                                                 </div>
                                                 <div class="cloudcast-item-section-right">
@@ -116,10 +119,14 @@
                                                          (<span data-bind="text: file().key"></span>-<span data-bind="text: file().energy"></span>)
                                                         </span>
                                                     </span>
+                                                    <!-- ko if: file().post -->
+                                                    <span class="label label-warning"><i class="icon-signal"></i> <span data-bind="text: file().post"></span></span>
+                                                    <!-- /ko -->
                                                     <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: file().duration"></span></span>
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- /ko -->
                                     </div>
                                 </div>
                             </div>

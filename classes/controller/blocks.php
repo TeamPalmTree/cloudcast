@@ -115,7 +115,7 @@ class Controller_Blocks extends Controller_Cloudcast
         // get all blocks
         $view->blocks_finder->blocks = Model_Block::all($id);
         // set block
-        $view->block = $block;
+        $view->set('block', $block, false);
         // set template vars
         $this->template->title = 'Layout';
         $this->template->content = $view;
