@@ -22,7 +22,8 @@ class Controller_Schedules extends Controller_Cloudcast
 
     }
 
-    public function post_dates() {
+    public function post_dates()
+    {
         return $this->response(Model_Schedule::dates());
     }
 

@@ -9,6 +9,7 @@ class Model_Schedule_File extends \Orm\Model
         'ups',
         'downs',
         'queued',
+        'skipped',
         'schedule_id',
         'file_id',
     );
@@ -67,7 +68,7 @@ class Model_Schedule_File extends \Orm\Model
 
     }
 
-    public static function the_nexts($server_datetime, $queued = false)
+    public static function the_next($server_datetime)
     {
 
         ///////////////////////////////
@@ -107,6 +108,58 @@ class Model_Schedule_File extends \Orm\Model
             ->related('file')
             ->where('played_on', null)
             ->where('skipped', '0')
+            ->where('queued', '1')
+            ->where('schedule.available', '1')
+            ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
+            ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
+            ->order_by('id', 'ASC')
+            ->rows_limit(1)
+            ->get();
+        // success
+        return current($next_schedule_files);
+
+    }
+
+    public static function queue_nexts($server_datetime)
+    {
+
+        ///////////////////////////////
+        // GET CURRENT SCHEDULE FILE //
+        ///////////////////////////////
+
+        // initially set next lookup to the server datetime
+        $next_schedule_start_on_datetime = $server_datetime;
+        // get current schedule file
+        $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
+
+        /////////////////////////////////////////////////////////////
+        // FACTOR CURRENT FILE DURATION IN CASE OF SCHEDULE CHANGE //
+        /////////////////////////////////////////////////////////////
+
+        // if we have no current file, we need no lookup time adjustments
+        if ($current_schedule_file != null)
+        {
+            // get the current file's played on datetime
+            $current_schedule_file_played_on_datetime = Helper::server_datetime($current_schedule_file->played_on);
+            // get number of seconds for current schedule file
+            $current_schedule_file_duration_seconds = $current_schedule_file->file->duration_seconds();
+            // estimate next schedule start on datetime for lookup purposes
+            $next_schedule_start_on_datetime = Helper::datetime_add_seconds($current_schedule_file_played_on_datetime, $current_schedule_file_duration_seconds);
+        }
+
+        ///////////////////////////////////
+        // DETERMINE NEXT SCHEDULE FILES //
+        ///////////////////////////////////
+
+        // get next schedule start on datetime string estimation
+        $next_schedule_start_on_datetime_string = Helper::server_datetime_string($next_schedule_start_on_datetime);
+        // get next couple unplayed schedule files
+        $next_schedule_files = Model_Schedule_File::query()
+            ->related('schedule')
+            ->related('schedule.show')
+            ->related('file')
+            ->where('played_on', null)
+            ->where('skipped', '0')
             ->where('schedule.available', '1')
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
             ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
@@ -118,50 +171,76 @@ class Model_Schedule_File extends \Orm\Model
         if (count($next_schedule_files) == 0)
             return $next_schedule_files;
 
-        ///////////////////////
-        // VERIFY NOT QUEUED //
-        ///////////////////////
+        ////////////////////////
+        // VERIFY NONE QUEUED //
+        ////////////////////////
 
-        // get next schedule file
+        // get next file
         $next_schedule_file = current($next_schedule_files);
-        // if queued, we are done
-        if (!$queued && ($next_schedule_file->queued == '1'))
+        // if the next file is already queued, we are done
+        if ($next_schedule_file->queued == '1')
             return array();
 
-        //////////////////////////////////
-        // SKIP SWEEPERS IF TALKOVER ON //
-        //////////////////////////////////
+        ////////////////////////////////
+        // AVOID DOUBLE QUEUING FILES //
+        ////////////////////////////////
+
+        // get the very next genre
+        $next_genre = $next_schedule_file->file->genre;
+        // if the next queue file is a sweeper, bumper, or intro, return all files
+        // else, just return the first element
+        if (($next_genre != 'Sweeper') and ($next_genre != 'Bumper') and ($next_genre != 'Intro'))
+            $next_schedule_files = array($next_schedule_file);
+
+        /////////////////////
+        // SKIP MANAGEMENT //
+        /////////////////////
 
         // get talkover input status
         $talkover_input = Model_Input::query()
             ->where('name', 'talkover')
             ->get_one();
-
-        // get next genre
-        $next_genre = $next_schedule_file->file->genre;
-        // if talkover input is enabled and connected, ignore sweepers
-        if ($talkover_input->active() && ($next_genre == 'Sweeper'))
+        // get talkover input active
+        if ($talkover_input->active())
         {
-            // mark schedule file skipped & save
-            $next_schedule_file->skipped = '1';
-            $next_schedule_file->save();
-            // remove the first file
-            array_shift($next_schedule_files);
-            // success
-            return $next_schedule_files;
+
+            $skipped_next_schedule_file_ids = array();
+            // verify all next schedule files are not queued or skipped
+            foreach ($next_schedule_files as $next_schedule_file)
+            {
+                // if talkover input is enabled and connected, skip sweepers
+                if ($next_schedule_file->file->genre == 'Sweeper')
+                {
+                    // mark schedule file skipped & save
+                    $next_schedule_file->skipped = '1';
+                    $next_schedule_file->save();
+                    // remove the schedule file
+                    $skipped_next_schedule_file_ids[] = $next_schedule_file->id;
+                }
+
+            }
+
+            // remove skipped
+            $next_schedule_files = array_diff_key($next_schedule_files, array_flip($skipped_next_schedule_file_ids));
+            // if we have zero, we are done
+            if (count($next_schedule_files) == 0)
+                return $next_schedule_files;
 
         }
 
-        ///////////////////////////////////////////////
-        // QUEUE NEXT FILE AFTER BUMPERS OR SWEEPERS //
-        ///////////////////////////////////////////////
+        //////////////////////
+        // QUEUE NEXT FILES //
+        //////////////////////
 
-        // if the next queue file is a sweeper or bumper, return both
-        // else, just return the first element
-        if (($next_genre == 'Sweeper') or ($next_genre == 'Bumper'))
-            return $next_schedule_files;
-        else
-            return array($next_schedule_file);
+        // mark each as queued
+        foreach ($next_schedule_files as $next_schedule_file)
+        {
+            $next_schedule_file->queued = '1';
+            $next_schedule_file->save();
+        }
+
+        // success
+        return $next_schedule_files;
 
     }
 

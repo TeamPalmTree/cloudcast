@@ -104,12 +104,14 @@
                                                 <div class="cloudcast-item-section">
                                                     <span class="label label-warning" data-bind="visible: queued() == '1'"><i class="icon-download-alt"></i> QUEUED</span>
                                                     <span class="label label-success" data-bind="visible: played_on"><i class="icon-ok"></i> PLAYED</span>
-                                                    <span class="label label-success" data-bind="visible: skipped() == '1'"><i class="icon-remove"></i> SKIPPED</span>
+                                                    <span class="label label-important" data-bind="visible: skipped() == '1'"><i class="icon-remove"></i> SKIPPED</span>
                                                 </div>
                                                 <!-- /ko -->
-                                                <div class="cloudcast-item-section"
-                                                     data-bind="css: { 'cloudcast-item-section-dimmed' : (file().genre() == 'Sweeper') || (file().genre() == 'Bumper'), 'cloudcast-item-section-success' : played_on, 'cloudcast-item-section-warning' : (queued() == '1' && !played_on())  }">
-                                                    <strong><span data-bind="text: file().artist"></span></strong> - <strong><span data-bind="text: file().title"></span></strong>
+                                                <div class="cloudcast-item-section" data-bind="css: 'cloudcast-item-section-' + css()">
+                                                    <span data-bind="text: file().artist"></span> - <span data-bind="text: file().title"></span>
+                                                    <!-- ko if: id -->
+                                                    (<span data-bind="text: id"></span>)
+                                                    <!-- /ko -->
                                                 </div>
                                                 <div class="cloudcast-item-section-right">
                                                     <span class="label label-info">

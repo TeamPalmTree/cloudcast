@@ -434,7 +434,15 @@ class Create_Schema
             ->set(array(
                 'name' => 'files_directory',
                 'type' => 'text',
-                'value' => "F:\\DropFolder\\GDM\\",
+                'value' => "E:\\CloudCast\\prepared",
+                'category' => 'general'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
+                'name' => 'loop_file',
+                'type' => 'text',
+                'value' => "E:\\CloudCast\\loops\\loop.mp3",
                 'category' => 'general'
             ))->execute();
 

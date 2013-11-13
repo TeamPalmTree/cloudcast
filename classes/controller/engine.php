@@ -22,10 +22,8 @@ class Controller_Engine extends Controller_Cloudcast
         //////////////////////////////////////////
 
         $current_schedule_file = Model_Schedule_File::the_current($server_datetime);
-        $next_schedule_files = Model_Schedule_File::the_nexts($server_datetime, true);
+        $next_schedule_file = Model_Schedule_File::the_next($server_datetime);
         $next_schedule = Model_Schedule::the_next($server_datetime);
-        // get the first next schedule files
-        $next_schedule_file = current($next_schedule_files);
 
         ////////////////////////////////////
         // SET CURRENT SCHEDULE FILE DATA //
@@ -176,23 +174,23 @@ class Controller_Engine extends Controller_Cloudcast
         // find the schedule file
         $schedule_file = Model_Schedule_File::playable($id);
 
-        //////////////////////////////////////////////
-        // BACKUP FILL FOR NON-SWEEPER/BUMPER PLAYS //
-        //////////////////////////////////////////////
+        ////////////////////////////////////////////////////
+        // BACKUP FILL FOR NON-SWEEPER/BUMPER/INTRO PLAYS //
+        ////////////////////////////////////////////////////
 
         // get server time
         $server_datetime = Helper::server_datetime();
         // get schedule file genre
         $genre = $schedule_file->file->genre;
-        // only do this for non-sweepers and bumpers
-        if (($genre != 'Sweeper') and ($genre != 'Bumper'))
+        // only do this for non-sweepers/bumpers/intros
+        if (($genre != 'Intro') and ($genre != 'Sweeper') and ($genre != 'Bumper'))
         {
             // get the schedule end datetime
             $schedule_end_at_datetime = Helper::server_datetime($schedule_file->schedule->end_at);
             // get the difference between schedule end and current time
             $actual_remaining_seconds = $schedule_end_at_datetime->getTimestamp() - $server_datetime->getTimestamp();
             // get the scheduled remaining seconds
-            $scheduled_remaining_seconds = Model_Schedule::remaining_seconds($schedule_file->schedule_id);
+            $scheduled_remaining_seconds = Model_Schedule::remaining_seconds($schedule_file);
             // if we don't have enough files to fill the schedule (due to transitions and such)
             if ($scheduled_remaining_seconds < $actual_remaining_seconds)
             {
@@ -260,7 +258,7 @@ class Controller_Engine extends Controller_Cloudcast
         // get server datetime
         $server_datetime = Helper::server_datetime();
         // get next schedule file
-        $next_schedule_files = Model_Schedule_File::the_nexts($server_datetime);
+        $next_schedule_files = Model_Schedule_File::queue_nexts($server_datetime);
         // if we have none, we are done
         if (count($next_schedule_files) == 0)
             return $this->response('NONE');
@@ -287,10 +285,6 @@ class Controller_Engine extends Controller_Cloudcast
             $next_queue->file_duration_seconds = (string)$next_schedule_file->file->duration_seconds();
             // add to array
             $next_queues[] = $next_queue;
-
-            // set queued and save
-            $next_schedule_file->queued = '1';
-            $next_schedule_file->save();
 
         }
 

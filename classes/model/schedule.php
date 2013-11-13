@@ -199,14 +199,8 @@ class Model_Schedule extends \Orm\Model
 
     }
 
-    public static function remaining_seconds($id)
+    public static function remaining_seconds($current_schedule_file)
     {
-
-        //////////////////
-        // GET SCHEDULE //
-        //////////////////
-
-        $schedule = Model_Schedule::find($id);
 
         ///////////////////////////////
         // GET TALKOVER INPUT STATUS //
@@ -224,13 +218,13 @@ class Model_Schedule extends \Orm\Model
         $remaining_schedule_files_query =
             Model_Schedule_File::query()
             ->related('file')
-            ->where('schedule_id', $id)
+            ->where('schedule_id', $current_schedule_file->schedule_id)
             ->where('played_on', null)
             ->where('skipped', '0');
 
         // if takover is on, remove sweepers from durations
         if ($talkover_input->active())
-            $remaining_schedule_files_query->where('files.genre', '!=', 'Sweeper');
+            $remaining_schedule_files_query->where('file.genre', '!=', 'Sweeper');
 
         // get remaining schedule files
         $remaining_schedule_files = $remaining_schedule_files_query->get();
@@ -240,17 +234,11 @@ class Model_Schedule extends \Orm\Model
         /////////////////////////////////
 
         $remaining_seconds = 0;
-        $previous_remaining_schedule_file = null;
+        // set previous file to the current schedule file
+        $previous_remaining_schedule_file = $current_schedule_file;
         // sum remaining durations the total seconds
         foreach ($remaining_schedule_files as $remaining_schedule_file)
-        {
-            // if we have no previous remaining schedule file, update previous file
-            // else, get file to file combined duration, which factors in transition adjustments
-            if ($previous_remaining_schedule_file == null)
-                $previous_remaining_schedule_file = $remaining_schedule_file;
-            else
-                $remaining_seconds += $remaining_schedule_file->file->transitioned_duration_seconds($previous_remaining_schedule_file->file->genre);
-        }
+            $remaining_seconds += $remaining_schedule_file->file->transitioned_duration_seconds($previous_remaining_schedule_file->file->genre);
 
         // success
         return $remaining_seconds;
