@@ -3,38 +3,35 @@
 <head>
     <meta charset="utf-8">
     <title>CloudCast.<?php echo $section; ?>.<?php echo $title; ?></title>
+    <!-- viewport -->
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="initial-scale=0.8, user-scalable=no">
     <!-- css -->
-    <?php echo Asset::css('bootstrap-datetimepicker.css'); ?>
-    <!-- less -->
-    <?php echo Asset::less('template.less'); ?>
-    <!-- universal scripts -->
-    <?php echo Asset::js('jquery.js'); ?>
-    <?php echo Asset::js('knockout.js'); ?>
-    <?php echo Asset::js('knockout.mapping.js'); ?>
-    <?php echo Asset::js('knockout.bindingHandlers.js'); ?>
-    <?php echo Asset::js('knockout.orderable.js'); ?>
+    <?php echo Asset::css('reset.css'); ?>
+    <?php echo Asset::css('template.css'); ?>
+    <!-- js -->
+    <?php echo Asset::js('jquery.min.js'); ?>
     <?php echo Asset::js('dateformat.js'); ?>
-    <?php echo Asset::js('helper.js'); ?>
-    <?php echo Asset::js('template.js'); ?>
-    <!-- environmental scripts -->
-    <?php if (Fuel::$env !== Fuel::PRODUCTION): ?>
-    <?php echo Asset::js('bootstrap.js'); ?>
-    <?php echo Asset::js('bootstrap-datetimepicker.js'); ?>
-    <?php echo Asset::js('jquery-ui.js'); ?>
-    <?php echo Asset::js('jquery.tablesorter.js'); ?>
-    <?php echo Asset::js('knockout-sortable.js'); ?>
-    <?php else: ?>
     <?php echo Asset::js('bootstrap.min.js'); ?>
     <?php echo Asset::js('bootstrap-datetimepicker.min.js'); ?>
+    <?php echo Asset::js('typeahead.min.js'); ?>
+    <?php echo Asset::js('knockout.min.js'); ?>
+    <?php echo Asset::js('knockout.mapping.min.js'); ?>
+    <?php echo Asset::js('knockout.bindingHandlers.js'); ?>
+    <?php echo Asset::js('knockout-bootstrap.min.js'); ?>
+    <?php echo Asset::js('knockout.orderable.js'); ?>
     <?php echo Asset::js('jquery-ui.min.js'); ?>
     <?php echo Asset::js('jquery.tablesorter.min.js'); ?>
     <?php echo Asset::js('knockout-sortable.min.js'); ?>
-    <?php endif; ?>
+    <?php echo Asset::js('helper.js'); ?>
+    <?php echo Asset::js('template.js'); ?>
 </head>
 <body>
-<?php echo $modals; ?>
-<?php echo $display; ?>
-<?php echo $navigation; ?>
-<?php echo $content; ?>
+    <div class="cloudcast">
+        <?php echo $modal; ?>
+        <?php echo $display; ?>
+        <?php echo $navigation; ?>
+        <?php echo $content; ?>
+    </div>
 </body>
 </html>

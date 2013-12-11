@@ -259,12 +259,9 @@ return array(
 		 */
 		'packages'  => array(
 		    'orm',
-            'less',
             'auth',
             'shared',
-            'getID3',
             'tagscanner',
-            'cemw',
             'ichook',
             'lshook',
 		),

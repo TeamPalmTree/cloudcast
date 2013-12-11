@@ -6,10 +6,10 @@ class Model_Schedule_File extends \Orm\Model
     protected static $_properties = array(
         'id',
         'played_on',
+        'skipped_on',
+        'queued_on',
         'ups',
         'downs',
-        'queued',
-        'skipped',
         'schedule_id',
         'file_id',
     );
@@ -33,6 +33,8 @@ class Model_Schedule_File extends \Orm\Model
         // FIND LAST PLAYED FILE //
         ///////////////////////////
 
+        // get next schedule start on datetime string estimation
+        $schedule_start_on_datetime_string = Helper::server_datetime_string($server_datetime);
         // find the last played schedule file
         $last_played_schedule_files = Model_Schedule_File::query()
             ->related('schedule')
@@ -40,6 +42,7 @@ class Model_Schedule_File extends \Orm\Model
             ->related('file')
             ->where('played_on', '!=', null)
             ->where('schedule.available', '1')
+            ->where('schedule.start_on', '<=', $schedule_start_on_datetime_string)
             ->order_by('played_on', 'DESC')
             ->rows_limit(1)
             ->get();
@@ -107,12 +110,12 @@ class Model_Schedule_File extends \Orm\Model
             ->related('schedule.show')
             ->related('file')
             ->where('played_on', null)
-            ->where('skipped', '0')
-            ->where('queued', '1')
+            ->where('skipped_on', null)
+            ->where('queued_on', '!=', null)
             ->where('schedule.available', '1')
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
             ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
-            ->order_by('id', 'ASC')
+            ->order_by('queued_on', 'ASC')
             ->rows_limit(1)
             ->get();
         // success
@@ -159,7 +162,7 @@ class Model_Schedule_File extends \Orm\Model
             ->related('schedule.show')
             ->related('file')
             ->where('played_on', null)
-            ->where('skipped', '0')
+            ->where('skipped_on', null)
             ->where('schedule.available', '1')
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
             ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
@@ -178,24 +181,23 @@ class Model_Schedule_File extends \Orm\Model
         // get next file
         $next_schedule_file = current($next_schedule_files);
         // if the next file is already queued, we are done
-        if ($next_schedule_file->queued == '1')
+        if (!is_null($next_schedule_file->queued_on))
             return array();
 
         ////////////////////////////////
         // AVOID DOUBLE QUEUING FILES //
         ////////////////////////////////
 
-        // get the very next genre
-        $next_genre = $next_schedule_file->file->genre;
-        // if the next queue file is a sweeper, bumper, or intro, return all files
-        // else, just return the first element
-        if (($next_genre != 'Sweeper') and ($next_genre != 'Bumper') and ($next_genre != 'Intro'))
+        // if the next queue file is not a promo, return just it
+        if (!$next_schedule_file->file->is_promo())
             $next_schedule_files = array($next_schedule_file);
 
         /////////////////////
         // SKIP MANAGEMENT //
         /////////////////////
 
+        // get current datetime
+        $server_datetime_string = Helper::server_datetime_string($server_datetime);
         // get talkover input status
         $talkover_input = Model_Input::query()
             ->where('name', 'talkover')
@@ -212,7 +214,7 @@ class Model_Schedule_File extends \Orm\Model
                 if ($next_schedule_file->file->genre == 'Sweeper')
                 {
                     // mark schedule file skipped & save
-                    $next_schedule_file->skipped = '1';
+                    $next_schedule_file->skipped_on = $server_datetime_string;
                     $next_schedule_file->save();
                     // remove the schedule file
                     $skipped_next_schedule_file_ids[] = $next_schedule_file->id;
@@ -235,7 +237,7 @@ class Model_Schedule_File extends \Orm\Model
         // mark each as queued
         foreach ($next_schedule_files as $next_schedule_file)
         {
-            $next_schedule_file->queued = '1';
+            $next_schedule_file->queued_on = $server_datetime_string;
             $next_schedule_file->save();
         }
 

@@ -6,6 +6,7 @@ class Model_Show extends \Orm\Model
     protected static $_properties = array(
         'id',
         'start_on',
+        'available',
         'ups',
         'downs',
         'sweeper_interval',
@@ -15,15 +16,14 @@ class Model_Show extends \Orm\Model
         'sweepers_album',
         'jingles_album',
         'bumpers_album',
+        'intros_album',
+        'closers_album',
         'block_id',
     );
 
     protected static $_has_many = array(
         'schedules',
-    );
-
-    protected static $_many_many = array(
-        'users',
+        'show_users'
     );
 
     protected static $_has_one = array(
@@ -85,6 +85,138 @@ class Model_Show extends \Orm\Model
         return Helper::duration_seconds($this->duration);
     }
 
+    public static function validate($input)
+    {
+
+        // create validation
+        $validation = Validation::forge();
+        $validation->add_field('title', 'Title', 'required');
+        $validation->add_field('duration', 'Duration', 'non_zero_duration');
+        if (isset($input['block'])) $validation->add_field('block[title]', 'Block Title', 'required');
+        if (isset($input['show_repeat'])) $validation->add_field('show_repeat', 'Show Repeat Day', 'day_checked');
+        if (isset($input['show_repeat']['user_end_on'])) $validation->add_field('show_repeat[user_end_on]', 'Show Repeat End On', 'required');
+        if (isset($input['sweepers_album'])) $validation->add_field('sweeper_interval', 'Sweeper Interval', 'required|numeric_min[1]');
+        // validate show users
+        foreach ($input['show_users'] as $show_user_index => $show_user)
+            $validation->add_field("show_users[$show_user_index][user][username]", 'Show User Username', 'required');
+        // run validation
+        if (!$validation->run($input)) return Helper::errors($validation);
+
+    }
+
+    public function populate($input)
+    {
+
+        // initialize
+        if ($this->id == 0)
+        {
+            // set up/down votes
+            $this->ups = 0;
+            $this->downs = 0;
+            // set available
+            $this->available = 1;
+        }
+
+        // update show
+        $this->start_on = Helper::user_datetime_string_to_server_datetime_string($input['user_start_on']);
+        $this->duration = $input['duration'];
+        $this->title = $input['title'];
+        $this->description = isset($input['description']) ? $input['description'] : null;
+
+        // set promos albums
+        $this->sweepers_album = isset($input['sweepers_album']) ? $input['sweepers_album'] : null;
+        $this->jingles_album = isset($input['jingles_album']) ? $input['jingles_album'] : null;
+        $this->bumpers_album = isset($input['bumpers_album']) ? $input['bumpers_album'] : null;
+        $this->intros_album = isset($input['intros_album']) ? $input['intros_album'] : null;
+        $this->closers_album = isset($input['closers_album']) ? $input['closers_album'] : null;
+        // sweeper interval
+        $this->sweeper_interval = isset($input['sweeper_interval']) ? $input['sweeper_interval'] : null;
+
+        // add repeat
+        if (isset($input['show_repeat']))
+        {
+            // get show repeat
+            $show_repeat = $input['show_repeat'];
+            // if we have an existing, update, else forge
+            if ($this->show_repeat)
+                $this->show_repeat->set($input['show_repeat']);
+            else
+                $this->show_repeat = Model_Show_Repeat::forge($show_repeat);
+            // get user end on
+            $user_end_on = $show_repeat['user_end_on'];
+            // set the end on
+            if ($user_end_on)
+                $this->show_repeat->end_on = Helper::user_datetime_string_to_server_datetime_string($user_end_on);
+        }
+        else if ($this->show_repeat)
+        {
+            // clear out any existing repeat
+            $this->show_repeat->delete();
+            $this->show_repeat = null;
+        }
+
+        // delete existing show users
+        foreach ($this->show_users as $show_user)
+            $show_user->delete();
+        // clear existing show users array
+        $this->show_users = array();
+
+        // get show users
+        $show_users = $input['show_users'];
+        // add show users
+        foreach ($show_users as $show_user)
+        {
+
+            // find the user
+            $user = Model_User::find('first', array(
+                'where' => array(
+                    array('username', $show_user['user']['username']),
+                )
+            ));
+
+            // add to show users
+            $this->show_users[] = Model_Show_User::forge(array(
+                'user_id' => $user->id,
+                'input_name' => $show_user['input_name']
+            ));
+
+        }
+
+        // add block
+        if (isset($input['block']))
+        {
+            // find block
+            $this->block = Model_Block::find('first', array(
+                'where' => array(
+                    array('title', $input['block']['title']),
+                )
+            ));
+        }
+        else
+        {
+            // null out block reference
+            $this->block = null;
+        }
+
+    }
+
+    public function authenticate($user_id, $input_name)
+    {
+
+        // loop over all show users, trying to find one
+        // assigned to this show with the input specified
+        foreach ($this->show_users as $show_user)
+        {
+            if (($show_user->user_id == $user_id)
+                && ($show_user->input_name == $input_name))
+                return true;
+        }
+
+        // failed to auth
+        return false;
+
+    }
+
     public static function relevant($server_datetime_string)
     {
 
@@ -95,7 +227,8 @@ class Model_Show extends \Orm\Model
         $single_shows = Model_Show::query()
             ->related('show_repeat')
             ->related('block')
-            ->related('users')
+            ->related('show_users')
+            ->where('available', '1')
             ->where('show_repeat.id', null)
             ->where('start_on', '>=', $server_datetime_string)
             ->get();
@@ -110,7 +243,8 @@ class Model_Show extends \Orm\Model
         $repeat_shows = Model_Show::query()
             ->related('show_repeat')
             ->related('block')
-            ->related('users')
+            ->related('show_users')
+            ->where('available', '1')
             ->where('show_repeat.id', '!=', null)
             ->and_where_open()
                 ->where('show_repeat.end_on', null)
@@ -130,60 +264,129 @@ class Model_Show extends \Orm\Model
 
     }
 
-    public static function edit($id)
+    public static function editable($id)
     {
-
         // get show
-        $show = Model_Show::query()
+        return Model_Show::query()
             ->related('show_repeat')
             ->related('block')
-            ->related('users')
+            ->related('show_users')
+            ->related('show_users.user')
             ->where('id', $id)
             ->get_one();
-        // set user vars
+    }
+
+    public static function viewable_editable($show)
+    {
+
+        // set user time vars
         $show->user_start_on = $show->user_start_on();
         if (isset($show->show_repeat->end_on))
             $show->show_repeat->user_end_on = $show->show_repeat->user_end_on_datetime_string();
+
+        $new_show_users = array();
+        // fix up show users
+        foreach ($show->show_users as $show_user)
+        {
+            $new_show_user = new stdClass();
+            $new_show_user->user = new stdClass();
+            $new_show_user->user->username = $show_user->user->username;
+            $new_show_user->input_name = $show_user->input_name;
+            $new_show_users[] = $new_show_user;
+        }
+
+        // set new show users
+        $show->show_users = $new_show_users;
         // success
         return $show;
 
     }
 
-    public static function single($datetime)
+    public static function viewable_creatable()
     {
 
-        return Model_Show::query()
-            ->related('show_repeat')
-            ->related('block')
-            ->related('users')
-            ->where('show_repeat.id', null)
-            ->where('start_on', '>=', $datetime)
-            ->order_by('start_on', 'asc')
-            ->get();
+        // create show
+        $show = Model_Show::forge();
+        // get station name
+        $station_name = Model_Setting::get_value('station_name');
+        // set up some initial values
+        $show->sweepers_album = $station_name;
+        $show->jingles_album = $station_name;
+        $show->bumpers_album = $station_name;
+        $show->sweeper_interval = 2;
+        $show->duration = '00:00:00';
+        // success
+        return $show;
 
     }
 
-    public static function repeat($day, $datetime)
+    public static function viewable_singles($server_datetime_string)
+    {
+
+        // get single shows
+        $shows = Model_Show::query()
+            ->related('show_repeat')
+            ->related('block')
+            ->related('show_users')
+            ->where('available', '1')
+            ->where('start_on', '>=', $server_datetime_string)
+            ->where('show_repeat.id', null)
+            ->order_by('start_on', 'asc')
+            ->get();
+
+        // set the user start/end timedays for each show
+        foreach ($shows as &$show)
+        {
+            // set user times
+            $show->user_start_on_timeday = $show->user_start_on_timeday();
+            $show->user_end_at_timeday = $show->user_end_at_timeday();
+            // set hosted
+            if (count($show->show_users) > 0)
+                $show->hosted = true;
+            // clear users
+            unset($show->show_users);
+        }
+
+        // success
+        return array_values($shows);
+
+    }
+
+    public static function viewable_repeats($day, $server_datetime_string)
     {
 
         // get repeat shows for the given day
-        $repeat_shows = Model_Show::query()
+        $shows = Model_Show::query()
             ->related('show_repeat')
             ->related('block')
-            ->related('users')
+            ->related('show_users')
+            ->where('available', '1')
             ->where('show_repeat.' . $day, '1')
             ->and_where_open()
                 ->where('show_repeat.end_on', null)
-                ->or_where('show_repeat.end_on', '>=', $datetime)
+                ->or_where('show_repeat.end_on', '>=', $server_datetime_string)
             ->and_where_close()
             ->get();
 
+        // set the user start/end timedays for each show
+        foreach ($shows as &$show)
+        {
+            // set user times
+            $show->user_start_on_time = $show->user_start_on_time();
+            $show->user_end_at_time = $show->user_end_at_time();
+            // set hosted
+            if (count($show->show_users) > 0)
+                $show->hosted = true;
+            // clear users
+            unset($show->show_users);
+        }
+
         // sort by time of day, ignoring start date
-        usort($repeat_shows, function($a, $b)
+        usort($shows, function($a, $b)
         {
             // remove the :
-            $time_a = (int)str_replace(':', '', $a->user_start_on_time());
-            $time_b = (int)str_replace(':', '', $b->user_start_on_time());
+            $time_a = (int)str_replace(':', '', $a->user_start_on_time);
+            $time_b = (int)str_replace(':', '', $b->user_end_at_time);
             // compare
             if ($time_a > $time_b)
                 return 1;
@@ -193,107 +396,7 @@ class Model_Show extends \Orm\Model
         });
 
         // success
-        return $repeat_shows;
-
-    }
-
-    public function populate()
-    {
-
-        // initialize
-        if ($this->id == 0)
-        {
-            // set up/down votes
-            $this->ups = 0;
-            $this->downs = 0;
-            // set sweeper interval to zero (automatic)
-            $this->sweeper_interval = 0;
-        }
-
-        // update show
-        $this->start_on = Helper::user_datetime_string_to_server_datetime_string(Input::post('user_start_on'));
-        $this->duration = Input::post('duration');
-        $this->title = Input::post('title');
-        $this->description = Input::post('description');
-
-        // add block
-        if (Input::post('blocked'))
-        {
-            $this->block = Model_Block::find('first', array(
-                'where' => array(
-                    array('title', Input::post('block')),
-                )
-            ));
-        }
-        else
-        {
-            $this->block = null;
-        }
-
-        // add repeat
-        if (Input::post('repeated'))
-        {
-            // get show repeat
-            $this_repeat = Input::post('show_repeat', array());
-            // create a repeat
-            if ($this->show_repeat == null)
-                $this->show_repeat = Model_Show_Repeat::forge();
-            // set repeat params
-            $this->show_repeat->Sunday = isset($this_repeat['Sunday']);
-            $this->show_repeat->Monday = isset($this_repeat['Monday']);
-            $this->show_repeat->Tuesday = isset($this_repeat['Tuesday']);
-            $this->show_repeat->Wednesday = isset($this_repeat['Wednesday']);
-            $this->show_repeat->Thursday = isset($this_repeat['Thursday']);
-            $this->show_repeat->Friday = isset($this_repeat['Friday']);
-            $this->show_repeat->Saturday = isset($this_repeat['Saturday']);
-
-            // add repeat end
-            if (Input::post('show_repeat[ends]'))
-                $this->show_repeat->end_on = Helper::user_datetime_string_to_server_datetime_string(Input::post('show_repeat[user_end_on]'));
-            else
-                $this->show_repeat->end_on = null;
-
-        }
-        else
-        {
-            // delete repeat
-            if ($this->show_repeat != null)
-                $this->show_repeat->delete();
-            $this->show_repeat = null;
-        }
-
-        // clear existing users
-        $this->users = array();
-        // replace hosts
-        if (Input::post('hosted'))
-        {
-            // add new
-            foreach (Input::post('users') as $user)
-            {
-                // get username
-                $username = $user['username'];
-                // if we have an empty one, ignore
-                if ($username == '')
-                    continue;
-                // find and add user
-                $this->users[] = Model_User::find('first', array(
-                    'where' => array(
-                        array('username', $username),
-                    )
-                ));
-            }
-        }
-
-        // get promos albums
-        $sweepers_album = Input::post('sweepers_album');
-        $jingles_album = Input::post('jingles_album');
-        $bumpers_album = Input::post('bumpers_album');
-        // set promos albums
-        $this->sweepers_album = Input::post('sweepers') ? (($sweepers_album != '') ? $sweepers_album : null) : null;
-        $this->jingles_album = Input::post('jingles') ? (($jingles_album != '') ? $jingles_album : null) : null;
-        $this->bumpers_album = Input::post('bumpers') ? (($bumpers_album != '') ? $bumpers_album : null) : null;
-        // sweeper interval
-        $this->sweeper_interval = Input::post('sweeper_interval');
+        return $shows;
 
     }
 

@@ -1,78 +1,98 @@
-<script>
-    var stream_js = <?php echo isset($stream) ? Format::forge($stream)->to_json() : 'null'; ?>
-</script>
-<div class="cloudcast-section">
-    <div class="cloudcast-section-inner">
-        <div class="cloudcast-super-header-form">
-            <div class="cloudcast-super-header-section">
-                <h4><?php echo isset($stream) ? 'Edit ' . $stream->name : 'Create Stream'; ?></h4>
+<div id="stream-form" class="cloudcast-section">
+    <div class="cloudcast-section-toolbar">
+        <nav class="navbar navbar-default">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#stream-form-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
             </div>
-            <div class="cloudcast-super-header-section-right">
-                <button type="submit" class="btn btn-mini btn-primary" form="streams-form">SAVE</button>
-                <a href="/streams" class="btn btn-mini">CANCEL</a>
+            <div id="stream-form-collapse" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active" data-bind="if: stream">
+                        <a data-bind="text: stream().id() ? ('Edit ' + stream().name()) : ('Create ' + (stream().name() ? stream().name() : ''))"></a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <button title="Cancel" class="btn btn-default navbar-btn" data-bind="click: cancel"><span class="glyphicon glyphicon-floppy-remove"></span></button>
+                        <button title="Save" class="btn btn-default navbar-btn" data-bind="css: { 'active': saving }, click: save"><span class="glyphicon glyphicon-floppy-saved"></span></button>
+                    </li>
+                </ul>
             </div>
+        </nav>
+    </div>
+    <div class="cloudcast-section-content">
+        <div class="cloudcast-section-inner">
+            <form class="form-horizontal" data-bind="with: stream">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="name">Name</label>
+                    <div class="col-sm-10">
+                        <input name="name" type="text" class="form-control" data-bind="nowValue: name, validate: $root.errors" placeholder="Name" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="type">Type</label>
+                    <div class="col-sm-10">
+                        <select name="type" class="form-control" data-bind="nowValue: type, validate: $root.errors">
+                            <?php foreach(Model_Stream::$types as $type): ?>
+                            <option value="<?php echo $type; ?>"><?php echo $type; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <!-- ko if: type() != 'local' -->
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="host">Host</label>
+                    <div class="col-sm-10">
+                        <input name="host" type="text" class="form-control" data-bind="nowValue: host, validate: $root.errors" placeholder="Host" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="port">Port</label>
+                    <div class="col-sm-10">
+                        <input name="port" type="text" class="form-control" data-bind="nowValue: port, validate: $root.errors" placeholder="Port" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="format">Format</label>
+                    <div class="col-sm-10">
+                        <input name="port" type="text" class="form-control" data-bind="nowValue: format, validate: $root.errors" placeholder="Format" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="source_username">Source Username</label>
+                    <div class="col-sm-10">
+                        <input name="source_username" type="text" class="form-control" data-bind="nowValue: source_username, validate: $root.errors" placeholder="Source Username" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="source_password">Source Password</label>
+                    <div class="col-sm-10">
+                        <input name="source_password" type="password" class="form-control" data-bind="nowValue: source_password, validate: $root.errors" placeholder="Source Password" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="admin_username">Admin Username</label>
+                    <div class="col-sm-10">
+                        <input name="admin_username" type="text" class="form-control" data-bind="nowValue: admin_username, validate: $root.errors" placeholder="Admin Username" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="admin_password">Admin Password</label>
+                    <div class="col-sm-10">
+                        <input name="admin_password" type="password" class="form-control" data-bind="nowValue: admin_password, validate: $root.errors" placeholder="Admin Password" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="mount">Mount</label>
+                    <div class="col-sm-10">
+                        <input name="mount" type="text" class="form-control" data-bind="nowValue: mount, validate: $root.errors" placeholder="Mount" />
+                    </div>
+                </div>
+                <!-- /ko -->
+            </form>
         </div>
-        <!-- stream form -->
-        <?php echo Form::open(array('id' => 'streams-form', 'action' => isset($stream) ? '/streams/edit/' . $stream->id : '/streams/create', 'class' => 'form-horizontal', 'data-bind' => 'with: stream')); ?>
-        <!-- stream -->
-        <div class="control-group">
-            <?php echo Form::label('Name', 'name', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="name" type="text" data-bind="value: name" placeholder="Name" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Type', 'type', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <select name="type" data-bind="value: type">
-                    <?php foreach(Model_Stream::$types as $type_index => $type_name): ?>
-                    <option value="<?php echo $type_index; ?>"><?php echo $type_name; ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Host', 'host', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="host" type="text" data-bind="value: host" placeholder="Host" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Port', 'port', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="port" type="text" data-bind="value: port" placeholder="Port" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Source Username', 'source_username', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="source_username" type="text" data-bind="value: source_username" placeholder="Source Username" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Source Password', 'source_password', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="source_password" type="password" data-bind="value: source_password" placeholder="Source Password" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Admin Username', 'admin_username', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="admin_username" type="text" data-bind="value: admin_username" placeholder="Admin Username" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Admin Password', 'admin_password', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="admin_password" type="password" data-bind="value: admin_password" placeholder="Admin Password" />
-            </div>
-        </div>
-        <div class="control-group">
-            <?php echo Form::label('Mount', 'mount', array('class' => 'control-label')); ?>
-            <div class="controls">
-                <input name="mount" type="text" data-bind="value: mount" placeholder="Mount" />
-            </div>
-        </div>
-        <?php echo Form::close(); ?>
     </div>
 </div>

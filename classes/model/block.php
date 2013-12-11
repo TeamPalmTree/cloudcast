@@ -5,33 +5,17 @@ class Model_Block extends \Orm\Model
 
     // standard properties
     public $parent_block;
-    public $top_block;
     public $filled_seconds;
     public $weighted_block_weights;
     public $ordered_block_items;
-    // inheritable properties
-    public $current_harmonic_key;
-    public $current_harmonic_energy;
-    public $current_harmonic_genre;
-    public $current_separate_similar;
-    // current properties
-    public $current_key;
-    public $current_energy;
-    public $current_genre;
+    public $ordered_block_harmonics;
     // the current schedule
     public $schedule;
 
     protected static $_properties = array(
         'id',
-        'harmonic_key',
-        'harmonic_energy',
-        'harmonic_genre',
-        'separate_similar',
         'title',
         'description',
-        'initial_key',
-        'initial_energy',
-        'initial_genre',
         'file_query',
         'backup_block_id',
     );
@@ -47,6 +31,7 @@ class Model_Block extends \Orm\Model
     protected static $_has_many = array(
         'block_items',
         'block_weights',
+        'block_harmonics',
         'shows',
         'child_block_items' => array(
             'key_from' => 'id',
@@ -55,68 +40,147 @@ class Model_Block extends \Orm\Model
         ),
     );
 
-    public static $options = array(
-        '0' => 'No',
-        '1' => 'Yes',
-        '2' => 'Inherit',
-    );
-
-    public static function all($except_id = null)
+    public static function validate($input)
     {
 
-        // base query
-        $blocks = Model_Block::query()
-            ->order_by('title', 'asc');
-        // add except
-        if ($except_id)
-            $blocks = $blocks->where('id', '<>', $except_id);
-        // get the blocks
-        $blocks = $blocks->get();
-        // success
-        return array_values($blocks);
+        // create validation
+        $validation = Validation::forge();
+        $validation->add_field('title', 'Title', 'required');
+        // validate weights
+        foreach ($input['block_weights'] as $block_weight_index => $block_weight)
+            $validation->add_field("block_weights[$block_weight_index][weight]", 'Block Weight', 'required|numeric_min[1]');
+        if (isset($input['backup_block'])) $validation->add_field('backup_block[title]', 'Backup Block Title', 'required');
+        // run validation
+        if (!$validation->run($input)) return Helper::errors($validation);
 
     }
 
-    public static function search($query)
+    public static function validate_layout($input)
     {
 
-        $blocks = Model_Block::query()
-            ->select('title')
+        // create validation
+        $validation = Validation::forge();
+        // keep track of percentage total
+        $total_percentage = 0;
+        // validate items
+        foreach ($input['block_items'] as $block_item_index => $block_item)
+        {
+            if (isset($block_item['percentage']))
+                $input['block_items'][$block_item_index]['percentage_duration'] = $block_item['percentage'];
+            if (isset($block_item['duration']))
+                $input['block_items'][$block_item_index]['percentage_duration'] = $block_item['duration'];
+            $validation->add_field("block_items[$block_item_index][percentage_duration]", 'Block Item Percentage or Duration', 'required');
+            $validation->add_field("block_items[$block_item_index][percentage]", 'Block Item Percentage', 'numeric_min[0]|numeric_max[100]');
+            $validation->add_field("block_items[$block_item_index][duration]", 'Block Item Duration', 'non_zero_duration');
+            $total_percentage += isset($block_item['percentage']) ? (int)$block_item['percentage'] : 0;
+        }
+
+        // set total percentage in input
+        $input['total_percentage'] = $total_percentage;
+        // add validation of total percentage
+        $validation->add_field('total_percentage', 'Total Percentage', 'total_percentage');
+        // run validation
+        if (!$validation->run($input)) return Helper::errors($validation);
+
+    }
+
+    public function populate($input)
+    {
+
+        // set block from post data
+        $this->title = $input['title'];
+        $this->description = isset($input['description']) ? $input['description'] : null;
+        $this->file_query = isset($input['file_query']) ? $input['file_query'] : null;
+
+        // delete existing block weights
+        foreach ($this->block_weights as $block_weight)
+            $block_weight->delete();
+        // clear existing block weights array
+        $this->block_weights = array();
+
+        // get block weights
+        $block_weights = $input['block_weights'];
+        // add block weights
+        foreach ($block_weights as $block_weight)
+        {
+            $this->block_weights[] = Model_Block_Weight::forge(array(
+                'weight' => $block_weight['weight'],
+                'file_query' => $block_weight['file_query']
+            ));
+        }
+
+        // add block
+        if (isset($input['backup_block']))
+        {
+            // set backup block
+            $this->backup_block = Model_Block::find('first', array(
+                'where' => array(
+                    array('title', $input['backup_block']['title']),
+                )
+            ));
+        }
+        else
+        {
+            $this->backup_block = null;
+        }
+
+        // delete existing block harmonics
+        foreach ($this->block_harmonics as $block_harmonic)
+            $block_harmonic->delete();
+        // clear existing block harmonics array
+        $this->block_harmonics = array();
+
+        // get block harmonic names
+        $block_harmonic_names = $input['block_harmonic_names'];
+        // add block harmonics
+        foreach ($block_harmonic_names as $block_harmonic_name)
+        {
+            $this->block_harmonics[] = Model_Block_Harmonic::forge(array(
+                'harmonic_name' => $block_harmonic_name
+            ));
+        }
+
+    }
+
+    public function populate_layout($input)
+    {
+
+        // delete existing block weights
+        foreach ($this->block_items as $block_item)
+            $block_item->delete();
+        // clear existing block weights array
+        $this->block_items = array();
+
+        // loop over orders
+        foreach ($input['block_items'] as $input_block_item)
+        {
+            // create item
+            $block_item = Model_Block_Item::forge();
+            // set item properties
+            $block_item->block_id = $input['id'];
+            $block_item->child_block_id = isset($input_block_item['child_block']) ? $input_block_item['child_block']['id'] : null;
+            $block_item->file_id = isset($input_block_item['file']) ? $input_block_item['file']['id'] : null;
+            // set child block parameters
+            if (isset($input_block_item['child_block']))
+            {
+                $block_item->percentage = isset($input_block_item['percentage']) ? $input_block_item['percentage'] : null;
+                $block_item->duration = isset($input_block_item['duration']) ? $input_block_item['duration'] : null;
+            }
+
+            // add to block items
+            $this->block_items[] = $block_item;
+        }
+
+    }
+
+    public static function titles($query)
+    {
+        $blocks = DB::select('title')
+            ->from('blocks')
             ->where('title', 'LIKE', $query . '%')
-            ->get();
-        // get titles from the blocks found
+            ->as_object()
+            ->execute();
         return Helper::extract_values('title', $blocks);
-
-    }
-
-    public static function edit($id)
-    {
-
-        // get block
-        $block = Model_Block::query()
-            ->related('backup_block')
-            ->related('block_weights')
-            ->where('id', $id)
-            ->get_one();
-        // success
-        return $block;
-
-    }
-
-    public static function layout($id)
-    {
-
-        // get block items
-        $block = Model_Block::query()
-            ->related('block_items')
-            ->related('block_items.file')
-            ->related('block_items.child_block')
-            ->where('id', $id)
-            ->order_by('block_items.id', 'asc')
-            ->get_one();
-        // success
-        return $block;
-
     }
 
     public static function clear_items($block_id)
@@ -133,88 +197,107 @@ class Model_Block extends \Orm\Model
         $query->execute();
     }
 
-    public function populate()
+    public static function editable($id)
     {
 
-        // set block from post data
-        $this->title = Input::post('title');
-        $this->description = Input::post('description');
-        $this->harmonic_key = Input::post('harmonic_key');
-        $this->harmonic_energy = Input::post('harmonic_energy');
-        $this->harmonic_genre = Input::post('harmonic_genre');
-        $this->separate_similar = Input::post('separate_similar');
-        $this->file_query = Input::post('file_query');
-        // get initial key and energy
-        $initial_key = Input::post('initial_key');
-        $initial_energy = Input::post('initial_energy');
-        $initial_genre = Input::post('initial_genre');
-        // set initial key and energy
-        $this->initial_key = (($this->harmonic_key == '0') || ($initial_key == '')) ? null : $initial_key;
-        $this->initial_energy = (($this->harmonic_energy == '0') || ($initial_energy == '')) ? null : $initial_energy;
-        $this->initial_genre = (($this->harmonic_genre == '0') || ($initial_genre == '')) ? null : $initial_genre;
+        // get block
+        $block = Model_Block::query()
+            ->related('backup_block')
+            ->where('id', $id)
+            ->get_one();
 
-        // add weights
-        if (Input::post('weighted'))
-        {
-            // get block weights
-            $block_weights = Input::post('block_weights');
-            // add new
-            foreach ($block_weights as $block_weight)
-            {
-                // create and add block weight
-                $this->block_weights[] = Model_Block_Weight::forge(array(
-                    'weight' => $block_weight['weight'],
-                    'file_query' => $block_weight['file_query'],
-                ));
-            }
-        }
+        // get block weights
+        $block->block_weights = Model_Block_Weight::query()
+            ->where('block_id', $id)
+            ->get();
 
-        // add block
-        if (Input::post('backup_blocked'))
-        {
-            $this->backup_block = Model_Block::find('first', array(
-                'where' => array(
-                    array('title', Input::post('backup_block')),
-                )
-            ));
-        }
-        else
-        {
-            $this->backup_block = null;
-        }
+        // success
+        return $block;
 
     }
 
-    public function populate_layout()
+    public static function layoutable($id)
     {
 
-        // get post data
-        $child_block_ids = Input::post('child_block_ids');
-        $file_ids = Input::post('file_ids');
-        $percentages = Input::post('percentages');
-        $durations = Input::post('durations');
-        $titles = Input::post('titles', array());
+        // get block & items
+        $block = Model_Block::query()
+            ->related('block_items')
+            ->related('block_items.file')
+            ->related('block_items.child_block')
+            ->where('id', $id)
+            ->order_by('block_items.id', 'asc')
+            ->get_one();
+        // success
+        return $block;
 
-        // loop over orders
-        foreach ($titles as $i => $title)
+    }
+
+    public static function viewable_layoutable($block)
+    {
+
+        // set items array
+        $block->block_items = array_values($block->block_items);
+        // success
+        return $block;
+
+    }
+
+    public static function viewable_editable($block)
+    {
+
+        // set weights array
+        $block->block_weights = array_values($block->block_weights);
+
+        // get block harmonics
+        $block_harmonics = Model_Block_Harmonic::query()
+            ->where('block_id', $block->id)
+            ->get();
+        // set block harmonic ids
+        $block->block_harmonic_names = Helper::extract_values('harmonic_name', $block_harmonics);
+        // get all harmonics
+        $block->harmonics = array_values(Model_Harmonic::get_harmonics());
+
+        // success
+        return $block;
+
+    }
+
+    public static function viewable_creatable()
+    {
+
+        // create block
+        $block = Model_Block::forge();
+        // get all harmonics
+        $block->harmonics = array_values(Model_Harmonic::get_harmonics());
+        // success
+        return $block;
+
+    }
+
+    public static function viewable_all()
+    {
+
+        // get blocks
+        $blocks = Model_Block::query()
+            ->related('block_items')
+            ->related('block_weights')
+            ->order_by('title', 'ASC')
+            ->get();
+
+        // set weighted and items
+        foreach ($blocks as $block)
         {
-            // get item vars
-            $file_id = isset($file_ids[$i]) ? $file_ids[$i] : null;
-            $child_block_id = isset($child_block_ids[$i]) ? $child_block_ids[$i] : null;
-            $percentage = $child_block_id && ($percentages[$i] != '') ? $percentages[$i] : null;
-            $duration = $child_block_id && ($durations[$i] != '') ? $durations[$i] : null;
-            // create item
-            $block_item = Model_Block_Item::forge();
-            // set item properties
-            $block_item->block_id = $this->id;
-            $block_item->child_block_id = $child_block_id;
-            $block_item->file_id = $file_id;
-            $block_item->percentage = $percentage;
-            $block_item->duration = $duration;
-            // add to block items
-            $this->block_items[] = $block_item;
+            if (count($block->block_items) > 0)
+                $block->itemized = true;
+            if (count($block->block_weights) > 0)
+                $block->weighted = true;
+            unset($block->block_items);
+            unset($block->block_weights);
         }
-        
+
+        // success
+        return array_values($blocks);
+
     }
 
     public function gather_schedule_files($schedule, $seconds = null)
@@ -226,32 +309,11 @@ class Model_Block extends \Orm\Model
 
         // set schedule
         $this->schedule = $schedule;
-
         // set top and parent
         $this->parent_block = null;
-        $this->top_block = $this;
-
         // set seconds
         if ($seconds == null)
             $seconds = $schedule->duration_seconds();
-
-        // get previous file
-        $previous_file = end($schedule->previous_files);
-        // the current value will either be the initial value for this block, the last previous file's value, or null
-        $this->current_key = $this->initial_key ? $this->initial_key : ($previous_file ? $previous_file->key : null);
-        $this->current_energy = $this->initial_energy ? $this->initial_energy : ($previous_file ? $previous_file->energy : null);
-        $this->current_genre = $this->initial_genre ? $this->initial_genre : ($previous_file ? $previous_file->genre : null);
-
-        // set current harmonic genre
-        if (($this->harmonic_genre == '0') or ($this->harmonic_genre == '2'))
-            $this->current_harmonic_genre = '0';
-        else
-            $this->current_harmonic_genre = '1';
-
-        // 1 (true) or 2 (inherited) are interpreted as true
-        $this->current_harmonic_key = $this->harmonic_key == '0' ? '0' : '1';
-        $this->current_harmonic_energy = $this->harmonic_energy == '0' ? '0' : '1';
-        $this->current_separate_similar = $this->separate_similar == '0' ? '0' : '1';
 
         ///////////////////////////////
         // FORWARD TO ALL PROCESSING //
@@ -271,9 +333,9 @@ class Model_Block extends \Orm\Model
 
         $this->filled_seconds = 0;
 
-        ///////////////////////////////
-        // SET BLOCK WEIGHTS & ITEMS //
-        ///////////////////////////////
+        /////////////////////////////////////////////
+        // SET BLOCK WEIGHTS, ITEMS, AND HARMONICS //
+        /////////////////////////////////////////////
 
         // get block weights
         $this->weighted_block_weights = Model_Block_Weight::weighted($this->id);
@@ -285,6 +347,22 @@ class Model_Block extends \Orm\Model
             ->where('block_id', $this->id)
             ->order_by('id', 'ASC')
             ->get();
+
+        // get block harmonics
+        $this->ordered_block_harmonics = Model_Block_Harmonic::query()
+            ->where('block_id', $this->id)
+            ->get();
+
+        // get harmonics
+        $harmonics = Model_Harmonic::get_harmonics();
+        // order block harmonics by harmonic priority
+        usort($this->ordered_block_harmonics, function($a, $b) use (&$harmonics) {
+            $a_priority = $harmonics[$a->harmonic_name]['priority'];
+            $b_priority = $harmonics[$b->harmonic_name]['priority'];
+            if ($a_priority > $b_priority) return 1;
+            if ($a_priority > $b_priority) return -1;
+            return 0;
+        });
 
         /////////////////////////////
         // NO ITEMS, START QUERIES //
@@ -350,7 +428,7 @@ class Model_Block extends \Orm\Model
         //////////////////////////
 
         // get base query files
-        $base_files = Model_File::search($this->file_query, true, null, true, true);
+        $base_files = Model_File::searched($this->file_query, true, null, true, true);
         // if we have no base files, return an empty array
         if (count($base_files) == 0)
             return array();
@@ -369,7 +447,7 @@ class Model_Block extends \Orm\Model
         foreach ($this->weighted_block_weights as $block_weight)
         {
             // get block weight files
-            $block_weight_files = Model_File::search(
+            $block_weight_files = Model_File::searched(
                 $this->file_query . "\n" .  $block_weight->file_query,
                 true, null, true, true);
             // only add weight files if we have some
@@ -377,8 +455,6 @@ class Model_Block extends \Orm\Model
                 $weighted_files[$block_weight->weight] = $block_weight_files;
         }
 
-        // sort weights numerically
-        ksort($weighted_files, SORT_NUMERIC);
         // success
         return $weighted_files;
 
@@ -415,6 +491,66 @@ class Model_Block extends \Orm\Model
 
     }
 
+    protected function claim_weighted_file(&$weighted_files)
+    {
+
+        //////////////////////////////
+        // VERIFY WE HAVE FILE SETS //
+        //////////////////////////////
+
+        // if we have no file sets
+        if (count($weighted_files) == 0)
+            return null;
+
+        /////////////////////////////////
+        // GET RANDOM SEARCH FILES SET //
+        /////////////////////////////////
+
+        $current_weight = null;
+        // get random files
+        $source_files = $this->random_weighted_files($weighted_files, $current_weight);
+
+        //////////////////////////
+        // FIND COMPATIBLE FILE //
+        //////////////////////////
+
+        // attempt to choose from random files set
+        $file = $this->harmonic_file($source_files);
+        // if we have a file, we are done
+        if ($file)
+            return $file;
+
+        //////////////////////////////////////////
+        // WALK DOWN WEIGHTS TO CONTINUE SEARCH //
+        //////////////////////////////////////////
+
+        $weights = array_keys($weighted_files);
+        // get weighted files weights
+        sort($weights, SORT_NUMERIC);
+        // get the next down weight index
+        $weights_index = array_search($current_weight, $weights) - 1;
+        // loop while we have lower weights
+        while ($weights_index >= 0)
+        {
+            // get the next weight to check
+            $current_weight = $weights[$weights_index];
+            // get the weighted file set at this weight
+            $source_files = $weighted_files[$current_weight];
+            // attempt to choose from lower weighted files set
+            $file = $this->harmonic_file($source_files);
+            // did we find a file
+            if ($file)
+                return $file;
+
+            // lower the weights index
+            $weights_index--;
+        }
+
+        // failed for all sets
+        return null;
+
+    }
+
     protected function random_weighted_files(&$weighted_files, &$random_weight)
     {
 
@@ -440,8 +576,7 @@ class Model_Block extends \Orm\Model
         {
             // add to weights sum
             $cumulative_weights_sum += $weight;
-            // if the random number is less than or = to the cum weights
-            // sum, we have found our set :)
+            // if the random number is less than or = to the cum weights sum, we have found our set
             if ($random_number <= $cumulative_weights_sum)
             {
                 // set random weight
@@ -453,141 +588,85 @@ class Model_Block extends \Orm\Model
 
     }
 
-    protected function claim_weighted_file(&$weighted_files)
+    protected function harmonic_file($files)
     {
 
-        //////////////////////////////
-        // VERIFY WE HAVE FILE SETS //
-        //////////////////////////////
-
-        // if we have no file sets
-        if (count($weighted_files) == 0)
-            return null;
-
-        /////////////////////////////////
-        // GET RANDOM SEARCH FILES SET //
-        /////////////////////////////////
-
-        $current_weight = null;
-        // get random files
-        $source_files = $this->random_weighted_files($weighted_files, $current_weight);
-
-        //////////////////////////
-        // FIND COMPATIBLE FILE //
-        //////////////////////////
-
-        // attempt to choose from random files set
-        $file = $this->find_compatible_file($source_files);
-        // if we have a file, we are done
-        if ($file)
-            return $file;
-
-        //////////////////////////////////////////
-        // WALK DOWN WEIGHTS TO CONTINUE SEARCH //
-        //////////////////////////////////////////
-
-        // get weighted files weights
-        $weights = array_keys($weighted_files);
-        // get the index of the random weight
-        $weights_index = array_search($current_weight, $weights);
-        // loop while we have lower weights
-        while ($weights_index >= 0)
+        // get the harmonic files tree
+        $current_harmonic = $this->base_harmonic($files);
+        $base_harmonic = $current_harmonic;
+        // loop through tree randomly
+        while (true)
         {
-            // get the next weight to check
-            $current_weight = $weights[$weights_index];
-            // get the weighted file set at this weight
-            $source_files = $weighted_files[$current_weight];
-            // attempt to choose from lower weighted files set
-            $file = $this->find_compatible_file($source_files);
-            // did we find a file
-            if ($file)
-                return $file;
 
-            // lower the weights index
-            $weights_index--;
+            // get the count of current harmonic's children
+            $children_count = count($current_harmonic->children);
+            // verify we have at least one
+            if ($children_count == 0)
+            {
+                // make sure we have some files
+                if (count($current_harmonic->files) == 0)
+                    return null;
+                // return a random file from this array
+                $file_index = array_rand($current_harmonic->files);
+                return $current_harmonic->files[$file_index];
+            }
+
+            // get an element at random
+            $child_index = array_rand($current_harmonic->children);
+            // set current harmonic to this randomly selected child harmonic
+            $current_harmonic = $current_harmonic->children[$child_index];
+
         }
-
-        // failed for all sets
-        return null;
 
     }
 
-    protected function find_compatible_file($files)
+    protected function base_harmonic($files)
     {
 
-        ///////////////////////////////
-        // REMOVE LAST FILE FROM SET //
-        ///////////////////////////////
-
-        // get previous file
-        $previous_file = $this->top_block->schedule->previous_file;
-        // if we have one, remove it from this set
-        if ($previous_file)
-            unset($files[$previous_file->id]);
-
-        ////////////////////////////////
-        // MAP COMPATIBLE FILES ARRAY //
-        ////////////////////////////////
-
-        // add a weight to each file
-        $compatibles = array_map(
-            function($file)
-            {
-                return array(
-                    'file' => $file,
-                    'score' => 0
-                );
-            },
-            $files
-        );
-
-        //////////////////////////////
-        // COMPATIBILITY REDUCTIONS //
-        //////////////////////////////
-
-        // attempt reduce file set by harmonic key
-        if ($this->current_separate_similar == '1')
-            $compatibles = $this->separate_similar_compatibles_reduction($compatibles);
-
-        // attempt reduce file set by harmonic key
-        if ($this->current_harmonic_key == '1')
-            $compatibles = $this->harmonic_key_compatibles_reduction($compatibles);
-
-        ///////////////////////////
-        // COMPATIBILITY SCORING //
-        ///////////////////////////
-
-        // score genre compatibility
-        if ($this->current_harmonic_genre == '1')
-            $this->harmonic_genre_compatibles_scoring($compatibles);
-
-        // score energy compatibility
-        if ($this->current_harmonic_energy == '1')
-            $this->harmonic_energy_compatibles_scoring($compatibles);
-
-        ///////////////////////////
-        // SORT BY COMPATIBILITY //
-        ///////////////////////////
-
-        // sort files by energy closeness
-        usort($compatibles, function($a, $b)
+        // reset ordered block harmonics to get base
+        $first_block_harmonic = reset($this->ordered_block_harmonics);
+        // verify we have a first harmonic
+        if (!$first_block_harmonic)
         {
-            // compare
-            if ($a['score'] < $b['score'])
-                return 1;
-            if ($a['score'] > $b['score'])
-                return -1;
-            return 0;
-        });
+            // get base harmonic
+            $base_harmonic =  Model_Harmonic::create_harmonic('base');
+            // set base harmonic files
+            $base_harmonic->files = $files;
+            // success
+            return $base_harmonic;
+        }
 
-        ////////////////////////////
-        // RETURN COMPATIBLE FILE //
-        ////////////////////////////
-
-        // choose first file
-        $compatible = current($compatibles);
+        // get base harmonic
+        $base_harmonic =  Model_Harmonic::create_harmonic($first_block_harmonic->harmonic_name);
+        // set base harmonic files
+        $base_harmonic->files = $files;
+        // recurse generate harmonic files tree
+        $this->recurse_harmonic($base_harmonic, $this->ordered_block_harmonics);
         // success
-        return $compatible['file'];
+        return $base_harmonic;
+
+    }
+
+    protected function recurse_harmonic($harmonic, $block_harmonics)
+    {
+
+        // get next ordered block harmonic
+        $next_block_harmonic = next($block_harmonics);
+        // if we have no next harmonic, create a genric one
+        if ($next_block_harmonic)
+            $child_harmonic_name = $next_block_harmonic->harmonic_name;
+        else
+            $child_harmonic_name = 'star';
+
+        // execute the current harmonic to get next harmonics
+        $harmonic->execute($child_harmonic_name, $this);
+        // only recurse if we have a next harmonic
+        if (!$next_block_harmonic)
+            return;
+
+        // recurse through generated child harmonics
+        foreach ($harmonic->children as $child_harmonic)
+            $this->recurse_harmonic($child_harmonic, $block_harmonics);
 
     }
 
@@ -595,20 +674,24 @@ class Model_Block extends \Orm\Model
     {
 
         // get schedule
-        $schedule = $this->top_block->schedule;
-        // if we have no previous file, we cannot do promos
-        if (!$schedule->previous_file)
+        $schedule = $this->schedule;
+        // get last file
+        $last_file = $schedule->last_file();
+        // if we have no last file, we cannot do promos
+        if (!$last_file)
             return false;
 
         // get current/next genre
-        $genre = $schedule->previous_file->genre;
+        $genre = $last_file->genre;
         $next_genre = $next_file->genre;
 
         //////////////////
         // BUMPER CHECK //
         //////////////////
 
-        if (($genre == 'Ad') && ($next_genre != 'Ad') && ($next_genre != 'Intro'))
+        if (($genre == 'Ad')
+            && ($next_genre != 'Ad')
+            && ($next_genre != 'Intro'))
         {
             // get bumper file
             $bumper_file = $schedule->bumper_file();
@@ -624,10 +707,13 @@ class Model_Block extends \Orm\Model
         // INSERT SWEEPER //
         ////////////////////
 
-        if (($genre != 'Ad') && ($genre != 'Intro') && ($next_genre != 'Ad') && ($next_genre != 'Intro'))
+        if (($genre != 'Ad')
+            && ($genre != 'Intro')
+            && ($next_genre != 'Ad')
+            && ($next_genre != 'Intro'))
         {
             // if we have gone through enough file since last sweeper
-            if ($schedule->sweeper_files_count >= $schedule->sweeper_interval)
+            if ($schedule->sweeper_files_count >= $schedule->show->sweeper_interval)
             {
                 // get sweeper file
                 $sweeper_file = $schedule->sweeper_file();
@@ -651,23 +737,30 @@ class Model_Block extends \Orm\Model
     protected function gather_file($file)
     {
 
-        //
-
         //////////////////////////////////
         // CALCULATE ADDITIONAL SECONDS //
         //////////////////////////////////
 
         // get schedule
-        $schedule = $this->top_block->schedule;
+        $schedule = $this->schedule;
+        // get last file
+        $last_file = $schedule->last_file();
         // update filled seconds with transitioned duration
-        $additional_seconds = $file->transitioned_duration_seconds($schedule->previous_file);
+        $additional_seconds = $file->transitioned_duration_seconds($last_file);
 
-        /////////////////////////////////
-        // UPDATE TOP BLOCK PROPERTIES //
-        /////////////////////////////////
+        /////////////////
+        // UPDATE FILE //
+        /////////////////
 
-        // update previous file
-        $schedule->previous_file = $file;
+        // set last scheduled time
+        //$file->last_scheduled = Helper::server_datetime_string();
+        // save file
+        //$file->save();
+
+        /////////////////////
+        // UPDATE SCHEDULE //
+        /////////////////////
+
         // update top block gathered files
         $schedule->gathered_files[] = $file;
         // update sweeper files count
@@ -685,205 +778,10 @@ class Model_Block extends \Orm\Model
 
             // add additional seconds to filled
             $block->filled_seconds += $additional_seconds;
-            // update current key, energy, genre (if we have a valid new value)
-            if ($file->key)
-                $block->current_key = $file->key;
-            if ($file->energy)
-                $block->current_energy = $file->energy;
-            $block->current_genre = $file->genre;
             // move upwards
             $block = $block->parent_block;
 
         }
-
-    }
-
-    protected function separate_similar_compatibles_reduction(&$compatibles)
-    {
-
-        ///////////////////////////////////
-        // GENERATE PREVIOUS FILES ARRAY //
-        ///////////////////////////////////
-
-        // get schedule
-        $schedule = $this->top_block->schedule;
-        // get the number songs to look backwards for similar files
-        $similar_files_count = (int)Model_Setting::get_value('similar_files_count');
-        // get all potential previous files to check
-        $previous_files = array_merge($schedule->previous_files, $schedule->gathered_files);
-        // verify we have any
-        if (count($previous_files) == 0)
-            return $compatibles;
-
-        //////////////////////////////////////////////////
-        // WEED OUT SIMILAR FILES FROM COMPATIBLES LIST //
-        //////////////////////////////////////////////////
-
-        // keep track of different (un-similar) files
-        $separate_similar_compatibles = array();
-        // loop through files making sure we don't have a similar one
-        foreach ($compatibles as &$compatible)
-        {
-
-            ///////////////////////////////////////////////////
-            // GET COMPATIBLE FILE AND COMPARISON PARAMETERS //
-            ///////////////////////////////////////////////////
-
-            // get compatible file
-            $compatible_file = $compatible['file'];
-            // first split out the artists
-            $compatible_file_scraped_artists = $compatible_file->scraped_artists();
-            // now scrape the title
-            $compatible_file_scraped_title = $compatible_file->scraped_title();
-
-            //////////////////////////////////////////////////////////////
-            // GO BACKWARDS IN PREVIOUS FILES CHECKING FOR SIMILAR FILE //
-            //////////////////////////////////////////////////////////////
-
-            // reset similar found
-            $similar_found = false;
-            // reset similar files index
-            $previous_files_count = 1;
-            // set previous files pointer to end
-            $previous_file = end($previous_files);
-            // loop through all previous files
-            do
-            {
-
-                //////////////////////////
-                // VERIFY PREVIOUS FILE //
-                //////////////////////////
-
-                // verify not sweeper/bumper
-                if (($previous_file->genre == 'Sweeper') or ($previous_file->genre == 'Bumper'))
-                    continue;
-
-                //////////////////////////////
-                // SIMILAR ARTIST DETECTION //
-                //////////////////////////////
-
-                // first split out the artists
-                $previous_file_scraped_artists = $previous_file->scraped_artists();
-                // compute intersected artists
-                $intersected_artists = array_intersect($compatible_file_scraped_artists, $previous_file_scraped_artists);
-                // compare artists
-                if (count($intersected_artists) > 0)
-                {
-                    $similar_found = true;
-                    break;
-                }
-
-                /////////////////////////////
-                // SIMILAR TITLE DETECTION //
-                /////////////////////////////
-
-                // now scrape the title
-                $previous_file_scraped_title = $previous_file->scraped_title();
-                // compare titles
-                if ($compatible_file_scraped_title == $previous_file_scraped_title)
-                {
-                    $similar_found = true;
-                    break;
-                }
-
-                /////////////////////////////////////////
-                // VERIFY WE HAVEN'T GONE TOO FAR BACK //
-                /////////////////////////////////////////
-
-                // verify we have not exceeded similar files count (gone too far)
-                if ($previous_files_count == $similar_files_count)
-                    break;
-                // increment previous files count
-                $previous_files_count++;
-
-            } while ($previous_file = prev($previous_files));
-
-            // after looking through the last X number of songs for similarity
-            // make sure no similar found
-            if (!$similar_found)
-                $separate_similar_compatibles[] = $compatible;
-
-        }
-
-        // if we have no harmonic files, return original set
-        if (count($separate_similar_compatibles) == 0)
-            return $compatibles;
-
-        // success
-        return $separate_similar_compatibles;
-
-    }
-
-    protected function harmonic_key_compatibles_reduction(&$compatibles)
-    {
-
-        // if we have no original key, keep files intact
-        // this will give us a starting point and initiate the show
-        if (!$this->current_key)
-            return $compatibles;
-
-        // keep track of harmonic files
-        $harmonic_key_compatibles = array();
-        // get harmonic musical keys
-        $harmonic_keys = CamelotEasyMixWheel::harmonic_keys($this->current_key);
-        // loop through search files until we find a file that matches the current musical key
-        foreach ($compatibles as &$compatible)
-        {
-            // loop through each musical key option
-            foreach ($harmonic_keys as $harmonic_key)
-            {
-                // if we find a musical key match, we are good
-                if ($compatible['file']->key == $harmonic_key)
-                {
-                    $harmonic_key_compatibles[] = $compatible;
-                    break;
-                }
-            }
-        }
-
-        // if we have no harmonic files, return original set
-        if (count($harmonic_key_compatibles) == 0)
-            return $compatibles;
-
-        // success
-        return $harmonic_key_compatibles;
-
-    }
-
-    protected function harmonic_genre_compatibles_scoring(&$compatibles)
-    {
-
-        // if we have no current genre, we can do no scoring
-        if (!$this->current_genre)
-            return;
-
-        // get current scraped genres
-        $current_scraped_genres = explode('.', strtolower($this->current_genre));
-        // loop through search files until we find a file that matches the current genre
-        foreach ($compatibles as &$compatible)
-        {
-            // get compatible file scraped genres
-            $compatible_file_scraped_genres = explode('.', strtolower($compatible['file']->genre));
-            // get the difference in scraped genre arrays
-            $genre_differences = array_diff($current_scraped_genres, $compatible_file_scraped_genres);
-            // adjust score by array difference
-            $compatible['score'] -= count($genre_differences);
-        }
-
-    }
-
-    protected function harmonic_energy_compatibles_scoring(&$compatibles)
-    {
-
-        // if we have no original energy,
-        // do no sorting and keep files as is
-        if (!$this->current_energy)
-            return;
-
-        // loop through compatbiles
-        // subtract the energy difference from the overall score
-        foreach ($compatibles as &$compatible)
-            $compatible['score'] -= abs($compatible['file']->energy - $this->current_energy);
 
     }
 
@@ -904,27 +802,13 @@ class Model_Block extends \Orm\Model
     public function gather_block_files($parent_block, $seconds)
     {
 
-        ////////////////////////////////
-        // SET INHERITABLE PROPERTIES //
-        ////////////////////////////////
+        ////////////////////
+        // SET PROPERTIES //
+        ////////////////////
 
-        // set top and parent
+        // set top and schedule
         $this->parent_block = $parent_block;
-        $this->top_block = $parent_block->top_block;
-
-        // set current key
-        if ($this->initial_key == null)
-            $this->current_key = $parent_block->current_key;
-        // set current energy
-        if ($this->initial_energy == null)
-            $this->current_energy = $parent_block->current_energy;
-
-        // set current harmonic genre
-        $this->current_harmonic_genre = $this->harmonic_genre == '2' ? $parent_block->current_harmonic_genre : $this->harmonic_genre;
-        // pull values from our parent if we inherit, else from ourselves
-        $this->current_harmonic_key = $this->harmonic_key == '2' ? $parent_block->current_harmonic_key : $this->harmonic_key;
-        $this->current_harmonic_energy = $this->harmonic_energy == '2' ? $parent_block->current_harmonic_energy : $this->harmonic_energy;
-        $this->current_separate_similar = $this->separate_similar == '2' ? $parent_block->current_separate_similar : $this->separate_similar;
+        $this->schedule = $parent_block->schedule;
 
         ///////////////////////////////
         // FORWARD TO ALL PROCESSING //
@@ -1028,6 +912,10 @@ class Model_Block extends \Orm\Model
     protected function gather_item_block_files($block_item, $percentage_seconds, $seconds)
     {
 
+        ////////////////////////////////
+        // GET BLOCK DURATION SECONDS //
+        ////////////////////////////////
+
         // calculate next item duration
         if ($block_item->duration != null)
             $block_item_duration_seconds = $block_item->duration_seconds();
@@ -1043,13 +931,17 @@ class Model_Block extends \Orm\Model
         // if the item duration > remaining, truncate
         if ($block_item_duration_seconds > $remaining_seconds)
             $block_item_duration_seconds = $remaining_seconds;
+        // verify we have
 
-        /////////////////////
-        // ADD CHILD FILES //
-        /////////////////////
+        /////////////////////////////
+        // GATHER BLOCK ITEM FILES //
+        /////////////////////////////
 
-        // merge next block files into end of current files array
-        if ($block_item_duration_seconds > 0)
+        // if the child block is just us, it is a spacer and we need to use criteria
+        // else, merge next block files into end of current files array
+        if ($block_item->child_block_id == $this->id)
+            $this->gather_weighted_files($block_item_duration_seconds);
+        else
             $block_item->child_block->gather_block_files($this, $block_item_duration_seconds);
 
     }

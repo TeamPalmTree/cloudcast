@@ -52,7 +52,7 @@ class Controller_Cloudcast extends Controller_Shared
         if (!$this->is_restful() && !$is_restful)
         {
             $this->template->section = $this->section;
-            $this->template->modals = View::forge('cloudcast/modals');
+            $this->template->modal = View::forge('cloudcast/modal');
             $this->template->display = View::forge('cloudcast/display');
             $this->template->navigation = View::forge('cloudcast/navigation', array(
                 'section' => $this->section,

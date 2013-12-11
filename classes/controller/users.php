@@ -91,11 +91,10 @@ class Controller_Users extends Controller_Cloudcast
         Response::redirect('/users');
     }
 
-    public function get_search()
+    public function get_usernames($query)
     {
-        $query = Input::get('query');
-        $users = Model_User::search($query);
-        return $this->response($users);
+        $usernames = Model_User::usernames($query);
+        return $this->response($usernames);
     }
 
 }

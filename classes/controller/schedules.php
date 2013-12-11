@@ -15,7 +15,7 @@ class Controller_Schedules extends Controller_Cloudcast
         // create view
         $view = View::forge('schedules/index');
         // get file finder
-        $view->files_finder = View::forge('files/finder');
+        $view->file_finder = View::forge('files/finder');
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;
@@ -71,8 +71,9 @@ class Controller_Schedules extends Controller_Cloudcast
         // loop through live files, looking up to the last queued
         foreach ($schedule->schedule_files as $schedule_file)
         {
+
             // if we run into a file that isn't queued, we are done
-            if (!$schedule_file->queued)
+            if (is_null($schedule_file->queued_on))
                 break;
 
             // get the file ids in order
@@ -86,6 +87,7 @@ class Controller_Schedules extends Controller_Cloudcast
 
             // add file id to list of file id's we cannot delete
             $keep_schedule_file_ids[] = $schedule_file->id;
+
         }
 
         ///////////////////////////////////////
@@ -111,7 +113,6 @@ class Controller_Schedules extends Controller_Cloudcast
                 'file_id' => $file_id,
                 'ups' => '0',
                 'downs' => '0',
-                'queued' => '0'
             ));
         }
 
@@ -120,7 +121,7 @@ class Controller_Schedules extends Controller_Cloudcast
 
     }
 
-    public function get_generate($redirect = false)
+    public function get_generate()
     {
 
         ///////////
@@ -150,15 +151,8 @@ class Controller_Schedules extends Controller_Cloudcast
         // don't obsess... we have time for condoms later
         // the only disease we get for now is angry alpha listeners ;)
 
-        /////////////
-        // SUCCESS //
-        /////////////
-
-        // send response
-        if ($redirect)
-            Response::redirect('schedules');
-        else
-            return $this->response('SUCCESS');
+        // success
+        return $this->response('SUCCESS');
 
     }
 
@@ -264,10 +258,6 @@ class Controller_Schedules extends Controller_Cloudcast
             'start_on' => $show_start_on_datetime_string,
             'end_at' => $show_end_at_datetime_string,
             'show_id' => $show->id,
-            'sweepers_album' => $show->sweepers_album,
-            'jingles_album' => $show->jingles_album,
-            'bumpers_album' => $show->bumpers_album,
-            'sweeper_interval' => $show->sweeper_interval,
             'ups' => '0',
             'downs' => '0',
             'available' => '1'
@@ -365,10 +355,6 @@ class Controller_Schedules extends Controller_Cloudcast
                 'start_on' => $schedule_start_on_datetime_string,
                 'end_at' => $schedule_end_at_datetime_string,
                 'show_id' => $show->id,
-                'sweepers_album' => $show->sweepers_album,
-                'jingles_album' => $show->jingles_album,
-                'bumpers_album' => $show->bumpers_album,
-                'sweeper_interval' => $show->sweeper_interval,
                 'ups' => '0',
                 'downs' => '0',
                 'available' => '1'

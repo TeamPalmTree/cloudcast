@@ -1,141 +1,121 @@
 <div id="schedules-index" class="cloudcast-section">
-    <table>
-        <tr>
-            <td class="cloudcast-section-sidebar">
-                <?php echo $files_finder; ?>
-            </td>
-            <td class="cloudcast-section-content">
-                <table>
-                    <tr>
-                        <td class="cloudcast-section-content-toolbar">
-                            <div class="navbar">
-                                <div class="navbar-inner">
-                                    <div class="container">
-                                        <a class="btn btn-navbar" data-toggle="collapse" data-target="#files-collapse">
-                                            <span class="icon-bar"></span>
-                                            <span class="icon-bar"></span>
-                                            <span class="icon-bar"></span>
-                                        </a>
-                                        <div id="files-collapse" class="nav-collapse collapse">
-                                            <!-- ko if: !editing_schedule() -->
-                                            <ul class="nav">
-                                                <li><a href="#" data-bind="click: select_all"><i class="icon-check"></i></a></li>
-                                                <li><a href="#" data-bind="click: deactivate"><i class="icon-ban-circle"></i> DEACTIVATE SCHEDULES</a></li>
-                                                <li><a href="#">AUTO</a></li>
-                                                <li data-bind="css: { active: auto_refresh }"><a href="#" data-bind="click: toggle_auto_refresh"><i class="icon-refresh"></i> REFRESH</a></li>
-                                                <li data-bind="visible: auto_refresh, css: { active: auto_focus }"><a href="#" data-bind="click: toggle_auto_focus"><i class="icon-facetime-video"></i> FOCUS</a></li>
-                                            </ul>
-                                            <ul class="nav pull-right">
-                                                <li class="divider-vertical"></li>
-                                                <li><a href="#">Selected Schedules: <span data-bind="text: selected_schedules_count"></span></a></li>
-                                            </ul>
-                                            <!-- /ko -->
-                                            <!-- ko if: editing_schedule -->
-                                            <ul class="nav">
-                                                <li class="active">
-                                                    <a href="#" data-bind="text: editing_schedule().show.title, click: focus_editing_schedule"></a>
-                                                </li>
-                                                <li><a href="#" data-bind="click: editing_schedule().select_all"><i class="icon-check"></i></a></li>
-                                                <li><a href="#" data-bind="click: editing_schedule().remove"><i class="icon-ban-circle"></i> REMOVE SCHEDULE FILES</a></li>
-                                            </ul>
-                                            <ul class="nav pull-right">
-                                                <li class="divider-vertical"></li>
-                                                <li><a href="#">Selected Schedule Files: <span data-bind="text: editing_schedule().selected_schedule_files_count"></span></a></li>
-                                            </ul>
-                                            <!-- /ko -->
-                                        </div>
-                                    </div>
-                                </div>
+    <?php echo $file_finder; ?>
+    <div class="cloudcast-section-toolbar">
+        <nav class="navbar navbar-default">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#schedules-index-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div id="schedules-index-collapse" class="collapse navbar-collapse">
+                <!-- ko if: !editing_schedule() -->
+                <ul class="nav navbar-nav">
+                    <li>
+                        <button title="Select All" class="btn btn-default navbar-btn" data-bind="click: select_all"><span class="glyphicon glyphicon-check"></span> <span data-bind="text: selected_schedules_count"></span></button>
+                        <button title="Deactivate" class="btn btn-default navbar-btn" data-bind="click: deactivate"><span class="glyphicon glyphicon-minus-sign"></span></button>
+                        <button title="Generate" class="btn btn-default navbar-btn" data-bind="css: { active: generating }, click: generate"><span class="glyphicon glyphicon-retweet"></span></button>
+                        <button title="Auto Refresh" class="btn btn-default navbar-btn" data-bind="css: { active: auto_refresh }, click: toggle_auto_refresh"><span class="glyphicon glyphicon-refresh"></span></button>
+                        <button title="Auto Focus" class="btn btn-default navbar-btn" data-bind="css: { active: auto_focus }, visible: auto_refresh, click: toggle_auto_focus"><span class="glyphicon glyphicon-facetime-video"></span></button>
+                    </li>
+                </ul>
+                <!-- /ko -->
+                <!-- ko if: editing_schedule -->
+                <ul class="nav navbar-nav">
+                    <li class="active"><a data-bind="text: editing_schedule().show.title, click: focus_editing_schedule"></a></li>
+                    <li>
+                        <button title="Select All" class="btn btn-default navbar-btn" data-bind="click: editing_schedule().select_all"><span class="glyphicon glyphicon-check"></span> <span data-bind="text: editing_schedule().selected_schedule_files_count"></span></button>
+                        <button title="Remove" class="btn btn-default navbar-btn" data-bind="click: editing_schedule().remove"><span class="glyphicon glyphicon-minus-sign"></span></button>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right" data-bind="visible: !sidebar()">
+                    <li>
+                        <button title="Choose Files" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('files'); }"><span class="glyphicon glyphicon-folder-open"></span></button>
+                        <button title="Cancel" class="btn btn-default navbar-btn" data-bind="click: cancel_edit_schedule"><span class="glyphicon glyphicon-floppy-remove"></span></button>
+                        <button title="Save" class="btn btn-default navbar-btn" data-bind="css: { 'active': saving }, click: save_schedule"><span class="glyphicon glyphicon-floppy-saved"></span></button>
+                    </li>
+                </ul>
+                <!-- /ko -->
+            </div>
+        </nav>
+    </div>
+    <div class="cloudcast-section-content">
+        <div class="cloudcast-section-inner" data-bind="foreach: schedule_dates">
+            <h4 data-bind="text: date"></h4>
+            <div data-bind="foreach: schedules">
+                <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule()) select(); }">
+                    <div class="cloudcast-item-checkbox" data-bind="visible: !$root.editing_schedule()">
+                        <input type="checkbox" class="checkbox-inline" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
+                    </div>
+                    <div class="cloudcast-item-content">
+                        <div class="cloudcast-item-header">
+                            <div class="cloudcast-item-time">
+                                <span class="cloudcast-item-time-start" data-bind="text: user_start_on_timeday"></span>
+                                <span class="cloudcast-item-time-end" data-bind="text: user_end_at_timeday"></span>
                             </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="cloudcast-section-content-bottom">
-                            <div class="cloudcast-section-content-bottom-content">
-                                <div class="cloudcast-section-content-bottom-content-inner" data-bind="foreach: schedule_dates">
-                                    <div class="cloudcast-super-header">
-                                        <h4 data-bind="text: date"></h4>
-                                    </div>
-                                    <div data-bind="foreach: schedules">
-                                        <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule()) select(); }">
-                                            <div class="cloudcast-item-section" data-bind="visible: !$root.editing_schedule()">
-                                                <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
-                                            </div>
-                                            <div class="cloudcast-item-time">
-                                                <span class="cloudcast-item-time-start" data-bind="text: user_start_on_timeday"></span>
-                                                <span class="cloudcast-item-time-end" data-bind="text: user_end_at_timeday"></span>
-                                            </div>
-                                            <div class="cloudcast-item-section">
-                                                <a href="#" class="btn btn-mini" data-bind="attr: { title: expanded() ? 'Collapse' : 'Expand' }, click: expand_collapse, clickBubble: false">
-                                                    <i class="icon-chevron-down" data-bind="css: { 'icon-chevron-down' : !expanded(), 'icon-chevron-up' : expanded }"></i>
-                                                </a>
-                                                <button title="Edit" href="#" class="btn btn-mini " data-bind="css: { 'btn-warning': editing }, hasFocus: focused, click: $root.edit_schedule, clickBubble: false">
-                                                    <i class="icon-edit"></i>
-                                                </button>
-                                                <a href="#" class="btn btn-mini btn-primary" data-bind="visible: editing, click: $root.save_schedule, clickBubble: false">SAVE</a>
-                                            </div>
-                                            <div class="cloudcast-item-section">
-                                                <strong><span data-bind="text: show.title"></span></strong>
-                                            </div>
-                                            <div class="cloudcast-item-section-right">
-                                                <div class="cloudcast-item-section-right-section">
-                                                    <span class="label" data-bind="visible: jingles_album"><i class="icon-bell"></i> JINGLES</span>
-                                                    <span class="label" data-bind="visible: bumpers_album"><i class="icon-bell"></i> BUMPERS</span>
-                                                    <span class="label" data-bind="visible: sweepers_album"><i class="icon-bell"></i> SWEEPERS
-                                                        (<span data-bind="text: sweeper_interval"></span>)
-                                                    </span>
-                                                </div>
-                                                <div class="cloudcast-item-section-right-section">
-                                                    <span class="label label-info"><i class="icon-music"></i> <span data-bind="text: schedule_files().length"></span> FILES</span>
-                                                    <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: total_duration"></span></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- ko if: expanded -->
-                                        <div data-bind="sortable: { data: schedule_files, options: { cancel: '.no-sort'}}">
-                                            <div class="cloudcast-item"
-                                                 data-bind="css: { 'no-sort': !$parent.editing() || played_on() || (queued() == '1'), 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !played_on() && (queued() == '0')) select(); }">
-                                                <!-- ko if: $parent.editing() && !played_on() && (queued() == '0') -->
-                                                <div class="cloudcast-item-section">
-                                                    <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
-                                                </div>
-                                                <!-- /ko -->
-                                                <!-- ko if: queued() == '1' || played_on() || skipped() == '1' -->
-                                                <div class="cloudcast-item-section">
-                                                    <span class="label label-warning" data-bind="visible: queued() == '1'"><i class="icon-download-alt"></i> QUEUED</span>
-                                                    <span class="label label-success" data-bind="visible: played_on"><i class="icon-ok"></i> PLAYED</span>
-                                                    <span class="label label-important" data-bind="visible: skipped() == '1'"><i class="icon-remove"></i> SKIPPED</span>
-                                                </div>
-                                                <!-- /ko -->
-                                                <div class="cloudcast-item-section" data-bind="css: 'cloudcast-item-section-' + css()">
-                                                    <span data-bind="text: file().artist"></span> - <span data-bind="text: file().title"></span>
-                                                    <!-- ko if: id -->
-                                                    (<span data-bind="text: id"></span>)
-                                                    <!-- /ko -->
-                                                </div>
-                                                <div class="cloudcast-item-section-right">
-                                                    <span class="label label-info">
-                                                        <i class="icon-music"></i>
-                                                        <span data-bind="text: file().genre"></span>
-                                                        <span data-bind="visible: file().key() && file().energy()">
-                                                         (<span data-bind="text: file().key"></span>-<span data-bind="text: file().energy"></span>)
-                                                        </span>
-                                                    </span>
-                                                    <!-- ko if: file().post -->
-                                                    <span class="label label-warning"><i class="icon-signal"></i> <span data-bind="text: file().post"></span></span>
-                                                    <!-- /ko -->
-                                                    <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: file().duration"></span></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- /ko -->
-                                    </div>
-                                </div>
+                            <div class="cloudcast-item-controls">
+                                <a class="btn btn-default btn-xs" data-bind="attr: { title: expanded() ? 'Collapse' : 'Expand' }, click: expand_collapse, clickBubble: false">
+                                    <span class="glyphicon glyphicon-chevron-down" data-bind="css: { 'glyphicon-chevron-down' : !expanded(), 'glyphicon-chevron-up' : expanded }"></span>
+                                </a>
+                                <button title="Edit" class="btn btn-default btn-xs " data-bind="visible: !editing(), hasFocus: focused, click: $root.edit_schedule, clickBubble: false">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </button>
                             </div>
-                        </td>
-                    </tr>
-                 </table>
-            </td>
-        </tr>
-    </table>
+                        </div>
+                        <div class="cloudcast-item-footer">
+                            <div class="cloudcast-item-title">
+                                <strong><span data-bind="text: show.title"></span> (<span data-bind="text: id"></span>)</strong>
+                            </div>
+                            <div class="cloudcast-item-info">
+                                <span class="label" data-bind="visible: show.jingles_album"><span class="glyphicon glyphicon-bell"></span> JINGLES</span>
+                                <span class="label" data-bind="visible: show.hosted"><span class="glyphicon glyphicon-bell"></span> HOSTED</span>
+                                <span class="label" data-bind="visible: show.intros_album"><span class="glyphicon glyphicon-bell"></span> INTROS</span>
+                                <span class="label" data-bind="visible: show.closers_album"><span class="glyphicon glyphicon-bell"></span> CLOSERS</span>
+                                <span class="label label-primary"><span class="glyphicon glyphicon-music"></span> <span data-bind="text: schedule_files().length"></span> FILES</span>
+                                <span class="label label-primary"><span class="glyphicon glyphicon-time"></span> <span data-bind="text: total_duration"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ko if: expanded -->
+                <div data-bind="sortable: { data: schedule_files, dragged: $root.create_schedule_file, isEnabled: editing, options: { cancel: '.static'}}">
+                    <div class="cloudcast-item" data-bind="css: { 'static': static, 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !static()) select(); }">
+                        <div class="cloudcast-item-checkbox" data-bind="visible: $parent.editing() && !static()">
+                            <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
+                        </div>
+                        <div class="cloudcast-item-content">
+                            <div class="cloudcast-item-title">
+                                <!-- ko if: static -->
+                                <span class="label label-warning" data-bind="visible: queued_on() && !played_on()"><span class="glyphicon glyphicon-download-alt"></span> QUEUED</span>
+                                <span class="label label-success" data-bind="visible: played_on"><span class="glyphicon glyphicon-ok"></span> PLAYED</span>
+                                <span class="label label-important" data-bind="visible: skipped_on"><span class="glyphicon glyphicon-remove"></span> SKIPPED</span>
+                                <!-- /ko -->
+                                <span data-bind="css: 'text-' + color()">
+                                    <span data-bind="text: file().artist"></span> - <span data-bind="text: file().title"></span>
+                                    <!-- ko if: id -->
+                                    (<span data-bind="text: id"></span>)
+                                    <!-- /ko -->
+                                </span>
+                            </div>
+                            <div class="cloudcast-item-info">
+                                <span class="label label-primary">
+                                    <span class="glyphicon glyphicon-music"></span>
+                                    <span data-bind="text: file().genre"></span>
+                                    <span data-bind="visible: file().key() && file().energy()">
+                                     (<span data-bind="text: file().key"></span>-<span data-bind="text: file().energy"></span>)
+                                    </span>
+                                </span>
+                                <!-- ko if: file().post -->
+                                <span class="label label-warning"><span class="glyphicon glyphicon-signal"></span> <span data-bind="text: file().post"></span></span>
+                                <!-- /ko -->
+                                <span class="label label-primary"><span class="glyphicon glyphicon-time"></span> <span data-bind="text: file().duration"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /ko -->
+            </div>
+        </div>
+    </div>
 </div>

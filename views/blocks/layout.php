@@ -1,81 +1,80 @@
-<script>
-    var block_items_js = <?php echo Format::forge(array_values($block->block_items))->to_json(); ?>
-</script>
-<div id="blocks-layout" class="cloudcast-section">
-    <table>
-        <tr>
-            <td class="cloudcast-section-sidebar">
-                <?php echo $blocks_finder; ?>
-            </td>
-            <td class="cloudcast-section-sidebar">
-                <?php echo $files_finder; ?>
-            </td>
-            <td class="cloudcast-section-content">
-                <div class="cloudcast-section-content-inner">
-                    <div class="cloudcast-super-header">
-                        <div class="cloudcast-super-header-section">
-                            <h4>Layout <?php echo $block->title; ?></h4>
-                            <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: total_duration"></span></span>
-                            <span class="label label-info"><strong>%</strong> <span data-bind="text: total_percentage"></span></span>
+<div id="block-layout" class="cloudcast-section" data-bind="if: block">
+    <?php echo $blocks_finder; ?>
+    <?php echo $files_finder; ?>
+    <div class="cloudcast-section-toolbar">
+        <nav class="navbar navbar-default">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#block-layout-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div id="block-layout-collapse" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a data-bind="text: 'Layout ' + block().title()"></a></li>
+                    <li>
+                        <button title="Select All" class="btn btn-default navbar-btn" data-bind="click: select_all"><span class="glyphicon glyphicon-check"></span> <span data-bind="text: selected_block_items_count"></span></button>
+                        <button title="Remove" class="btn btn-default navbar-btn" data-bind="click: remove"><span class="glyphicon glyphicon-minus-sign"></span></button>
+                        <span class="label"><span class="glyphicon glyphicon-time"></span></span> <span data-bind="text: total_duration"></span>
+                        <span class="label"><strong>%</strong></span> <span data-bind="text: total_percentage"></span>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right" data-bind="visible: !sidebar()">
+                    <li>
+                        <button title="Choose Blocks" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('blocks'); }"><span class="glyphicon glyphicon-th-large"></span></button>
+                        <button title="Choose Files" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('files'); }"><span class="glyphicon glyphicon-folder-open"></span></button>
+                        <button title="Cancel" class="btn btn-default navbar-btn" data-bind="click: cancel"><span class="glyphicon glyphicon-floppy-remove"></span></button>
+                        <button title="Save" class="btn btn-default navbar-btn" data-bind="css: { 'active': saving }, click: save"><span class="glyphicon glyphicon-floppy-saved"></span></button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="cloudcast-section-content">
+        <div class="cloudcast-section-inner">
+            <div data-bind="validate: $root.errors, validateFor: 'total_percentage'"></div>
+            <div style="min-height: 50px;" data-bind="sortable: { data: block().block_items, dragged: $root.create_block_item }">
+                <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
+                    <div class="cloudcast-item-checkbox">
+                        <input type="checkbox" class="checkbox-inline" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
+                    </div>
+                    <div class="cloudcast-item-content">
+                        <div class="cloudcast-item-header">
+                            <div class="cloudcast-item-title">
+                                <!-- ko if: file -->
+                                <span class="label"><span class="glyphicon glyphicon-music"></span></span>
+                                <span data-bind="text: file().artist"></span> - <span data-bind="text: file().title"></span>
+                                <!-- /ko -->
+                                <!-- ko if: child_block -->
+                                <span class="label"><span class="glyphicon glyphicon-stop"></span></span>
+                                <span data-bind="text: child_block().title"></span>
+                                <!-- /ko -->
+                            </div>
                         </div>
-                        <div class="cloudcast-super-header-section-right">
-                            <button type="submit" class="btn btn-mini btn-primary" form="block_layout_form">SAVE</button>
-                            <a href="/blocks/edit/<?php echo $block->id; ?>" class="btn btn-mini">EDIT</a>
-                            <a href="/blocks" class="btn btn-mini">CANCEL</a>
+                        <div class="cloudcast-item-footer">
+                            <div class="cloudcast-item-info">
+                                <!-- ko if: file -->
+                                <span class="label label-primary"><span class="glyphicon glyphicon-time"></span> <span data-bind="text: file().duration"></span></span>
+                                <!-- /ko -->
+                                <!-- ko if: child_block -->
+                                <div class="cloudcast-item-form">
+                                    <span class="label"><span class="glyphicon glyphicon-time"></span></span>
+                                    <input type="text" class="form-control" placeholder="HH:MM:SS"
+                                           data-bind="nowValue: entered_duration, attr: { name: 'block_items[' + $index() + '][duration]' }, css: { active: entered_duration }, click: function() { return false; }, clickBubble: false" />
+                                    <span class="label"><strong>%</strong></span>
+                                    <input type="text" class="form-control"
+                                           data-bind="nowValue: entered_percentage, attr: { name: 'block_items[' + $index() + '][percentage]' }, css: { active: entered_percentage }, click: function() { return false; }, clickBubble: false" />
+                                    <div data-bind="validate: $root.errors, validateFor: 'block_items[' + $index() + '][percentage_duration]'"></div>
+                                    <div data-bind="validate: $root.errors, validateFor: 'block_items[' + $index() + '][duration]'"></div>
+                                    <div data-bind="validate: $root.errors, validateFor: 'block_items[' + $index() + '][percentage]'"></div>
+                                </div>
+                                <!-- /ko -->
+                            </div>
                         </div>
                     </div>
-                    <?php echo Form::open(array('id' => 'block_layout_form', 'action' => '/blocks/layout/' . $block->id)); ?>
-                    <div data-bind="sortable: block_items">
-                        <div class="cloudcast-item">
-
-                            <input type="hidden" data-bind="attr: { name: 'titles[' + $index() + ']' }, value: title" />
-                            <div class="cloudcast-item-section">
-                                <a title="Delete" class="btn btn-mini btn-danger" href="#" data-bind="click: $parent.remove_item"><i class="icon-remove"></i></a>
-                            </div>
-
-                            <!-- ko if: child_block -->
-
-                            <div class="cloudcast-item-section">
-                                <strong><span data-bind="text: child_block().title"></span></strong>
-                            </div>
-
-                            <input type="hidden" data-bind="attr: { name: 'child_block_ids[' + $index() + ']' }, value: child_block().id" />
-                            <div class="cloudcast-item-section">
-                                <label class="checkbox inline">
-                                    <input type="checkbox" data-bind="checked: checked_percentage, enable: checked_duration, attr: { name: 'percentages[' + $index() + ']' }" /> <span class="label label-info">%</span>
-                                </label>
-                                <label class="checkbox inline">
-                                    <input type="checkbox" data-bind="checked: checked_duration, enable: checked_percentage, attr: { name: 'durations[' + $index() + ']' }" /> <span class="label label-info"><i class="icon-time"></i></span>
-                                </label>
-                            </div>
-
-                            <div class="cloudcast-item-section" data-bind="visible: checked_duration">
-                                <input type="text" class="input-mini" data-bind="attr: { name: 'durations[' + $index() + ']' }, value: entered_duration" /> HH:MM:SS
-                            </div>
-
-                            <div class="cloudcast-item-section" data-bind="visible: checked_percentage">
-                                <input type="text" class="input-mini" data-bind="attr: { name: 'percentages[' + $index() + ']' }, value: percentage" /> %
-                            </div>
-
-                            <!-- /ko -->
-                            <!-- ko if: file-->
-
-                            <div class="cloudcast-item-section">
-                                <strong><span data-bind="text: file().artist"></span></strong> - <strong><span data-bind="text: file().title"></span></strong>
-                            </div>
-
-                            <input type="hidden" data-bind="attr: { name: 'file_ids[' + $index() + ']' }, value: file().id" />
-                            <div class="cloudcast-item-section">
-                                <span class="label label-info"><i class="icon-time"></i> <span data-bind="text: file().duration"></span></span>
-                            </div>
-
-                            <!-- /ko -->
-
-                        </div>
-                    </div>
-                    <?php echo Form::close(); ?>
                 </div>
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+    </div>
 </div>

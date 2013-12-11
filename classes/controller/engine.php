@@ -110,20 +110,12 @@ class Controller_Engine extends Controller_Cloudcast
 
     public function post_update_inputs()
     {
-
-        ///////////////////////
-        // PROCESS LS INPUTS //
-        ///////////////////////
-
-        // get posted file metadata
-        $input = file_get_contents('php://input');
-        // get php input statuses
-        $inputs = json_decode($input);
-
         /////////////////////
         // SAVE EACH TO DB //
         /////////////////////
 
+        // get php input statuses
+        $inputs = Input::json();
         // loop over all provided input statuses
         // update DB with current status
         foreach ($inputs as $input)
@@ -174,16 +166,14 @@ class Controller_Engine extends Controller_Cloudcast
         // find the schedule file
         $schedule_file = Model_Schedule_File::playable($id);
 
-        ////////////////////////////////////////////////////
-        // BACKUP FILL FOR NON-SWEEPER/BUMPER/INTRO PLAYS //
-        ////////////////////////////////////////////////////
+        /////////////////////////////////////
+        // BACKUP FILL FOR NON-PROMO PLAYS //
+        /////////////////////////////////////
 
         // get server time
         $server_datetime = Helper::server_datetime();
-        // get schedule file genre
-        $genre = $schedule_file->file->genre;
         // only do this for non-sweepers/bumpers/intros
-        if (($genre != 'Intro') and ($genre != 'Sweeper') and ($genre != 'Bumper'))
+        if (!$schedule_file->file->is_promo())
         {
             // get the schedule end datetime
             $schedule_end_at_datetime = Helper::server_datetime($schedule_file->schedule->end_at);
@@ -202,7 +192,7 @@ class Controller_Engine extends Controller_Cloudcast
         }
         else
         {
-            // take a second off the sweeper
+            // take a couple seconds off the promo
             $server_datetime->sub(new DateInterval('PT2S'));
         }
 
@@ -214,7 +204,7 @@ class Controller_Engine extends Controller_Cloudcast
         $server_datetime_string = Helper::server_datetime_string($server_datetime);
         // update play dates
         $schedule_file->played_on = $server_datetime_string;
-        $schedule_file->file->last_play = $server_datetime_string;
+        $schedule_file->file->last_played = $server_datetime_string;
         // save file
         $schedule_file->save();
 
@@ -259,9 +249,6 @@ class Controller_Engine extends Controller_Cloudcast
         $server_datetime = Helper::server_datetime();
         // get next schedule file
         $next_schedule_files = Model_Schedule_File::queue_nexts($server_datetime);
-        // if we have none, we are done
-        if (count($next_schedule_files) == 0)
-            return $this->response('NONE');
 
         ///////////////////////////////
         // QUEUE NEXT SCHEDULE FILES //
@@ -335,90 +322,43 @@ class Controller_Engine extends Controller_Cloudcast
     public function post_authenticate()
     {
 
-        ////////////////////////////
-        // PROCESS LS CREDENTIALS //
-        ////////////////////////////
-
-        // get posted file metadata
-        $input = file_get_contents('php://input');
-        // get php arrays from json
-        $credentials = json_decode($input);
-
         ////////////////////
         // AUTHORIZE USER //
         ////////////////////
 
+        // get credentials
+        $credentials = Input::json();
         // get user (we need to save their login hash)
         $user = Model_User::query()
-            ->where('username', $credentials->username)
+            ->where('username', $credentials['username'])
             ->get_one();
         // login user (this will kill the login hash, so we need to restore)
-        if (!Auth::login($credentials->username, $credentials->password))
-            return $this->response('INVALID_USER');
+        if (!Auth::login($credentials['username'], $credentials['password']))
+            return $this->response('UNAUTHORIZED_USER');
 
-        //////////////////////////
-        // GET CURRENT SCHEDULE //
-        //////////////////////////
+        ///////////////////////////////////////////////
+        // CHECK USER IN AUTHORIZATION SCHEDULE SHOW //
+        ///////////////////////////////////////////////
 
+        // get user id
+        $user_id = Auth::get_user_id()[1];
         // get server datetime
         $server_datetime = Helper::server_datetime();
-        // get the current schedule file
-        $current_schedule = Model_Schedule::the_current($server_datetime);
-        // verify current schedule
-        if (!$current_schedule)
-            return $this->response('INVALID_CURRENT_SCHEDULE');
-
-        /////////////////////////
-        // VERIFY INPUT ACCESS //
-        /////////////////////////
-
-        // capture response
+        // initial response
         $response = 'SUCCESS';
-        // switch on type of input
-        switch ($credentials->type)
+        // get the current schedule file
+        $authorization_schedule = Model_Schedule::authorization($server_datetime);
+        // verify current schedule
+        if ($authorization_schedule)
         {
-            // show input
-            case 'show':
-            // talkover input
-            case 'talkover':
-
-                // if we have no current show, fail
-                if (!$current_schedule)
-                {
-                    $response = 'NO_CURRENT_SHOW';
-                    break;
-                }
-
-                // get right based on type
-                /*$access_condition = ($credentials->type == 'show') ? 'show_input.update' : 'talkover_input.update';
-                // verify the user is allowed access
-                if (!Auth::has_access($access_condition))
-                {
-                    $response = 'USER_NOT_ALLOWED';
-                    break;
-                }*/
-
-                // get user id
-                $user_id = Auth::get_user_id();
-                // verify user in show
-                if (!array_key_exists($user_id[1], $current_schedule->show->users))
-                {
-                    $response = 'USER_NOT_IN_SHOW';
-                    break;
-                }
-                // success
-                break;
-
-            // master input
-            case 'master':
-                // verify user is admin
-                if (!Auth::has_access('master_input.update'))
-                {
-                    $response = 'USER_NOT_ALLOWED';
-                    break;
-                }
-                // success
-                break;
+            // verify user in show
+            if (!$authorization_schedule->show->authenticate($user_id, $credentials['input']))
+                $response = 'USER_NOT_IN_SHOW';
+        }
+        else
+        {
+            // invalid current schedule
+            $response = 'INVALID_AUTHORIZATION_SCHEDULE';
         }
 
         /////////////////////////////////////
@@ -429,9 +369,10 @@ class Controller_Engine extends Controller_Cloudcast
         $query = DB::update('users')
             ->value('last_login', $user->last_login)
             ->value('login_hash', $user->login_hash)
-            ->where('username', $credentials->username);
+            ->where('id', $user_id);
         // execute login_hash update
         $query->execute();
+
         // send response
         return $this->response($response);
     }
@@ -531,7 +472,7 @@ class Controller_Engine extends Controller_Cloudcast
 
     }
 
-    protected function schedule_promos($schedule_id, $genre)
+    public function get_schedule_promos($schedule_id, $genre)
     {
 
         ///////////////////
@@ -539,74 +480,49 @@ class Controller_Engine extends Controller_Cloudcast
         ///////////////////
 
         // get the schedule by id
-        $schedule = Model_Schedule::find($schedule_id);
+        $schedule = Model_Schedule::query()
+            ->related('show')
+            ->where('id', $schedule_id)
+            ->get_one();
         // verify current schedule
         if (!$schedule)
-            return $this->response('INVALID_SCHEDULE');
+            return $this->response('NONE');
 
-        //////////////////////
-        // GET PROMOS ALBUM //
-        //////////////////////
+        /////////////////////////
+        // GET ALBUM FOR GENRE //
+        /////////////////////////
 
-        $album = null;
-        // use the genre to determine which album to pull
+        // get album to use
         switch ($genre)
         {
-            case 'Sweeper':
-                $album = $schedule->sweepers_album;
+            case 'Intro':
+                $inputs_album = $schedule->show->intros_album;
                 break;
             case 'Jingle':
-                $album = $schedule->jingles_album;
+                $inputs_album = $schedule->show->jingles_album;
                 break;
-            case 'Bumper':
-                $album = $schedule->bumpers_album;
+            case 'Closer':
+                $inputs_album = $schedule->show->closers_album;
                 break;
         }
 
-        ///////////////////////////////
-        // GET ALBUM FILES FOR GENRE //
-        ///////////////////////////////
-
         // if we have no album, we are done
-        if (!$album)
+        if (!$inputs_album)
             $this->response("NONE");
 
-        // query files
-        $files = Model_File::query()
-            ->where('genre', $genre)
-            ->where('album', $album)
-            ->where('available', '1')
-            ->where('found', '1')
-            ->get();
+        // get promo files
+        $files = Model_File::promos($genre, $inputs_album);
+        // see if we have any
+        if (count($files) == 0)
+            return $this->response("NONE");
 
         $file_names = array();
         // flatten files
         foreach ($files as $file)
             $file_names[] = $file->name;
-
-        // implode file names
-        $file_names = implode("\n", $file_names);
-        // see if we have any
-        if ($file_names == "")
-            return $this->response("NONE");
         // send response
         return $this->response($file_names);
 
-    }
-
-    public function get_schedule_sweepers($schedule_id)
-    {
-        return $this->schedule_promos($schedule_id, 'Sweeper');
-    }
-
-    public function get_schedule_jingles($schedule_id)
-    {
-        return $this->schedule_promos($schedule_id, 'Jingle');
-    }
-
-    public function get_schedule_bumpers($schedule_id)
-    {
-        return $this->schedule_promos($schedule_id, 'Bumper');
     }
 
     public function get_vote($vote)

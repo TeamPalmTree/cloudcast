@@ -130,15 +130,14 @@ class Model_User extends \Orm\Model
 
     }
 
-    public static function search($query)
-
+    public static function usernames($query)
     {
-        $users = Model_User::query()
-            ->select('username')
+        $users = DB::select('username')
+            ->from('users')
             ->where('username', 'LIKE', $query . '%')
-            ->get();
+            ->as_object()
+            ->execute();
         return Helper::extract_values('username', $users);
-
     }
 
 }

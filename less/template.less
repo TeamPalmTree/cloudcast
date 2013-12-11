@@ -1,64 +1,82 @@
-@import "../../vendor/twitter/bootstrap/less/bootstrap.less";
-@import "../../vendor/twitter/bootstrap/less/responsive.less";
-@import "../../packages/shared/less/shared.less";
+@import "../../vendor/twbs/bootstrap/less/bootstrap.less";
 
 ///////////////
 // VARIABLES //
 ///////////////
 
-@spacing: 6px;
-@accentColor1: #21409A;
-@accentColor2: #0077b3;
-@backgroundColor1: #2D2D2D;
-@backgroundColor2: #5C5C5C;
-@backgroundColor3: #707070;
+@cloudcast-color: white;
+@cloudcast-accent-dark: #21409A;
+@cloudcast-accent-light: #0077b3;
+@cloudcast-bg: #131313;
+@cloudcast-bg-darker: #1A1A1A;
+@cloudcast-bg-dark: #363636;
+@cloudcast-bg-light: #707070;
 
 /////////////////////////
 // BOOTSTRAP OVERRIDES //
 /////////////////////////
 
-@bodyBackground: @backgroundColor1;
-@textColor: @white;
-@popoverBackground: @backgroundColor2;
+// general
+@body-bg: @cloudcast-bg;
+@text-color: @cloudcast-color;
 
-label {
-  display: block;
+// forms
+@input-bg: @cloudcast-bg-darker;
+@input-color: @cloudcast-color;
+@input-bg-disabled: @cloudcast-bg-light;
+
+// borders
+@border-radius-base: 0px;
+@border-radius-large: 0px;
+@border-radius-small: 0px;
+
+// navbar
+@navbar-border-radius: 0px;
+@navbar-height: 40px;
+@navbar-default-bg: @cloudcast-accent-light;
+@navbar-default-border: @cloudcast-accent-light;
+@navbar-default-color: @text-color;
+@navbar-default-link-color: @text-color;
+@navbar-default-link-active-color: @text-color;
+@navbar-inverse-bg: @cloudcast-accent-dark;
+@navbar-inverse-border: @cloudcast-bg-light;
+@navbar-inverse-link-color: @text-color;
+@navbar-inverse-link-active-bg: @cloudcast-accent-light;
+@navbar-padding-horizontal: 0px;
+
+// buttons
+@btn-default-bg: @cloudcast-accent-light;
+@btn-default-color: @text-color;
+
+// popovers
+@popover-bg: @cloudcast-bg-dark;
+
+.datetimepicker {
+  color: black;
+}
+
+.navbar {
   margin-bottom: 0px;
 }
 
-.radio.inline,
-.checkbox.inline {
-  padding-top: 0px;
-  vertical-align: inherit;
+.navbar .navbar-btn {
+  margin-left: @padding-base-vertical / 2;
 }
 
-.form-search .radio, .form-search .checkbox, .form-inline .radio, .form-inline .checkbox {
-  vertical-align: baseline;
-  padding-left: @spacing;
+.navbar .navbar-btn:last-child {
+  margin-right: @padding-base-vertical / 2;
 }
 
-select,
-textarea,
-input[type="text"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"],
-.uneditable-input {
-  margin-bottom: 0px;
-}
+.button-variant(@color; @background; @border) {
+  color: @color;
+  background-color: @background;
+  border-color: @border;
 
-.dropdown-menu {
-  border-radius: 0px;
+  &:active,
+  &.active {
+    color: @text-color;
+    background-color: @cloudcast-bg;
+  }
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -70,165 +88,68 @@ h1,h2,h3,h4,h5,h6 {
 
 .table tbody tr {
   &.selected > td {
-    background-color: @backgroundColor2;
+    background-color: @cloudcast-bg-dark;
   }
 }
 
-/////////////
-// WELCOME //
-/////////////
-
-.cloudcast-welcome-logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -250px;
-  margin-left: -200px;
-  width: 400px;
-  height: 308px;
-  background-image: url('../img/CloudCastLarge.png');
+.form-horizontal .form-group {
+  margin-left: 0px;
+  margin-right: 0px;
 }
 
-.cloudcast-welcome-form {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: 40px;
-  margin-left: -110px;
+.form-group {
+  margin-bottom: @padding-base-vertical;
+}
+
+.modal {
+  color: @body-bg;
 }
 
 /////////////
-// DISPLAY //
+// GENERAL //
 /////////////
 
-.cloudcast-display {
+.cloudcast-tooltip {
+  color: @cloudcast-color;
+  text-decoration: underline;
+}
+
+.cloudcast-popover {
+  color: @cloudcast-color;
+  text-decoration: underline;
+}
+
+.cloudcast-show-files {
   position: absolute;
   left: 0px;
-  right: 0px;
-  height: 100px;
-  background: linear-gradient(to bottom, @backgroundColor1 0%, @backgroundColor3 100%);
+  width: 50%;
+  height: 100%;
+  background: red;
 }
 
-.cloudcast-display-logo {
-  float: right;
-  width: 130px;
-  height: 100px;
-  background-image: url('../img/CloudCast.png');
+.cloudcast-show-schedule {
+  width: 50%;
+  height: 100%;
+  background: blue;
 }
 
-.cloudcast-display-left {
+.cloudcast {
   position: absolute;
-  left: 0px;
-  right: 300px;
-  height: 100px;
-}
-
-.cloudcast-display-file {
-  position: absolute;
-  width: 60%;
-}
-
-.cloudcast-display-show {
-  position: absolute;
-  left: 60%;
-  width: 40%;
-}
-
-.cloudcast-display-block-inner {
-  height: 79 - (2 * @spacing);
-  padding: 10px;
-  margin-left: @spacing;
-  margin-top: @spacing;
-  margin-bottom: @spacing;
-  border-right: #21409A solid 1px;
-  border-bottom: #21409A solid 1px;
-  background-color: @accentColor1;
-  background: linear-gradient(to bottom, @accentColor1 0%, @accentColor2 100%);
-  box-shadow: inset 1px 1px 2px 1px rgba(0, 0, 0, 1);
-  color: white;
-  white-space: nowrap;
-  text-shadow: -1px -1.5px 0 rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-}
-
-.cloudcast-display-right {
-  position: absolute;
-  right: 130px;
-  height: 100px;
-  width: 170px;
-}
-
-.cloudcast-display-status {
-  float: left;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  flex-direction: column;
 }
 
-.cloudcast-display-status-inner {
-  height: 80px;
-  padding: @spacing;
-  color: black;
-  font-size: 16px;
-}
-
-.cloudcast-display-status-time {
-  font-size: 40px;
-  line-height: 40px;
-  top: 14px;
-  position: absolute;
-  color: white;
-  text-shadow: @accentColor1 2px 2px 0, @accentColor2 -1px -1px 0;
-}
-
-.cloudcast-display-status-input {
-  position: absolute;
-  bottom: @spacing;
-  margin: 0px;
-}
-
-.cloudcast-display-status-input > .enabled {
-  background-color: @accentColor1;
-}
-
-.cloudcast-display-progress {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.cloudcast-display-progress-elapsed {
-  color: black;
-  text-shadow: none;
-  position: absolute;
-  left: 20px;
-}
-
-.cloudcast-display-progress-post {
-  background-color: red;
-  position: absolute;
-  height: 20px;
-  opacity: 0.4;
-}
-
-.cloudcast-display-progress-remaining {
-  color: black;
-  text-shadow: none;
-  position: absolute;
-  right: 16px;
-  font-weight: bold;
-}
-
-////////////////
-// NAVIGATION //
-////////////////
-
-.cloudcast-navigation {
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 100px;
-  height: 40px;
-}
+@import "display.less";
+@import "navigation.less";
+@import "section.less";
+@import "sidebar.less";
+@import "item.less";
+@import "header.less";
+@import "typeahead.less";
+@import "datetimepicker.less";
 
 ////////////
 // MODALS //
@@ -253,314 +174,33 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .cloudcast-modal-info {
-  color: white;
-  background-color: @backgroundColor2;
-  border-color: @backgroundColor3;
-}
-
-.cloudcast-header {
-  margin-bottom: @spacing;
-}
-
-.cloudcast-super-header {
-  display: block;
-  padding: (@spacing / 2) @spacing @spacing 0px;
-  border-bottom: 1px solid @backgroundColor3;
-}
-
-.cloudcast-super-header-form {
-  display: block;
-  padding: (@spacing / 2) @spacing @spacing 0px;
-  border-bottom: 1px solid @backgroundColor3;
-  margin-bottom: @spacing * 2;
-}
-
-.cloudcast-super-header-section {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: @spacing;
-}
-
-.cloudcast-super-header-section-right {
-  display: inline-block;
-  vertical-align: middle;
-  float: right;
-}
-
-.cloudcast-super-header-section h1,
-.cloudcast-super-header-section h2,
-.cloudcast-super-header-section h3,
-.cloudcast-super-header-section h4,
-.cloudcast-super-header-section h5,
-.cloudcast-super-header-section h6,
-{
-  display: inline;
-  vertical-align: middle;
-}
-
-.cloudcast-header .label,
-.cloudcast-header input {
-  display: inline;
-  vertical-align: middle;
-  margin-left: @spacing;
-}
-
-.cloudcast-header-right {
-  float: right;
-  display: inline;
-}
-
-.cloudcast-super-item {
-  display: block;
-  line-height: 35px;
-  background-color: @backgroundColor2;
-  padding-left: 6px;
-  padding-right: 6px;
-  margin-top: @spacing;
-  margin-bottom: @spacing;
-  cursor: default;
-}
-
-.cloudcast-item {
-  cursor: default;
-  border-bottom: 1px solid @backgroundColor2;
-  padding-bottom: @spacing;
-  padding-top: @spacing;
-}
-
-.cloudcast-item.selected {
-  background-color: @backgroundColor2;
-}
-
-.cloudcast-item-time {
-  display: inline-block;
-  width: 160px;
-  background-color: black;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 6px;
-  padding-right: 6px;
-  font-weight: bold;
-  vertical-align: middle;
-  margin-right: @spacing;
-}
-
-.cloudcast-item-time .cloudcast-item-time-start {
-  float: left;
-}
-
-.cloudcast-item-time .cloudcast-item-time-end {
-  float: right;
-}
-
-.cloudcast-item-date {
-  display: inline-block;
-  width: 100px;
-  background-color: black;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 6px;
-  padding-right: 6px;
-  font-weight: bold;
-  vertical-align: middle;
-  margin-right: @spacing;
-}
-
-.cloudcast-item-section {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: @spacing;
-}
-
-.cloudcast-item-section-dimmed {
-  color: @backgroundColor2;
-}
-
-.cloudcast-item-section-success {
-  color: @successText;
-}
-
-.cloudcast-item-section-warning {
-  color: @orange;
-}
-
-.cloudcast-item-section-important {
-  color: @errorText;
-}
-
-.cloudcast-item-section-right {
-  display: inline-block;
-  vertical-align: middle;
-  float: right;
-}
-
-.cloudcast-item-section-right-section {
-  display: inline-block;
-  vertical-align: middle;
-  margin-left: @spacing;
-}
-
-.cloudcast-item-section > input {
-  margin: 0px;
+  color: @cloudcast-color;
+  background-color: @cloudcast-bg-dark;
+  border-color: @cloudcast-bg-light;
 }
 
 
-.cloudcast-show-files {
+
+
+/////////////
+// WELCOME //
+/////////////
+
+.cloudcast-welcome-logo {
   position: absolute;
-  left: 0px;
-  width: 50%;
-  height: 100%;
-  background: red;
+  top: 50%;
+  left: 50%;
+  margin-top: -250px;
+  margin-left: -200px;
+  width: 400px;
+  height: 308px;
+  background-image: url('../img/CloudCastLarge.png');
 }
 
-.cloudcast-show-schedule {
-  width: 50%;
-  height: 100%;
-  background: blue;
-}
-
-.cloudcast-sidebar-item {
-  margin-bottom: @spacing;
-}
-
-.cloudcast-section {
-  overflow: auto;
+.cloudcast-welcome-form {
   position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 140px;
-  bottom: 0px;
-  z-index: -1;
-}
-
-.cloudcast-section-inner {
-  padding-right: @spacing * 2;
-  padding-left: @spacing * 2;
-  padding-top: @spacing * 2;
-  padding-bottom: @spacing * 2;
-}
-
-.cloudcast-section > table:not(.table) {
-  width: 100%;
-  height: 100%;
-}
-
-.cloudcast-section-sidebar {
-  width: 209px;
-  background-color: @backgroundColor2;
-  vertical-align: top;
-  border-right: 1px solid black;
-}
-
-.cloudcast-section-sidebar-inner {
-  height: 100%;
-  overflow: auto;
-  padding-right: @spacing * 2;
-  padding-left: @spacing * 2;
-  padding-top: @spacing * 2;
-  padding-bottom: @spacing * 2;
-}
-
-.cloudcast-section-sidebar-content {
-  width: 100%;
-  height: 100%;
-}
-
-.cloudcast-section-sidebar-content > table {
-  width: 100%;
-  height: 100%;
-  table-layout: fixed;
-}
-
-.cloudcast-section-sidebar-content-toolbar {
-  height: 42px;
-}
-
-.cloudcast-section-sidebar-content-toolbar > .navbar {
-  margin-bottom: 0px;
-}
-
-.cloudcast-section-sidebar-content-query {
-  height: auto;
-  vertical-align: top;
-}
-
-.cloudcast-section-sidebar-content-query > textarea {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-}
-
-.cloudcast-section-sidebar-content-bottom {
-  height: 100%;
-  vertical-align: top;
-}
-
-.cloudcast-section-sidebar-content-bottom-inner {
-  height: 100%;
-  overflow: auto;
-  padding-right: @spacing * 2;
-  padding-left: @spacing * 2;
-  padding-top: @spacing * 2;
-  padding-bottom: @spacing * 2;
-}
-
-.cloudcast-section-sidebar-content-bottom-content-inner {
-
-}
-
-.cloudcast-section-content {
-  width: auto;
-  vertical-align: top;
-}
-
-.cloudcast-section-content > table {
-  width: 100%;
-  height: 100%;
-  table-layout: fixed;
-}
-
-.cloudcast-section-content-inner {
-  height: 100%;
-  overflow: auto;
-  padding-right: @spacing * 2;
-  padding-left: @spacing * 2;
-  padding-top: @spacing * 2;
-  padding-bottom: @spacing * 2;
-}
-
-.cloudcast-section-content-toolbar {
-  height: 42px;
-}
-
-.cloudcast-section-content-toolbar > .navbar {
-  margin-bottom: 0px;
-}
-
-.cloudcast-section-content-bottom {
-  height: auto;
-  vertical-align: top;
-}
-
-.cloudcast-section-content-bottom-content {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-}
-
-.cloudcast-section-content-bottom-content-inner {
-  padding-right: @spacing * 2;
-  padding-left: @spacing * 2;
-  padding-top: @spacing * 2;
-  padding-bottom: @spacing * 2;
-}
-
-.cloudcast-tooltip {
-  color: white;
-  text-decoration: underline;
-}
-
-.cloudcast-popover {
-  color: white;
-  text-decoration: underline;
+  top: 50%;
+  left: 50%;
+  margin-top: 40px;
+  margin-left: -110px;
 }

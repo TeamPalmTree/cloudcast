@@ -1,28 +1,15 @@
-<div class="cloudcast-section-sidebar-content" data-bind="with: file_viewer">
-    <table>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-toolbar">
-                <div class="navbar">
-                    <div class="navbar-inner">
-                        <ul class="nav">
-                            <li><a href="#">Files</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-bottom">
-                <div class="cloudcast-section-sidebar-content-bottom-inner" data-bind="foreach: files">
-                    <div class="cloudcast-section-sidebar-item">
-                        <label data-bind="event: { contextmenu: show_info }">
-                            <i class="icon-music"></i>
-                            <strong><span class="cloudcast-popover" data-bind="text: title"></span></strong>
-                        </label>
-                        <div><i class="icon-user"></i> <span data-bind="text: artist"></span></div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+<div class="cloudcast-sidebar" data-bind="visible: sidebar() == 'files', with: file_viewer">
+    <div class="cloudcast-sidebar-toolbar">
+        <nav class="navbar navbar-default">
+            <ul class="nav navbar-nav navbar-right">
+                <li><button title="Close Files" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="cloudcast-sidebar-content" data-bind="foreach: files">
+        <div class="cloudcast-sidebar-item" data-bind="event: { contextmenu: show_info }">
+            <div class="cloudcast-sidebar-item-title"><span data-bind="text: title"></span></div>
+            <div><span class="glyphicon glyphicon-user"></span> <span data-bind="text: artist"></span></div>
+        </div>
+    </div>
 </div>

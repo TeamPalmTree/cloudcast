@@ -14,8 +14,6 @@ class Controller_Blocks extends Controller_Cloudcast
 
         // create view
         $view = View::forge('blocks/index');
-        // get all blocks
-        $view->blocks = Model_Block::all();
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;
@@ -25,116 +23,149 @@ class Controller_Blocks extends Controller_Cloudcast
     public function action_create()
     {
 
-        // posted block
-        if (Input::method() == 'POST')
-        {
-            // create pop & save
-            $block = Model_Block::forge();
-            $block->populate();
-            $block->save();
-            // redirect
-            Response::redirect('blocks');
-        }
-
         // render create form
         $view = View::forge('blocks/form');
         // set view vars
-        $view->files_finder = View::forge('files/viewer');
-        $view->options = Model_Block::$options;
+        $view->file_viewer = View::forge('files/viewer');
         // set view vars
         $this->template->title = 'Create';
         $this->template->content = $view;
 
     }
 
-    public function action_edit($id)
+    public function action_edit()
     {
-
-        // posted block
-        if (Input::method() == 'POST')
-        {
-            // clear block weights
-            Model_Block::clear_weights($id);
-            // fetch the block to edit
-            $block = Model_Block::edit($id);
-            // populate save
-            $block->populate();
-            $block->save();
-            // redirect
-            Response::redirect('blocks');
-            // done
-            return;
-        }
-        else
-        {
-            // fetch the block to edit
-            $block = Model_Block::edit($id);
-        }
 
         // render create form
         $view = View::forge('blocks/form');
         // set view vars
-        $view->files_finder = View::forge('files/viewer');
-        $view->options = Model_Block::$options;
-        $view->set('block', $block, false);
+        $view->file_viewer = View::forge('files/viewer');
         // set view vars
         $this->template->title = 'Edit';
         $this->template->content = $view;
 
     }
 
-    public function action_layout($id)
+    public function action_layout()
     {
-
-        // posted layout
-        if (Input::method() == 'POST')
-        {
-            // clear block items
-            Model_Block::clear_items($id);
-            // get block from storage
-            $block = Model_Block::layout($id);
-            // populate block
-            $block->populate_layout();
-            // save the block
-            $block->save();
-            // redirect
-            Response::redirect('blocks');
-            return;
-        }
-        else
-        {
-            // get block from storage
-            $block = Model_Block::layout($id);
-        }
 
         // create view
         $view = View::forge('blocks/layout');
         // get finders
         $view->files_finder = View::forge('files/finder');
         $view->blocks_finder = View::forge('blocks/finder');
-        // get all blocks
-        $view->blocks_finder->blocks = Model_Block::all($id);
-        // set block
-        $view->set('block', $block, false);
         // set template vars
         $this->template->title = 'Layout';
         $this->template->content = $view;
 
     }
 
-    public function action_delete($id)
+    public function post_edit($id)
     {
-        if ($block = Model_Block::find($id))
-            $block->delete();
-        Response::redirect('/blocks');
+
+        // get block
+        $block = Model_Block::editable($id);
+        // get block input
+        $block_input = Input::json();
+        // if we have json data, populate
+        if (count($block_input) > 0)
+        {
+            // validate block
+            if ($errors = $block->validate($block_input))
+                return $this->errors_response($errors);
+            // populate and save
+            $block->populate($block_input);
+            $block->save();
+        }
+
+        // get the editable block
+        $block = Model_Block::viewable_editable($block);
+        // success
+        return $this->response($block);
+
     }
 
-    public function get_search() {
+    public function post_layout($id)
+    {
 
-        $query = Input::get('query');
-        $blocks = Model_Block::search($query);
+        // get block
+        $block = Model_Block::layoutable($id);
+        // get block input
+        $block_input = Input::json();
+        // if we have json data, populate
+        if (count($block_input) > 0)
+        {
+            // validate block
+            if ($errors = $block->validate_layout($block_input))
+                return $this->errors_response($errors);
+            // populate and save
+            $block->populate_layout($block_input);
+            $block->save();
+        }
+
+        // get the layoutable block
+        $block = Model_Block::viewable_layoutable($block);
+        // success
+        return $this->response($block);
+
+    }
+
+    public function post_create()
+    {
+
+        // get block input
+        $block_input = Input::json();
+        // if we have json data, populate
+        if (count($block_input) > 0)
+        {
+            // create block
+            $block = Model_Block::forge();
+            // validate block
+            if ($errors = $block->validate($block_input))
+                return $this->errors_response($errors);
+            // populate and save
+            $block->populate($block_input);
+            $block->save();
+        }
+        else
+        {
+            // get creatable block
+            $block = Model_Block::viewable_creatable();
+        }
+
+        // success
+        return $this->response($block);
+    }
+
+    public function post_delete()
+    {
+
+        // get ids to delete
+        $ids = Input::post('ids');
+        // delete blocks
+        $query = DB::delete('blocks')
+            ->where('id', 'in', $ids);
+        // save
+        $query->execute();
+        // success
+        return $this->response('SUCCESS');
+
+    }
+
+    public function get_titles($query)
+    {
+        // get and return just block titles
+        $titles = Model_Block::titles($query);
+        return $this->response($titles);
+
+    }
+
+    public function get_all()
+    {
+        // get all blocks
+        $blocks = Model_Block::viewable_all();
+        // success
         return $this->response($blocks);
-
     }
 
 }

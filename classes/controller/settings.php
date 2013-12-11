@@ -11,51 +11,40 @@ class Controller_Settings extends Controller_Cloudcast
 
     public function action_index()
     {
-
-        ////////////////
-        // SAVE TO DB //
-        ////////////////
-
-        // get all setting categories
-        $settings = Model_Setting::all();
-        // posted settings
-        if (Input::method() == 'POST')
-        {
-            // populate and save each setting
-            foreach ($settings as $setting)
-            {
-                // populate
-                $setting->populate();
-                // save
-                $setting->save();
-            }
-
-            ////////////////////////
-            // RESTART LIQUIDSOAP //
-            ////////////////////////
-
-            // tell LS to refresh it's settings
-            LiquidsoapHook::restart();
-        }
-
-        ////////////////////////
-        // RETURN TO SETTINGS //
-        ////////////////////////
-
         // create view
         $view = View::forge('settings/index');
-        // get all settings
-        $view->settings = $settings;
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;
+    }
+
+    public function post_save()
+    {
+
+        // get settings input
+        $settings_input = Input::json();
+        // if we have json data, populate
+        if (count($settings_input) > 0)
+            Model_Setting::commit($settings_input);
+        // success
+        return $this->response('SUCCESS');
 
     }
 
-    public function get_mapped()
+    public function get_categories()
     {
-        // get all settings (mapped)
-        $settings = Model_Setting::mapped();
+        // get all settings (categorized)
+        $categories = Model_Setting::categories();
+        // convert to value array
+        $categories = array_values($categories);
+        // success
+        return $this->response($categories);
+    }
+
+    public function get_values()
+    {
+        // get all settings (values)
+        $settings = Model_Setting::values();
         // success
         return $this->response($settings);
     }

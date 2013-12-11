@@ -1,0 +1,135 @@
+.cloudcast-display {
+  position: relative;
+  flex: none;
+  display: flex;
+  min-height: 100px;
+  width: 100%;
+  background: linear-gradient(to bottom, @cloudcast-bg-dark 0%, @cloudcast-bg-darker 100%);
+}
+
+.cloudcast-display-section(@flex) {
+  position: relative;
+  flex: @flex;
+  min-height: 100 - (@padding-base-vertical * 2);
+  max-height: 100 - (@padding-base-vertical * 2);
+  margin: @padding-base-vertical @padding-base-vertical @padding-base-vertical 0px;
+  padding: 8px;
+  background-color: @cloudcast-accent-dark;
+  background: linear-gradient(to bottom, @cloudcast-accent-light 0%, @cloudcast-accent-dark 100%);
+  color: @cloudcast-color;
+  text-shadow: -1px -1.5px 0 rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.cloudcast-display-file {
+  .cloudcast-display-section(2);
+}
+
+.cloudcast-display-show {
+  .cloudcast-display-section(1);
+}
+
+.cloudcast-display-status {
+  position: relative;
+  flex: none;
+  min-height: 100px;
+  max-height: 100px;
+  width: 180px;
+  display: flex;
+  flex-flow: column;
+  flex-direction: column;
+}
+
+.cloudcast-display-logo {
+  position: relative;
+  flex: none;
+  min-height: 100px;
+  width: 130px;
+  background-image: url('../img/CloudCast.png');
+  background-repeat: no-repeat;
+}
+
+.cloudcast-display-status-time {
+  position: relative;
+  flex: 1;
+  align-self: center;
+  margin-top: @padding-base-vertical * 2;
+  font-size: 40px;
+  line-height: 40px;
+  color: @cloudcast-color;
+}
+
+.cloudcast-display-status-input {
+  position: relative;
+  align-self: center;
+  margin-bottom: @padding-base-vertical * 2;
+}
+
+.cloudcast-display-status-input > .nav > li > a {
+  padding: 8px 12px;
+}
+
+.cloudcast-display-status-input > .enabled {
+  background-color: @cloudcast-accent-dark;
+}
+
+.cloudcast-display-progress {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  @cloudcast-color-space: nowrap;
+  overflow: hidden;
+}
+
+.cloudcast-display-progress-elapsed {
+  color: black;
+  text-shadow: none;
+  position: absolute;
+  left: 14px;
+}
+
+.cloudcast-display-progress-elapsed > a {
+  cursor: pointer;
+}
+
+.cloudcast-display-progress-post {
+  background-color: red;
+  position: absolute;
+  height: 20px;
+  opacity: 0.4;
+}
+
+.cloudcast-display-progress-remaining {
+  color: black;
+  text-shadow: none;
+  position: absolute;
+  right: 14px;
+  font-weight: bold;
+}
+
+@media all and (max-width: @screen-sm-min) {
+
+  .cloudcast-display {
+    flex-flow: column;
+    flex-direction: column;
+  }
+
+  .cloudcast-display-status {
+    align-self: center;
+    order: 1;
+  }
+
+  .cloudcast-display-file {
+    margin: 0px;
+    order: 2;
+  }
+
+  .cloudcast-display-show {
+    margin: 0px;
+    order: 3;
+  }
+
+  .cloudcast-display-logo {
+    min-height: 0px;
+  }
+
+}

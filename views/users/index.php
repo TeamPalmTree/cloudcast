@@ -6,23 +6,23 @@
         <thead>
         <tr>
             <th></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'username' }">Username</a></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'group_name' }">Group</a></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'first_name' }">First Name</a></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'last_name' }">Last Name</a></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'email' }">Email</a></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'phone' }">Phone</a></th>
-            <th><a href="#" data-bind="orderable: { collection: 'users', field: 'user_last_login' }">Last Login</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'username' }">Username</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'group_name' }">Group</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'first_name' }">First Name</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'last_name' }">Last Name</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'email' }">Email</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'phone' }">Phone</a></th>
+            <th><a data-bind="orderable: { collection: 'users', field: 'user_last_login' }">Last Login</a></th>
         </tr>
         </thead>
         <tbody data-bind="foreach: users">
         <tr>
             <td>
                 <div class="cloudcast-item-section">
-                    <a name="delete" title="Delete" class="btn btn-mini btn-danger" href="#" data-bind="click: $parent.delete"><i class="icon-remove"></i></a>
+                    <a name="delete" title="Delete" class="btn btn-default btn-xs btn-danger" data-bind="click: $parent.delete"><span class="glyphicon glyphicon-remove"></span></a>
                 </div>
                 <div class="cloudcast-item-section">
-                    <a class="btn btn-mini" title="Edit" href="#" data-bind="attr: { href: 'users/edit/' + username }"><i class="icon-edit"></i></a>
+                    <a class="btn btn-default btn-xs" title="Edit" data-bind="attr: { href: 'users/edit/' + username }"><span class="glyphicon glyphicon-edit"></span></a>
                 </div>
             </td>
             <td><strong><span data-bind="text: username"></span></strong></td>

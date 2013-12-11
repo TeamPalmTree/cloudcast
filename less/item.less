@@ -1,0 +1,185 @@
+.cloudcast-item {
+  cursor: default;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid @cloudcast-bg-dark;
+  padding-bottom: @padding-base-vertical;
+  padding-top: @padding-base-vertical;
+}
+
+.cloudcast-item.selected {
+  background-color: @cloudcast-bg-dark;
+}
+
+.cloudcast-item-checkbox {
+  position: relative;
+  flex: none;
+  margin-right: @padding-base-vertical;
+}
+
+.cloudcast-item-checkbox > input {
+  margin: 0px;
+}
+
+.cloudcast-item-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.cloudcast-item-header {
+  display: flex;
+}
+
+.cloudcast-item-footer {
+  flex: 1;
+  display: flex;
+}
+
+.cloudcast-item-title {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+
+.cloudcast-item-title > .label {
+  margin-right: @padding-base-vertical;
+}
+
+.cloudcast-item-controls {
+  margin-right: @padding-base-vertical;
+}
+
+.cloudcast-item-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cloudcast-item-info > .label {
+  margin-left: @padding-base-vertical;
+}
+
+.cloudcast-item-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cloudcast-item-form > span {
+  margin-left: @padding-base-vertical;
+}
+
+.cloudcast-item-form > input {
+   width: 100px;
+   margin-left: @padding-base-vertical;
+}
+
+.cloudcast-item-form > input.active {
+  background-color: @cloudcast-accent-light;
+}
+
+.cloudcast-item-time {
+  color: @text-color;
+  display: block;
+  width: 160px;
+  background-color: @cloudcast-bg-dark;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-weight: bold;
+  vertical-align: middle;
+  margin-right: @padding-base-vertical;
+  flex: none;
+}
+
+.cloudcast-item-time .cloudcast-item-time-start {
+  float: left;
+}
+
+.cloudcast-item-time .cloudcast-item-time-end {
+  float: right;
+}
+
+.cloudcast-item-date {
+  display: block;
+  width: 100px;
+  background-color: black;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-weight: bold;
+  vertical-align: middle;
+  margin-right: @padding-base-vertical;
+}
+
+.cloudcast-item-section-dimmed {
+  color: @cloudcast-bg-light;
+}
+
+.cloudcast-item-section-success {
+  color: @brand-success;
+}
+
+.cloudcast-item-section-warning {
+  color: @brand-warning;
+}
+
+.cloudcast-item-section-important {
+  color: @brand-danger;
+}
+
+.cloudcast-sidebar-item {
+  border-bottom: 1px solid @cloudcast-bg-light;
+  padding-right: @padding-base-vertical;
+  padding-left: @padding-base-vertical;
+  padding-top: @padding-base-vertical;
+  padding-bottom: @padding-base-vertical;
+}
+
+.cloudcast-sidebar-item.active {
+  background-color: @cloudcast-accent-light;
+}
+
+.cloudcast-sidebar-item-title {
+  font-weight: bold;
+}
+
+.cloudcast-sidebar-item-title-move {
+  font-weight: bold;
+  cursor: move;
+}
+
+@media all and (max-width: @screen-sm-min) {
+
+  .cloudcast-item-content {
+    flex-flow: column;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cloudcast-item-time {
+    order: 1;
+  }
+
+  .cloudcast-item-controls {
+    flex: 1;
+    order: 2;
+    text-align: right;
+    margin-right: 0px;
+  }
+
+  .cloudcast-item-title {
+    order: 1;
+  }
+
+  .cloudcast-item-info {
+    order: 2;
+  }
+
+}

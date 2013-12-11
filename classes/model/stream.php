@@ -10,6 +10,7 @@ class Model_Stream extends \Orm\Model
         'active',
         'host',
         'port',
+        'format',
         'source_username',
         'source_password',
         'admin_username',
@@ -22,66 +23,85 @@ class Model_Stream extends \Orm\Model
     );
 
     public static $types = array(
-        '0' => 'Local',
-        '1' => 'Icecast',
+        'local',
+        'icecast',
     );
 
-    public function populate()
+    public function validate($input)
     {
 
-        // set stream from post data
-        $this->name = Input::post('name');
-        $this->type = Input::post('type');
-        $this->host = Input::post('host');
-        $this->port = Input::post('port');
-        $this->source_username = Input::post('source_username');
-        $this->source_password = Input::post('source_password');
-        $this->admin_username = Input::post('admin_username');
-        $this->admin_password = Input::post('admin_password');
-        $this->mount = Input::post('mount');
-
-    }
-
-    public static function edit($id)
-    {
-
-        // get stream
-        $stream = Model_Stream::query()
-            ->where('id', $id)
-            ->get_one();
-        // success
-        return $stream;
-
-    }
-
-    public static function display()
-    {
-
-        // get all streams
-        $streams = Model_Stream::query()
-            ->select('name', 'active', 'type', 'mount')
-            ->order_by('name', 'asc')
-            ->get();
-
-        $display_streams = array();
-        // move properties to parent
-        foreach ($streams as $stream)
+        // create validation
+        $validation = Validation::forge();
+        $validation->add_field('name', 'Name', 'required');
+        $validation->add_field('type', 'Type', 'required');
+        // if we have a local type, we are done validating
+        if (isset($input['type']) && ($input['type'] != 'local'))
         {
-            // create display stream
-            $display_stream = array(
-                'id' => $stream->id,
-                'name' => $stream->name,
-                'active' => $stream->active,
-                'type_name' => self::$types[$stream->type],
-                'mount' => $stream->mount
-            );
-            // add to display streams
-            $display_streams[] = $display_stream;
+            $validation->add_field('host', 'Host', 'required');
+            $validation->add_field('port', 'Port', 'required|numeric_min[1]|numeric_max[65535]');
+            $validation->add_field('format', 'Format', 'required');
+            $validation->add_field('source_username', 'Source Username', 'required');
+            $validation->add_field('source_password', 'Source Password', 'required');
+            $validation->add_field('admin_username', 'Admin Username', 'required');
+            $validation->add_field('admin_password', 'Admin Password', 'required');
+            $validation->add_field('mount', 'Mount', 'required');
         }
 
-        // success
-        return $display_streams;
+        // run validation
+        if (!$validation->run($input)) return Helper::errors($validation);
 
+    }
+
+    public function populate($input)
+    {
+
+        // initialize
+        if ($this->id == 0)
+        {
+            // set active
+            $this->active = 1;
+        }
+
+        // set stream from post data
+        $this->name = isset($input['name']) ? $input['name'] : null;
+        $this->type = isset($input['type']) ? $input['type'] : null;
+        $this->host = isset($input['host']) ? $input['host'] : null;
+        $this->port = isset($input['port']) ? $input['port'] : null;
+        $this->format = isset($input['format']) ? $input['format'] : null;
+        $this->source_username = isset($input['source_username']) ? $input['source_username'] : null;
+        $this->source_password = isset($input['source_password']) ? $input['source_password'] : null;
+        $this->admin_username = isset($input['admin_username']) ? $input['admin_username'] : null;
+        $this->admin_password = isset($input['admin_password']) ? $input['admin_password'] : null;
+        $this->mount = isset($input['mount']) ? $input['mount'] : null;
+
+    }
+
+    public static function editable($id)
+    {
+        return Model_Stream::query()
+            ->where('id', $id)
+            ->get_one();
+    }
+
+    public static function viewable_creatable()
+    {
+        return Model_Stream::forge(array('type' => 'icecast'));
+    }
+
+    public static function active()
+    {
+        return Model_Stream::query()
+            ->where('active', '1')
+            ->get();
+    }
+
+    public static function viewable_active()
+    {
+        return Model_Stream::query()
+            ->select('name', 'active', 'type', 'mount')
+            ->where('active', '1')
+            ->order_by('name', 'ASC')
+            ->get();
     }
 
 }

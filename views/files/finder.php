@@ -1,41 +1,20 @@
-<div class="cloudcast-section-sidebar-content" data-bind="with: file_finder">
-    <table>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-toolbar">
-                <div class="navbar">
-                    <div class="navbar-inner">
-                        <ul class="nav">
-                            <li><a href="#">Files</a></li>
-                        </ul>
-                        <ul class="nav pull-right">
-                            <li><a href="#" data-bind="click: clear"><i class="icon-remove"></i></a></li>
-                            <li><a href="#" data-bind="click: select_all"><i class="icon-ok"></i></a></li>
-                            <li><a href="#" data-bind="click: $root.add_files"><i class="icon-arrow-right"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-query">
-                <?php echo Form::textarea('query', null, array('rows' => '3', 'placeholder' => 'Query', 'data-bind' => "value: query, valueUpdate: 'afterkeydown'" )); ?>
-            </td>
-        </tr>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-bottom">
-                <div class="cloudcast-section-sidebar-content-bottom-inner">
-                    <div data-bind="foreach: files">
-                        <div class="cloudcast-section-sidebar-item">
-                            <label class="checkbox" data-bind="event: { contextmenu: show_info }"">
-                                <input type="checkbox" data-bind="checked: selected">
-                                <strong><span class="cloudcast-popover" data-bind="text: title"></span></strong>
-                            </label>
-                            <div><i class="icon-user"></i> <span data-bind="text: artist"></span></div>
-                            <div><i class="icon-time"></i> <span data-bind="text: duration"></span></div>
-                        </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+<div class="cloudcast-sidebar" data-bind="visible: sidebar() == 'files', with: file_finder">
+    <div class="cloudcast-sidebar-toolbar">
+        <nav class="navbar navbar-default">
+            <ul class="nav navbar-nav">
+                <li><button title="Add All Files" class="btn btn-default navbar-btn" data-bind="click: function() { $root.add_all_files() };"><span class="glyphicon glyphicon-backward"></span></button></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><button title="Close Files" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
+            </ul>
+        </nav>
+        <textarea class="form-control" rows="3" placeholder="Query" data-bind="nowValue: query"></textarea>
+    </div>
+    <div class="cloudcast-sidebar-content" data-bind="foreach: files">
+        <div class="cloudcast-sidebar-item" data-bind="draggable: { data: $data, options: { appendTo: 'body', zIndex: 2, cursor: 'move', cursorAt: { left: 0, top: 0 }}}, event: { contextmenu: show_info }">
+            <div class="cloudcast-sidebar-item-title-move"><span data-bind="text: title"></span></div>
+            <div><span class="glyphicon glyphicon-user"></span> <span data-bind="text: artist"></span></div>
+            <div><span class="glyphicon glyphicon-time"></span> <span data-bind="text: duration"></span></div>
+        </div>
+    </div>
 </div>

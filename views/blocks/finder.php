@@ -1,32 +1,15 @@
-<script>
-    var blocks_js = <?php echo Format::forge($blocks)->to_json(); ?>
-</script>
-<div class="cloudcast-section-sidebar-content" data-bind="with: block_finder">
-    <table>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-toolbar">
-                <div class="navbar">
-                    <div class="navbar-inner">
-                        <ul class="nav">
-                            <li><a href="#">Blocks</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="cloudcast-section-sidebar-content-bottom">
-                <div class="cloudcast-section-sidebar-content-bottom-inner">
-                    <div data-bind="foreach: blocks">
-                        <div>
-                            <i class="icon-stop"></i>
-                            <a class="cloudcast-popover" href="#" data-bind="popover: { title: title, content: description, container: 'body', trigger: 'hover', placement: 'right' }, click: $parents[1].add_block">
-                                <span data-bind="text: title"></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+<div class="cloudcast-sidebar" data-bind="visible: sidebar() == 'blocks', with: block_finder">
+    <div class="cloudcast-sidebar-toolbar">
+        <nav class="navbar navbar-default">
+            <ul class="nav navbar-nav navbar-right">
+                <li><button title="Close Blocks" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="cloudcast-sidebar-content" data-bind="foreach: blocks">
+        <div class="cloudcast-sidebar-item" data-bind="draggable: { data: $data, options: { appendTo: 'body', zIndex: 2, cursor: 'move', cursorAt: { left: 0, top: 0 }}}">
+            <div class="cloudcast-sidebar-item-title-move"><span data-bind="text: title"></span></div>
+            <div><span data-bind="text: description"></span></div>
+        </div>
+    </div>
 </div>

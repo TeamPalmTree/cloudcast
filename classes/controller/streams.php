@@ -12,12 +12,8 @@ class Controller_Streams extends Controller_Cloudcast
     public function action_index()
     {
 
-        // get all streams
-        $streams = Model_Stream::display();
         // create view
         $view = View::forge('streams/index');
-        // get all streams
-        $view->streams = $streams;
         // set template vars
         $this->template->title = 'Index';
         $this->template->content = $view;
@@ -26,18 +22,6 @@ class Controller_Streams extends Controller_Cloudcast
 
     public function action_create()
     {
-
-        // posted stream
-        if (Input::method() == 'POST')
-        {
-            // create pop & save
-            $stream = Model_Stream::forge(array('active' => '1'));
-            $stream->populate();
-            $stream->save();
-            // redirect
-            Response::redirect('streams');
-        }
-
         // render create form
         $view = View::forge('streams/form');
         // set view vars
@@ -49,24 +33,8 @@ class Controller_Streams extends Controller_Cloudcast
     public function action_edit($id)
     {
 
-        // fetch the stream to edit
-        $stream = Model_Stream::edit($id);
-        // posted stream
-        if (Input::method() == 'POST')
-        {
-            // populate save
-            $stream->populate();
-            $stream->save();
-            // redirect
-            Response::redirect('streams');
-            // done
-            return;
-        }
-
         // render create form
         $view = View::forge('streams/form');
-        // set view vars
-        $view->set('stream', $stream, false);
         // set view vars
         $this->template->title = 'Edit';
         $this->template->content = $view;
@@ -80,13 +48,73 @@ class Controller_Streams extends Controller_Cloudcast
         Response::redirect('/streams');
     }
 
+    public function post_create()
+    {
+
+        // get stream input
+        $stream_input = Input::json();
+        // if we have json data, populate
+        if (count($stream_input) > 0)
+        {
+            // create stream
+            $stream = Model_Stream::forge();
+            // validate block
+            if ($errors = $stream->validate($stream_input))
+                return $this->errors_response($errors);
+            // populate and save
+            $stream->populate($stream_input);
+            $stream->save();
+        }
+        else
+        {
+            // get creatable stream
+            $stream = Model_Stream::viewable_creatable();
+        }
+
+        // success
+        return $this->response($stream);
+    }
+
+    public function post_edit($id)
+    {
+
+        // get stream
+        $stream = Model_Stream::editable($id);
+        // get stream input
+        $stream_input = Input::json();
+        // if we have json data, populate
+        if (count($stream_input) > 0)
+        {
+            // validate stream
+            if ($errors = $stream->validate($stream_input))
+                return $this->errors_response($errors);
+            // populate and save
+            $stream->populate($stream_input);
+            $stream->save();
+        }
+
+        // success
+        return $this->response($stream);
+
+    }
+
+    public function get_displayable()
+    {
+
+        // get all streams
+        $streams = Model_Stream::viewable_active();
+        // get array values
+        $streams = array_values($streams);
+        // success
+        return $this->response($streams);
+
+    }
+
     public function get_active()
     {
 
         // get all streams
-        $streams = Model_Stream::query()
-            ->where('active', '1')
-            ->get();
+        $streams = Model_Stream::active();
         // get array values
         $streams = array_values($streams);
         // success
@@ -109,16 +137,17 @@ class Controller_Streams extends Controller_Cloudcast
 
     }
 
-    public function get_deactivate()
+    public function post_deactivate()
     {
 
-        // get id to search for
-        $id = Input::get('id');
-        // get the stream
-        $stream = Model_Stream::find($id);
-        // set stream inactive and persist
-        $stream->active = '0';
-        $stream->save();
+        // get ids to search for
+        $ids = Input::post('ids');
+        // update available status for streams
+        $query = DB::update('streams')
+            ->set(array('active' => '0'))
+            ->where('id', 'in', $ids);
+        // save
+        $query->execute();
         // success
         return $this->response('SUCCESS');
 
