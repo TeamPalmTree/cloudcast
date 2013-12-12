@@ -186,11 +186,13 @@ class Model_Show extends \Orm\Model
         if (isset($input['block']))
         {
             // find block
-            $this->block = Model_Block::find('first', array(
+            $block = Model_Block::find('first', array(
                 'where' => array(
                     array('title', $input['block']['title']),
                 )
             ));
+            // set block
+            $this->block_id = $block->id;
         }
         else
         {

@@ -345,7 +345,13 @@ class Model_Schedule extends \Orm\Model
         $previous_remaining_schedule_file = $current_schedule_file;
         // sum remaining durations the total seconds
         foreach ($remaining_schedule_files as $remaining_schedule_file)
-            $remaining_seconds += $remaining_schedule_file->file->transitioned_duration_seconds($previous_remaining_schedule_file->file->genre);
+        {
+            // sum up remaining seconds factoring in transitions
+            $remaining_seconds +=
+                $remaining_schedule_file->file->transitioned_duration_seconds($previous_remaining_schedule_file->file->genre);
+            // update previous remaining schedule file
+            $previous_remaining_schedule_file = $remaining_schedule_file;
+        }
 
         // success
         return $remaining_seconds;

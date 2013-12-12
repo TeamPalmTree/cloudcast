@@ -159,19 +159,19 @@ class Controller_Engine extends Controller_Cloudcast
     public function get_play_schedule_file($id)
     {
 
-        /////////////////////////////////
-        // FIND PLAYABLE SCHEDULE FILE //
-        /////////////////////////////////
+        //////////////////////
+        // PREPARE FOR PLAY //
+        //////////////////////
 
-        // find the schedule file
+        // get server time immediately
+        $server_datetime = Helper::server_datetime();
+        // get the schedule file
         $schedule_file = Model_Schedule_File::playable($id);
 
         /////////////////////////////////////
         // BACKUP FILL FOR NON-PROMO PLAYS //
         /////////////////////////////////////
 
-        // get server time
-        $server_datetime = Helper::server_datetime();
         // only do this for non-sweepers/bumpers/intros
         if (!$schedule_file->file->is_promo())
         {
@@ -196,9 +196,9 @@ class Controller_Engine extends Controller_Cloudcast
             $server_datetime->sub(new DateInterval('PT2S'));
         }
 
-        ////////////////////////////////////
-        // UPDATE SCHEDULE FILE PLAY DATE //
-        ////////////////////////////////////
+        //////////////////////////
+        // UPDATE SCHEDULE FILE //
+        //////////////////////////
 
         // get server time
         $server_datetime_string = Helper::server_datetime_string($server_datetime);

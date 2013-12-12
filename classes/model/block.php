@@ -112,12 +112,14 @@ class Model_Block extends \Orm\Model
         // add block
         if (isset($input['backup_block']))
         {
-            // set backup block
-            $this->backup_block = Model_Block::find('first', array(
+            // find block
+            $backup_block = Model_Block::find('first', array(
                 'where' => array(
                     array('title', $input['backup_block']['title']),
                 )
             ));
+            // set backup block
+            $this->backup_block_id = $backup_block->id;
         }
         else
         {
