@@ -10,14 +10,14 @@
                 <span data-bind="html: text"></span>
                 <!-- /ko -->
                 <!-- ko if: type() == 'input' -->
-                <form class="form-horizontal">
+                <div class="form-horizontal">
                     <div class="form-group">
                         <label class="col-sm-3 control-label" data-bind="text: text"></label>
                         <div class="col-sm-9">
                             <input class="form-control" data-bind="nowValue: value, event: { keypress: keypress }, attr: { placeholder: placeholder }" />
                         </div>
                     </div>
-                </form>
+                </div>
                 <!-- /ko -->
             </div>
             <div class="modal-footer" data-bind="visible: type() != 'html'">

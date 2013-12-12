@@ -1,13 +1,4 @@
 <div id="cloudcast-display" class="cloudcast-display" data-bind="with: status">
-    <div class="modal fade" data-bind="showModal: $parent.posting">
-        <div class="modal-body">
-            <input type="text" name="post" class="form-control" placeholder="00:00:00" />
-        </div>
-        <div class="modal-footer">
-            <button name="save" class="btn btn-primary" aria-hidden="true">SET</button>
-            <button class="btn" data-dismiss="modal" aria-hidden="true">CANCEL</button>
-        </div>
-    </div>
     <div class="cloudcast-display-file">
         <div><strong>CURRENT FILE</strong> <span data-bind="text: current_file_artist"></span> - <span data-bind="text: current_file_title"></span></div>
         <div class="progress cloudcast-display-progress">
