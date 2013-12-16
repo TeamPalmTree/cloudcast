@@ -1,7 +1,7 @@
-<div id="files-index" class="cloudcast-section">
+<div id="files-index" class="standard-section">
     <?php echo $file_setter; ?>
-    <div class="cloudcast-sidebar" data-bind="visible: sidebar() == 'query'">
-        <div class="cloudcast-sidebar-toolbar">
+    <div class="standard-sidebar" data-bind="visible: sidebar() == 'query'">
+        <div class="standard-sidebar-toolbar">
             <nav class="navbar navbar-default">
                 <ul class="nav navbar-nav navbar-right">
                     <li><button title="Close Query" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
@@ -10,30 +10,30 @@
             <textarea class="form-control" rows="5" placeholder="Query" data-bind="nowValue: query"></textarea>
         </div>
     </div>
-    <div class="cloudcast-sidebar" data-bind="visible: sidebar() == 'info'">
-        <div class="cloudcast-sidebar-toolbar">
+    <div class="standard-sidebar" data-bind="visible: sidebar() == 'info'">
+        <div class="standard-sidebar-toolbar">
             <nav class="navbar navbar-default">
                 <ul class="nav navbar-nav navbar-right">
                     <li><button title="Close Information" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
                 </ul>
             </nav>
         </div>
-        <div class="cloudcast-sidebar-content">
-            <div class="cloudcast-sidebar-item">
-                <div class="cloudcast-sidebar-item-title">Total Files</div>
+        <div class="standard-sidebar-content">
+            <div class="standard-sidebar-item">
+                <div class="standard-sidebar-item-title">Total Files</div>
                 <div><?php echo $files_count; ?></div>
             </div>
-            <div class="cloudcast-sidebar-item">
-                <div class="cloudcast-sidebar-item-title">Available Files</div>
+            <div class="standard-sidebar-item">
+                <div class="standard-sidebar-item-title">Available Files</div>
                 <div><?php echo $available_files_count; ?></div>
             </div>
-            <div class="cloudcast-sidebar-item">
-                <div class="cloudcast-sidebar-item-title">Unavilable Files</div>
+            <div class="standard-sidebar-item">
+                <div class="standard-sidebar-item-title">Unavilable Files</div>
                 <div><?php echo $unavailable_files_count; ?></div>
             </div>
         </div>
     </div>
-    <div class="cloudcast-section-toolbar">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#files-index-collapse">
@@ -59,8 +59,8 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner">
+    <div class="standard-section-content">
+        <div class="standard-section-inner">
             <table class="table">
                 <thead>
                     <tr>

@@ -1,5 +1,5 @@
-<div id="stream-form" class="cloudcast-section">
-    <div class="cloudcast-section-toolbar">
+<div id="stream-form" class="standard-section">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#stream-form-collapse">
@@ -23,8 +23,8 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner">
+    <div class="standard-section-content">
+        <div class="standard-section-inner">
             <form class="form-horizontal" data-bind="with: stream">
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="name">Name</label>

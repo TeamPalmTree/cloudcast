@@ -18,7 +18,7 @@ class Controller_Schedules extends Controller_Cloudcast
         $view->file_finder = View::forge('files/finder');
         // set template vars
         $this->template->title = 'Index';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 

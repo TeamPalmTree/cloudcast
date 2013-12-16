@@ -17,7 +17,7 @@ class Controller_Reports extends Controller_Cloudcast
         // get all reports
         // set template vars
         $this->template->title = 'Index';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 

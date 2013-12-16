@@ -15,7 +15,7 @@ class Controller_Settings extends Controller_Cloudcast
         $view = View::forge('settings/index');
         // set template vars
         $this->template->title = 'Index';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
     }
 
     public function post_save()

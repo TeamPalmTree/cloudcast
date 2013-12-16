@@ -1,13 +1,13 @@
 <script>
     var user_js = <?php echo isset($user) ? Format::forge($user)->to_json() : 'null'; ?>
 </script>
-<div class="cloudcast-section">
-    <div class="cloudcast-section-inner">
-        <div class="cloudcast-super-header-form">
-            <div class="cloudcast-super-header-section">
+<div class="standard-section">
+    <div class="standard-section-inner">
+        <div class="standard-super-header-form">
+            <div class="standard-super-header-section">
                 <h4><?php echo isset($user) ? 'Edit ' . $user->username : 'Create User'; ?></h4>
             </div>
-            <div class="cloudcast-super-header-section-right">
+            <div class="standard-super-header-section-right">
                 <button type="submit" class="btn btn-default btn-xs btn-primary" form="user-form">SAVE</button>
                 <a href="/users" class="btn btn-default btn-xs">CANCEL</a>
             </div>

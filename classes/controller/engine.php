@@ -127,20 +127,20 @@ class Controller_Engine extends Controller_Cloudcast
 
             $input_user = null;
             // attempt to get user based on username
-            if (isset($input->username) && $input->username != '')
+            if (isset($input['username']) && $input['username'] != '')
             {
                 // find authenticated user
                 $input_user = Model_User::query()
-                    ->where('username', $input->username)
+                    ->where('username', $input['username'])
                     ->get_one();
             }
 
             // get update query for inputs
             $query = DB::update('inputs')
-                ->value('status', ($input->status == 'true') ? '1' : '0')
-                ->value('enabled', ($input->enabled == 'true') ? '1' : '0')
+                ->value('status', ($input['status'] == 'true') ? '1' : '0')
+                ->value('enabled', ($input['enabled'] == 'true') ? '1' : '0')
                 ->value('user_id', $input_user ? $input_user->id : null)
-                ->where('name', $input->name);
+                ->where('name', $input['name']);
 
             // execute
             $query->execute();
@@ -276,7 +276,10 @@ class Controller_Engine extends Controller_Cloudcast
         }
 
         // send next queues response
-        return $this->response($next_queues);
+        if (count($next_queues) == 0)
+            return $this->response(array(array('warning' => 'none')));
+        else
+            return $this->response($next_queues);
 
     }
 

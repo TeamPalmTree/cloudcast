@@ -15,7 +15,7 @@ class Controller_Shows extends Controller_Cloudcast
         // create view
         $view = View::forge('shows/index');
         $this->template->title = 'Index';
-		$this->template->content = $view;
+		$this->template->section->body = $view;
 
 	}
 
@@ -24,7 +24,7 @@ class Controller_Shows extends Controller_Cloudcast
         // render create form
         $view = View::forge('shows/form');
         $this->template->title = 'Create';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 
@@ -34,7 +34,7 @@ class Controller_Shows extends Controller_Cloudcast
         // render create form
         $view = View::forge('shows/form');
         $this->template->title = 'Edit';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 

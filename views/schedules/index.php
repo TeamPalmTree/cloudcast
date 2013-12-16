@@ -1,6 +1,6 @@
-<div id="schedules-index" class="cloudcast-section">
+<div id="schedules-index" class="standard-section">
     <?php echo $file_finder; ?>
-    <div class="cloudcast-section-toolbar">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#schedules-index-collapse">
@@ -40,21 +40,21 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner" data-bind="foreach: schedule_dates">
+    <div class="standard-section-content">
+        <div class="standard-section-inner" data-bind="foreach: schedule_dates">
             <h4 data-bind="text: date"></h4>
             <div data-bind="foreach: schedules">
-                <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule()) select(); }">
-                    <div class="cloudcast-item-checkbox" data-bind="visible: !$root.editing_schedule()">
+                <div class="standard-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule()) select(); }">
+                    <div class="standard-item-checkbox" data-bind="visible: !$root.editing_schedule()">
                         <input type="checkbox" class="checkbox-inline" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                     </div>
-                    <div class="cloudcast-item-content">
-                        <div class="cloudcast-item-header">
-                            <div class="cloudcast-item-time">
-                                <span class="cloudcast-item-time-start" data-bind="text: user_start_on_timeday"></span>
-                                <span class="cloudcast-item-time-end" data-bind="text: user_end_at_timeday"></span>
+                    <div class="standard-item-content">
+                        <div class="standard-item-header">
+                            <div class="standard-item-time">
+                                <span class="standard-item-time-start" data-bind="text: user_start_on_timeday"></span>
+                                <span class="standard-item-time-end" data-bind="text: user_end_at_timeday"></span>
                             </div>
-                            <div class="cloudcast-item-controls">
+                            <div class="standard-item-controls">
                                 <a class="btn btn-default btn-xs" data-bind="attr: { title: expanded() ? 'Collapse' : 'Expand' }, click: expand_collapse, clickBubble: false">
                                     <span class="glyphicon glyphicon-chevron-down" data-bind="css: { 'glyphicon-chevron-down' : !expanded(), 'glyphicon-chevron-up' : expanded }"></span>
                                 </a>
@@ -63,11 +63,11 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="cloudcast-item-footer">
-                            <div class="cloudcast-item-title">
+                        <div class="standard-item-footer">
+                            <div class="standard-item-title">
                                 <strong><span data-bind="text: show.title"></span> (<span data-bind="text: id"></span>)</strong>
                             </div>
-                            <div class="cloudcast-item-info">
+                            <div class="standard-item-info">
                                 <span class="label" data-bind="visible: show.jingles_album"><span class="glyphicon glyphicon-bell"></span> JINGLES</span>
                                 <span class="label" data-bind="visible: show.hosted"><span class="glyphicon glyphicon-bell"></span> HOSTED</span>
                                 <span class="label" data-bind="visible: show.intros_album"><span class="glyphicon glyphicon-bell"></span> INTROS</span>
@@ -80,12 +80,12 @@
                 </div>
                 <!-- ko if: expanded -->
                 <div data-bind="sortable: { data: schedule_files, dragged: $root.create_schedule_file, isEnabled: editing, options: { cancel: '.static'}}">
-                    <div class="cloudcast-item" data-bind="css: { 'static': static, 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !static()) select(); }">
-                        <div class="cloudcast-item-checkbox" data-bind="visible: $parent.editing() && !static()">
+                    <div class="standard-item" data-bind="css: { 'static': static, 'selected': selected }, scrollTo: focused, click: function() { if ($parent.editing() && !static()) select(); }">
+                        <div class="standard-item-checkbox" data-bind="visible: $parent.editing() && !static()">
                             <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                         </div>
-                        <div class="cloudcast-item-content">
-                            <div class="cloudcast-item-title">
+                        <div class="standard-item-content">
+                            <div class="standard-item-title">
                                 <!-- ko if: static -->
                                 <span class="label label-warning" data-bind="visible: queued_on() && !played_on()"><span class="glyphicon glyphicon-download-alt"></span> QUEUED</span>
                                 <span class="label label-success" data-bind="visible: played_on"><span class="glyphicon glyphicon-ok"></span> PLAYED</span>
@@ -98,7 +98,7 @@
                                     <!-- /ko -->
                                 </span>
                             </div>
-                            <div class="cloudcast-item-info">
+                            <div class="standard-item-info">
                                 <span class="label label-primary">
                                     <span class="glyphicon glyphicon-music"></span>
                                     <span data-bind="text: file().genre"></span>

@@ -388,7 +388,7 @@ class Model_Show extends \Orm\Model
         {
             // remove the :
             $time_a = (int)str_replace(':', '', $a->user_start_on_time);
-            $time_b = (int)str_replace(':', '', $b->user_end_at_time);
+            $time_b = (int)str_replace(':', '', $b->user_start_on_time);
             // compare
             if ($time_a > $time_b)
                 return 1;

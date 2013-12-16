@@ -1,5 +1,5 @@
-<div id="blocks-index" class="cloudcast-section">
-    <div class="cloudcast-section-toolbar">
+<div id="blocks-index" class="standard-section">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#blocks-index-collapse">
@@ -19,24 +19,24 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner" data-bind="foreach: blocks">
-            <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
-                <div class="cloudcast-item-checkbox">
+    <div class="standard-section-content">
+        <div class="standard-section-inner" data-bind="foreach: blocks">
+            <div class="standard-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
+                <div class="standard-item-checkbox">
                     <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                 </div>
-                <div class="cloudcast-item-content">
-                    <div class="cloudcast-item-header">
-                        <div class="cloudcast-item-controls">
+                <div class="standard-item-content">
+                    <div class="standard-item-header">
+                        <div class="standard-item-controls">
                             <button title="Edit" class="btn btn-default btn-xs" data-bind="click: edit"><span class="glyphicon glyphicon-edit"></span></button>
                             <button title="Layout" class="btn btn-default btn-xs" data-bind="click: layout"><span class="glyphicon glyphicon-list"></span></button>
                         </div>
-                        <div class="cloudcast-item-title">
+                        <div class="standard-item-title">
                             <span data-bind="text: title"></span> <span class="text-muted" data-bind="text: description"></span>
                         </div>
                     </div>
-                    <div class="cloudcast-item-footer">
-                        <div class="cloudcast-item-info">
+                    <div class="standard-item-footer">
+                        <div class="standard-item-info">
                             <span class="label label-primary" data-bind="visible: weighted"><span class="glyphicon glyphicon-tasks"></span> WEIGHTED</span>
                             <span class="label label-primary" data-bind="visible: weighted"><span class="glyphicon glyphicon-list"></span> ITEMIZED</span>
                         </div>

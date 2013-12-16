@@ -7,6 +7,7 @@ class Model_File extends \Orm\Model
     protected $scraped_title;
     protected $split_genres;
     protected $is_promo;
+    protected $is_sweeper_bumper;
 
     protected static $_properties = array(
         'id',
@@ -127,12 +128,20 @@ class Model_File extends \Orm\Model
         if (isset($this->is_promo))
             return $this->is_promo;
         $genre = $this->genre;
-        $this->is_promo = (
-            ($genre == 'Intro')
-            or ($genre == 'Sweeper')
-            or ($genre == 'Bumper')
-            or ($genre == 'Ad'));
+        $this->is_promo = (($genre == 'Intro') or ($genre == 'Ad') or $this->is_sweeper_bumper());
         return $this->is_promo;
+
+    }
+
+    public function is_sweeper_bumper()
+    {
+
+        // see if it is already set
+        if (isset($this->is_sweeper_bumper))
+            return $this->is_sweeper_bumper;
+        $genre = $this->genre;
+        $this->is_sweeper_bumper = (($genre == 'Sweeper') or ($genre == 'Bumper'));
+        return $this->is_sweeper_bumper;
 
     }
 

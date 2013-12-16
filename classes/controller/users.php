@@ -26,7 +26,7 @@ class Controller_Users extends Controller_Cloudcast
         $view->users = Model_User::display();
         // set template vars
         $this->template->title = 'Index';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 
@@ -50,7 +50,7 @@ class Controller_Users extends Controller_Cloudcast
         $view->groups = $groups;
         // set view vars
         $this->template->title = 'Create';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 
@@ -79,7 +79,7 @@ class Controller_Users extends Controller_Cloudcast
         $view->groups = $groups;
         // set view vars
         $this->template->title = 'Edit';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 

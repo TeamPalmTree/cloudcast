@@ -16,7 +16,7 @@ class Controller_Blocks extends Controller_Cloudcast
         $view = View::forge('blocks/index');
         // set template vars
         $this->template->title = 'Index';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 
@@ -29,7 +29,7 @@ class Controller_Blocks extends Controller_Cloudcast
         $view->file_viewer = View::forge('files/viewer');
         // set view vars
         $this->template->title = 'Create';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 
@@ -42,7 +42,7 @@ class Controller_Blocks extends Controller_Cloudcast
         $view->file_viewer = View::forge('files/viewer');
         // set view vars
         $this->template->title = 'Edit';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 
@@ -56,7 +56,7 @@ class Controller_Blocks extends Controller_Cloudcast
         $view->blocks_finder = View::forge('blocks/finder');
         // set template vars
         $this->template->title = 'Layout';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 

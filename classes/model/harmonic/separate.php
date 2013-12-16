@@ -53,15 +53,24 @@ class Model_Harmonic_Separate extends Model_Harmonic
         while (true)
         {
 
+            // make sure we still have previous
             if (!$last_gathered_file)
                 break;
-            // verify we have not exceeded similar files count (gone too far)
-            if ($last_files_count++ == $separate_files_count)
-                break;
-            // verify we have not exceeded similar files count (gone too far)
-            if ($this->is_similar_file($file, $last_gathered_file))
-                return true;
+
+            // verify not sweeper/bumper
+            if (!$last_gathered_file->is_sweeper_bumper())
+            {
+                // verify we have not exceeded similar files count (gone too far)
+                if ($last_files_count++ == $separate_files_count)
+                    break;
+                // verify we have not exceeded similar files count (gone too far)
+                if ($this->is_similar_file($file, $last_gathered_file))
+                    return true;
+            }
+
+            // keep going backwards
             $last_gathered_file = prev($block->schedule->gathered_files);
+
         };
 
         //////////////////////////
@@ -74,15 +83,24 @@ class Model_Harmonic_Separate extends Model_Harmonic
         while (true)
         {
 
+            // make sure we still have previous
             if (!$last_previous_file)
                 break;
-            // verify we have not exceeded similar files count (gone too far)
-            if ($last_files_count++ == $separate_files_count)
-                break;
-            // verify we have not exceeded similar files count (gone too far)
-            if ($this->is_similar_file($file, $last_previous_file))
-                return true;
+
+            // verify not sweeper/bumper
+            if (!$last_previous_file->is_sweeper_bumper())
+            {
+                // verify we have not exceeded similar files count (gone too far)
+                if ($last_files_count++ == $separate_files_count)
+                    break;
+                // verify we have not exceeded similar files count (gone too far)
+                if ($this->is_similar_file($file, $last_previous_file))
+                    return true;
+            }
+
+            // keep going backwards
             $last_previous_file = prev($block->schedule->previous_files);
+
         };
 
         // no similar file found

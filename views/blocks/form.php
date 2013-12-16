@@ -1,6 +1,6 @@
-<div id="block-form" class="cloudcast-section">
+<div id="block-form" class="standard-section">
     <?php echo $file_viewer; ?>
-    <div class="cloudcast-section-toolbar">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#block-form-collapse">
@@ -25,8 +25,8 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner">
+    <div class="standard-section-content">
+        <div class="standard-section-inner">
             <form class="form-horizontal" data-bind="with: block">
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="title">Title</label>

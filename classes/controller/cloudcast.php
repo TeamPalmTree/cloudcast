@@ -1,6 +1,6 @@
 <?php
 
-class Controller_Cloudcast extends Controller_Shared
+class Controller_Cloudcast extends Controller_Standard
 {
 
     protected static $anonymous_rest_methods = array(
@@ -51,8 +51,7 @@ class Controller_Cloudcast extends Controller_Shared
         // set up the template for the UI
         if (!$this->is_restful() && !$is_restful)
         {
-            $this->template->section = $this->section;
-            $this->template->modal = View::forge('cloudcast/modal');
+            $this->template->site = 'CloudCast';
             $this->template->display = View::forge('cloudcast/display');
             $this->template->navigation = View::forge('cloudcast/navigation', array(
                 'section' => $this->section,
@@ -64,7 +63,6 @@ class Controller_Cloudcast extends Controller_Shared
             header('Access-Control-Allow-Origin: *');
         }
 
-        header('Access-Control-Allow-Origin: *');
         // forward to FPHP router
         parent::router($method, $params);
 

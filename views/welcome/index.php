@@ -11,8 +11,8 @@
     <?php echo Asset::js('bootstrap.min.js'); ?>
 </head>
 <body>
-<div class="cloudcast-welcome-logo"></div>
-<div class="cloudcast-welcome-form">
+<div class="standard-welcome-logo"></div>
+<div class="standard-welcome-form">
 <?php echo Form::open(array('id' => 'welcome-form', 'action' => 'welcome/login', 'class' => 'form-horizontal')); ?>
 <div class="form-group">
     <input name="username" type="text" class="form-control" placeholder="Username" />

@@ -1,5 +1,5 @@
-<div class="cloudcast-sidebar" data-bind="visible: sidebar() == 'setter', with: file_setter">
-    <div class="cloudcast-sidebar-toolbar">
+<div class="standard-sidebar" data-bind="visible: sidebar() == 'setter', with: file_setter">
+    <div class="standard-sidebar-toolbar">
         <nav class="navbar navbar-default">
             <ul class="nav navbar-nav">
                 <li>
@@ -12,9 +12,9 @@
             </ul>
         </nav>
     </div>
-    <div class="cloudcast-sidebar-content" data-bind="foreach: file_properties">
-        <div class="cloudcast-sidebar-item" data-bind="css: { active: active }">
-            <div class="cloudcast-sidebar-item-title">
+    <div class="standard-sidebar-content" data-bind="foreach: file_properties">
+        <div class="standard-sidebar-item" data-bind="css: { active: active }">
+            <div class="standard-sidebar-item-title">
                 <label class="checkbox-inline">
                     <input type="checkbox" data-bind="checked: active" />
                     <span data-bind="text: human_name"></span>

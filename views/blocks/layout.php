@@ -1,7 +1,7 @@
-<div id="block-layout" class="cloudcast-section" data-bind="if: block">
+<div id="block-layout" class="standard-section" data-bind="if: block">
     <?php echo $blocks_finder; ?>
     <?php echo $files_finder; ?>
-    <div class="cloudcast-section-toolbar">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#block-layout-collapse">
@@ -31,17 +31,17 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner">
+    <div class="standard-section-content">
+        <div class="standard-section-inner">
             <div data-bind="validate: $root.errors, validateFor: 'total_percentage'"></div>
             <div style="min-height: 50px;" data-bind="sortable: { data: block().block_items, dragged: $root.create_block_item }">
-                <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
-                    <div class="cloudcast-item-checkbox">
+                <div class="standard-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
+                    <div class="standard-item-checkbox">
                         <input type="checkbox" class="checkbox-inline" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                     </div>
-                    <div class="cloudcast-item-content">
-                        <div class="cloudcast-item-header">
-                            <div class="cloudcast-item-title">
+                    <div class="standard-item-content">
+                        <div class="standard-item-header">
+                            <div class="standard-item-title">
                                 <!-- ko if: file -->
                                 <span class="label"><span class="glyphicon glyphicon-music"></span></span>
                                 <span data-bind="text: file().artist"></span> - <span data-bind="text: file().title"></span>
@@ -52,13 +52,13 @@
                                 <!-- /ko -->
                             </div>
                         </div>
-                        <div class="cloudcast-item-footer">
-                            <div class="cloudcast-item-info">
+                        <div class="standard-item-footer">
+                            <div class="standard-item-info">
                                 <!-- ko if: file -->
                                 <span class="label label-primary"><span class="glyphicon glyphicon-time"></span> <span data-bind="text: file().duration"></span></span>
                                 <!-- /ko -->
                                 <!-- ko if: child_block -->
-                                <div class="cloudcast-item-form">
+                                <div class="standard-item-form">
                                     <span class="label"><span class="glyphicon glyphicon-time"></span></span>
                                     <input type="text" class="form-control" placeholder="HH:MM:SS"
                                            data-bind="nowValue: entered_duration, attr: { name: 'block_items[' + $index() + '][duration]' }, css: { active: entered_duration }, click: function() { return false; }, clickBubble: false" />

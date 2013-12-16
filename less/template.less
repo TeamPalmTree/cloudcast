@@ -1,203 +1,62 @@
-@import "../../vendor/twbs/bootstrap/less/bootstrap.less";
-
 ///////////////
 // VARIABLES //
 ///////////////
 
-@cloudcast-color: white;
-@cloudcast-accent-dark: #21409A;
-@cloudcast-accent-light: #0077b3;
-@cloudcast-bg: #131313;
-@cloudcast-bg-darker: #1A1A1A;
-@cloudcast-bg-dark: #363636;
-@cloudcast-bg-light: #707070;
+@standard-color: white;
+@standard-accent-dark: #21409A;
+@standard-accent-light: #0077b3;
+@standard-bg: #131313;
+@standard-bg-darker: #1A1A1A;
+@standard-bg-dark: #363636;
+@standard-bg-light: #707070;
 
-/////////////////////////
-// BOOTSTRAP OVERRIDES //
-/////////////////////////
+///////////////
+// BOOTSTRAP //
+///////////////
+
+// bootsrap 3.0
+@import "../../vendor/twbs/bootstrap/less/bootstrap.less";
 
 // general
-@body-bg: @cloudcast-bg;
-@text-color: @cloudcast-color;
+@body-bg: @standard-bg;
+@text-color: @standard-color;
 
 // forms
-@input-bg: @cloudcast-bg-darker;
-@input-color: @cloudcast-color;
-@input-bg-disabled: @cloudcast-bg-light;
-
-// borders
-@border-radius-base: 0px;
-@border-radius-large: 0px;
-@border-radius-small: 0px;
+@input-bg: @standard-bg-darker;
+@input-color: @standard-color;
+@input-bg-disabled: @standard-bg-light;
 
 // navbar
-@navbar-border-radius: 0px;
 @navbar-height: 40px;
-@navbar-default-bg: @cloudcast-accent-light;
-@navbar-default-border: @cloudcast-accent-light;
+@navbar-default-bg: @standard-accent-light;
+@navbar-default-border: @standard-accent-light;
 @navbar-default-color: @text-color;
 @navbar-default-link-color: @text-color;
 @navbar-default-link-active-color: @text-color;
-@navbar-inverse-bg: @cloudcast-accent-dark;
-@navbar-inverse-border: @cloudcast-bg-light;
+@navbar-inverse-bg: @standard-accent-dark;
+@navbar-inverse-border: @standard-bg-light;
 @navbar-inverse-link-color: @text-color;
-@navbar-inverse-link-active-bg: @cloudcast-accent-light;
+@navbar-inverse-link-active-bg: @standard-accent-light;
 @navbar-padding-horizontal: 0px;
 
 // buttons
-@btn-default-bg: @cloudcast-accent-light;
+@btn-default-bg: @standard-accent-light;
 @btn-default-color: @text-color;
 
 // popovers
-@popover-bg: @cloudcast-bg-dark;
+@popover-bg: @standard-bg-dark;
 
-.datetimepicker {
-  color: black;
-}
+//////////////
+// INCLUDES //
+//////////////
 
-.navbar {
-  margin-bottom: 0px;
-}
-
-.navbar .navbar-btn {
-  margin-left: @padding-base-vertical / 2;
-}
-
-.navbar .navbar-btn:last-child {
-  margin-right: @padding-base-vertical / 2;
-}
-
-.button-variant(@color; @background; @border) {
-  color: @color;
-  background-color: @background;
-  border-color: @border;
-
-  &:active,
-  &.active {
-    color: @text-color;
-    background-color: @cloudcast-bg;
-  }
-}
-
-h1,h2,h3,h4,h5,h6 {
-  -webkit-margin-before: 0px;
-  -webkit-margin-after: 0px;
-  -webkit-margin-start: 0px;
-  -webkit-margin-end: 0px;
-}
-
-.table tbody tr {
-  &.selected > td {
-    background-color: @cloudcast-bg-dark;
-  }
-}
-
-.form-horizontal .form-group {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
-.form-group {
-  margin-bottom: @padding-base-vertical;
-}
-
-.modal {
-  color: @body-bg;
-}
-
-/////////////
-// GENERAL //
-/////////////
-
-.cloudcast-tooltip {
-  color: @cloudcast-color;
-  text-decoration: underline;
-}
-
-.cloudcast-popover {
-  color: @cloudcast-color;
-  text-decoration: underline;
-}
-
-.cloudcast-show-files {
-  position: absolute;
-  left: 0px;
-  width: 50%;
-  height: 100%;
-  background: red;
-}
-
-.cloudcast-show-schedule {
-  width: 50%;
-  height: 100%;
-  background: blue;
-}
-
-.cloudcast {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
-  flex-direction: column;
-}
-
+@import "welcome.less";
 @import "display.less";
 @import "navigation.less";
-@import "section.less";
-@import "sidebar.less";
-@import "item.less";
 @import "header.less";
-@import "typeahead.less";
-@import "datetimepicker.less";
 
 ////////////
-// MODALS //
+// SHARED //
 ////////////
 
-.cloudcast-modal-error {
-  color: #b94a48;
-  background-color: #f2dede;
-  border-color: #eed3d7;
-}
-
-.cloudcast-modal-success {
-  color: #468847;
-  background-color: #dff0d8;
-  border-color: #d6e9c6;
-}
-
-.cloudcast-modal-edit {
-  color: #003bb3;
-  background-color: #abcdef;
-  border-color: #002a80;
-}
-
-.cloudcast-modal-info {
-  color: @cloudcast-color;
-  background-color: @cloudcast-bg-dark;
-  border-color: @cloudcast-bg-light;
-}
-
-/////////////
-// WELCOME //
-/////////////
-
-.cloudcast-welcome-logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -250px;
-  margin-left: -200px;
-  width: 400px;
-  height: 308px;
-  background-image: url('../img/CloudCastLarge.png');
-}
-
-.cloudcast-welcome-form {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: 40px;
-  margin-left: -110px;
-}
+@import "../../packages/shared/less/template.less";

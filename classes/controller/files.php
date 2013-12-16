@@ -30,7 +30,7 @@ class Controller_Files extends Controller_Cloudcast
             ->count();
         // set template vars
         $this->template->title = 'Index';
-        $this->template->content = $view;
+        $this->template->section->body = $view;
 
     }
 

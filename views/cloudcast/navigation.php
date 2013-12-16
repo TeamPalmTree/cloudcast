@@ -1,4 +1,4 @@
-<div class="cloudcast-navigation">
+<div class="standard-navigation">
     <nav class="navbar navbar-inverse">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-collapse">

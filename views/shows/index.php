@@ -1,5 +1,5 @@
-<div id="shows-index" class="cloudcast-section">
-    <div class="cloudcast-section-toolbar">
+<div id="shows-index" class="standard-section">
+    <div class="standard-section-toolbar">
         <nav class="navbar navbar-default">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#shows-index-collapse">
@@ -20,17 +20,17 @@
             </div>
         </nav>
     </div>
-    <div class="cloudcast-section-content">
-        <div class="cloudcast-section-inner">
-            <div class="cloudcast-super-header">
+    <div class="standard-section-content">
+        <div class="standard-section-inner">
+            <div class="standard-super-header">
                 <h4>Single Shows</h4>
             </div>
             <div data-bind="template: { name: 'show-template', foreach: single_shows }"></div>
-            <div class="cloudcast-super-header">
+            <div class="standard-super-header">
                 <h4>Repeat Shows</h4>
             </div>
             <div data-bind="foreach: repeat_days">
-                <div class="cloudcast-super-header">
+                <div class="standard-super-header">
                     <h5 data-bind="text: day"></h5>
                 </div>
                 <div data-bind="template: { name: 'show-template', foreach: shows }"></div>
@@ -39,17 +39,17 @@
     </div>
 </div>
 <script type="text/html" id="show-template">
-    <div class="cloudcast-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
-        <div class="cloudcast-item-checkbox">
+    <div class="standard-item" data-bind="css: { 'selected': selected }, click: function() { select(); }">
+        <div class="standard-item-checkbox">
             <input type="checkbox" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
         </div>
-        <div class="cloudcast-item-content">
-            <div class="cloudcast-item-header">
-                <div class="cloudcast-item-time">
-                    <span class="cloudcast-item-time-start" data-bind="text: show_full_date() ? user_start_on_timeday() : user_start_on_time()"></span>
-                    <span class="cloudcast-item-time-end" data-bind="text: show_full_date() ? user_end_at_timeday() : user_end_at_time()"></span>
+        <div class="standard-item-content">
+            <div class="standard-item-header">
+                <div class="standard-item-time">
+                    <span class="standard-item-time-start" data-bind="text: show_full_date() ? user_start_on_timeday() : user_start_on_time()"></span>
+                    <span class="standard-item-time-end" data-bind="text: show_full_date() ? user_end_at_timeday() : user_end_at_time()"></span>
                 </div>
-                <div class="cloudcast-item-controls">
+                <div class="standard-item-controls">
                     <button title="Edit" class="btn btn-default btn-xs" data-bind="click: edit"><span class="glyphicon glyphicon-edit"></span></button>
                     <!-- ko if: block -->
                     <button title="Edit Block" class="btn btn-default btn-xs" data-bind="click: edit_block"><span class="glyphicon glyphicon-edit"></span><span class="glyphicon glyphicon-stop"></span></button>
@@ -57,11 +57,11 @@
                     <!-- /ko -->
                 </div>
             </div>
-            <div class="cloudcast-item-footer">
-                <div class="cloudcast-item-title">
+            <div class="standard-item-footer">
+                <div class="standard-item-title">
                     <span data-bind="text: title"></span>
                 </div>
-                <div class="cloudcast-item-info">
+                <div class="standard-item-info">
                     <!-- ko if: !block() -->
                     <span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span> NO BLOCK</span>
                     <!-- /ko -->
