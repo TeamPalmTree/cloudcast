@@ -44,8 +44,10 @@ class Create_Schema
             ), array('id'), false, 'InnoDB', 'utf8_general_ci');
 
         // files indexes
+        \DBUtil::create_index('files', 'date');
         \DBUtil::create_index('files', 'available');
         \DBUtil::create_index('files', 'found');
+        \DBUtil::create_index('files', 'modified_on');
         \DBUtil::create_index('files', 'name', null, 'unique');
 
         ////////////
@@ -279,6 +281,11 @@ class Create_Schema
             )
         );
 
+        // shows indexes
+        \DBUtil::create_index('shows', 'start_on');
+        \DBUtil::create_index('shows', 'available');
+        \DBUtil::create_index('shows', 'title');
+
         // show repeats
         \DBUtil::create_table('show_repeats', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
@@ -303,6 +310,9 @@ class Create_Schema
                 ),
             )
         );
+
+        // show repeats indexes
+        \DBUtil::create_index('show_repeats', 'end_on');
 
         // show users
         \DBUtil::create_table('show_users', array(
@@ -363,6 +373,11 @@ class Create_Schema
             )
         );
 
+        // schedules indexes
+        \DBUtil::create_index('schedules', 'start_on');
+        \DBUtil::create_index('schedules', 'end_at');
+        \DBUtil::create_index('schedules', 'available');
+
         // schedule files
         \DBUtil::create_table('schedule_files', array(
                 'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
@@ -393,6 +408,11 @@ class Create_Schema
                 ),
             )
         );
+
+        // schedule files indexes
+        \DBUtil::create_index('schedule_files', 'played_on');
+        \DBUtil::create_index('schedule_files', 'queued_on');
+        \DBUtil::create_index('schedule_files', 'skipped_on');
 
         ///////////
         // VOTES //
@@ -443,6 +463,7 @@ class Create_Schema
 
         // streams indexes
         \DBUtil::create_index('streams', 'name', null, 'unique');
+        \DBUtil::create_index('streams', 'active');
 
         // streams data
         \DB::insert('streams')

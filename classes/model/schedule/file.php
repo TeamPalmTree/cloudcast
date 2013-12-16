@@ -36,22 +36,31 @@ class Model_Schedule_File extends \Orm\Model
         // get next schedule start on datetime string estimation
         $schedule_start_on_datetime_string = Helper::server_datetime_string($server_datetime);
         // find the last played schedule file
-        $last_played_schedule_files = Model_Schedule_File::query()
-            ->related('schedule')
-            ->related('schedule.show')
-            ->related('file')
-            ->where('played_on', '!=', null)
-            ->where('schedule.available', '1')
-            ->where('schedule.start_on', '<=', $schedule_start_on_datetime_string)
+        $last_played_schedule_file = Model_Schedule_File::query()
             ->order_by('played_on', 'DESC')
-            ->rows_limit(1)
-            ->get();
-
-        // make sure we have one
-        if (count($last_played_schedule_files) == 0)
+            ->get_one();
+        // verify we have one
+        if (is_null($last_played_schedule_file))
             return null;
-        // get last
-        $last_played_schedule_file = current($last_played_schedule_files);
+
+        ///////////////////////////////////////
+        // FIND THE SCHEDULE, SHOW, AND FILE //
+        ///////////////////////////////////////
+
+        // get schedule & show
+        $last_played_schedule_file->schedule = Model_Schedule::query()
+            ->related('show')
+            ->where('id', $last_played_schedule_file->schedule_id)
+            ->where('available', '1')
+            ->get_one();
+        // verify we have an available schedule
+        if (is_null($last_played_schedule_file->schedule))
+            return null;
+
+        // get file
+        $last_played_schedule_file->file = Model_File::query()
+            ->where('id', $last_played_schedule_file->file_id)
+            ->get_one();
 
         ////////////////////////////////////////
         // ENSURE LAST PLAYED FILE END >= NOW //

@@ -284,7 +284,7 @@ class Model_Schedule extends \Orm\Model
             ->related('show')
             ->where('available', '1')
             ->where('start_on', '>', $server_datetime_string)
-            ->order_by('start_on', 'asc')
+            ->order_by('start_on', 'ASC')
             ->rows_limit(1)
             ->get();
         // get first or return null
