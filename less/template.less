@@ -2,49 +2,14 @@
 // VARIABLES //
 ///////////////
 
-@standard-color: white;
-@standard-accent-dark: #21409A;
-@standard-accent-light: #0077b3;
-@standard-bg: #131313;
-@standard-bg-darker: #1A1A1A;
-@standard-bg-dark: #363636;
-@standard-bg-light: #707070;
-
-///////////////
-// BOOTSTRAP //
-///////////////
-
-// bootsrap 3.0
-@import "../../vendor/twbs/bootstrap/less/bootstrap.less";
-
-// general
-@body-bg: @standard-bg;
-@text-color: @standard-color;
-
-// forms
-@input-bg: @standard-bg-darker;
-@input-color: @standard-color;
-@input-bg-disabled: @standard-bg-light;
-
-// navbar
-@navbar-height: 40px;
-@navbar-default-bg: @standard-accent-light;
-@navbar-default-border: @standard-accent-light;
-@navbar-default-color: @text-color;
-@navbar-default-link-color: @text-color;
-@navbar-default-link-active-color: @text-color;
-@navbar-inverse-bg: @standard-accent-dark;
-@navbar-inverse-border: @standard-bg-light;
-@navbar-inverse-link-color: @text-color;
-@navbar-inverse-link-active-bg: @standard-accent-light;
-@navbar-padding-horizontal: 0px;
-
-// buttons
-@btn-default-bg: @standard-accent-light;
-@btn-default-color: @text-color;
-
-// popovers
-@popover-bg: @standard-bg-dark;
+// base colors
+@cloudcast-color: white;
+@cloudcast-accent-dark: #21409A;
+@cloudcast-accent-light: #0077b3;
+@cloudcast-bg: #131313;
+@cloudcast-bg-darker: #1A1A1A;
+@cloudcast-bg-dark: #363636;
+@cloudcast-bg-light: #707070;
 
 //////////////
 // INCLUDES //
@@ -53,10 +18,59 @@
 @import "welcome.less";
 @import "display.less";
 @import "navigation.less";
-@import "header.less";
+@import "text.less";
 
-////////////
-// SHARED //
-////////////
+//////////////
+// STANDARD //
+//////////////
 
-@import "../../packages/shared/less/template.less";
+@import "../../packages/shared/less/standard.less";
+
+// standard colors
+@standard-item-bg: @cloudcast-bg-dark;
+@standard-item-input-active: @cloudcast-accent-light;
+@standard-sidebar-item-border: @cloudcast-bg-light;
+@standard-sidebar-item-active: @cloudcast-accent-light;
+@standard-sidebar-bg: @cloudcast-accent-dark;
+@standard-sidebar-border: @cloudcast-bg-light;
+@standard-table-bg-active: @cloudcast-bg-dark;
+@standard-typeahead-bg: @cloudcast-bg-dark;
+@standard-typeahead-border: @cloudcast-bg-light;
+@standard-typeahead-color-hover: @cloudcast-bg-dark;
+@standard-typeahead-bg-hover: @cloudcast-color;
+
+// buttons
+@standard-button-bg-active: @cloudcast-bg;
+
+///////////////
+// BOOTSTRAP //
+///////////////
+
+// general
+@body-bg: @cloudcast-bg;
+@text-color: @cloudcast-color;
+
+// forms
+@input-bg: @cloudcast-bg-darker;
+@input-color: @cloudcast-color;
+@input-bg-disabled: @cloudcast-bg-light;
+
+// navbar
+@navbar-height: 40px;
+@navbar-default-bg: @cloudcast-accent-light;
+@navbar-default-border: @cloudcast-accent-light;
+@navbar-default-color: @text-color;
+@navbar-default-link-color: @text-color;
+@navbar-default-link-active-color: @text-color;
+@navbar-inverse-bg: @cloudcast-accent-dark;
+@navbar-inverse-border: @cloudcast-bg-light;
+@navbar-inverse-link-color: @text-color;
+@navbar-inverse-link-active-bg: @cloudcast-accent-light;
+@navbar-padding-horizontal: 0px;
+
+// buttons
+@btn-default-bg: @cloudcast-accent-light;
+@btn-default-color: @text-color;
+
+// popovers
+@popover-bg: @cloudcast-bg-dark;

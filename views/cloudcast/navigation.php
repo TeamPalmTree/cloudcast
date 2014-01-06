@@ -1,4 +1,4 @@
-<div class="standard-navigation">
+<div class="cloudcast-navigation">
     <nav class="navbar navbar-inverse">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-collapse">
@@ -24,7 +24,7 @@
                     <ul class="dropdown-menu">
                         <!--<li><a href="/users/edit/<?php echo Auth::get_screen_name(); ?>"><span class="glyphicon glyphicon-heart"></span> Profile</a></li>
                         <li class="divider"></li>-->
-                        <li><a href="/users/logout"><span class="glyphicon glyphicon-off"></span> Log Out</a></li>
+                        <li><a href="/promoter/logout"><span class="glyphicon glyphicon-off"></span> Log Out</a></li>
                     </ul>
                 </li>
             </ul>

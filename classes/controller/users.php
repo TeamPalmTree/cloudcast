@@ -9,14 +9,6 @@ class Controller_Users extends Controller_Cloudcast
         parent::before();
     }
 
-    public function action_logout()
-    {
-        // logout user
-        Auth::logout();
-        // redirect to login
-        Response::redirect();
-    }
-
     public function action_index()
     {
 

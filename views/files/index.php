@@ -51,7 +51,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right" data-bind="visible: !sidebar()">
                     <li>
-                        <button title="Set Properties" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('setter'); }"><span class="glyphicon glyphicon-edit"></span></button>
+                        <button title="Set Properties" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('setter'); }"><span class="glyphicon glyphicon-pencil"></span></button>
                         <button title="View Information" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('info'); }"><span class="glyphicon glyphicon-info-sign"></span></button>
                         <button title="Query Files" class="btn btn-default navbar-btn" data-bind="click: function() { sidebar('query'); }"><span class="glyphicon glyphicon-search"></span></button>
                     </li>

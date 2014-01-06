@@ -4,7 +4,7 @@
   display: flex;
   min-height: 100px;
   width: 100%;
-  background: linear-gradient(to bottom, @standard-bg-dark 0%, @standard-bg-darker 100%);
+  background: linear-gradient(to bottom, @cloudcast-bg-dark 0%, @cloudcast-bg-darker 100%);
 }
 
 .cloudcast-display-section(@flex) {
@@ -14,9 +14,9 @@
   max-height: 100 - (@padding-base-vertical * 2);
   margin: @padding-base-vertical @padding-base-vertical @padding-base-vertical 0px;
   padding: 8px;
-  background-color: @standard-accent-dark;
-  background: linear-gradient(to bottom, @standard-accent-light 0%, @standard-accent-dark 100%);
-  color: @standard-color;
+  background-color: @cloudcast-accent-dark;
+  background: linear-gradient(to bottom, @cloudcast-accent-light 0%, @cloudcast-accent-dark 100%);
+  color: @cloudcast-color;
   text-shadow: -1px -1.5px 0 rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
@@ -45,7 +45,7 @@
   flex: none;
   min-height: 100px;
   width: 130px;
-  background-image: url('../img/CloudCast.png');
+  background-image: url('../img/header.png');
   background-repeat: no-repeat;
 }
 
@@ -56,7 +56,7 @@
   margin-top: @padding-base-vertical * 2;
   font-size: 40px;
   line-height: 40px;
-  color: @standard-color;
+  color: @cloudcast-color;
 }
 
 .cloudcast-display-status-input {
@@ -70,13 +70,13 @@
 }
 
 .cloudcast-display-status-input > .enabled {
-  background-color: @standard-accent-dark;
+  background-color: @cloudcast-accent-dark;
 }
 
-.cloudcast-display-progress {
+.cloudcast-display .progress {
   margin-top: 5px;
   margin-bottom: 5px;
-  @standard-color-space: nowrap;
+  @cloudcast-color-space: nowrap;
   overflow: hidden;
 }
 

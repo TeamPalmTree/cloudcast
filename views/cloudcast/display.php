@@ -1,7 +1,7 @@
 <div id="cloudcast-display" class="cloudcast-display" data-bind="with: status">
     <div class="cloudcast-display-file">
         <div><strong>CURRENT FILE</strong> <span data-bind="text: current_file_artist"></span> - <span data-bind="text: current_file_title"></span></div>
-        <div class="progress cloudcast-display-progress">
+        <div class="progress">
             <div class="progress-bar progress-bar-warning" data-bind="style: { width: current_file_percentage() + '%' }"></div>
             <div class="cloudcast-display-progress-post" data-bind="style: { width: current_file_post_percentage() + '%' }"></div>
             <div class="cloudcast-display-progress-elapsed">
@@ -15,7 +15,7 @@
     </div>
     <div class="cloudcast-display-show">
         <div><strong>CURRENT SHOW</strong> <span data-bind="text: current_show_title"></span></div>
-        <div class="progress cloudcast-display-progress active">
+        <div class="progress">
             <div class="progress-bar progress-bar-warning" data-bind="style: { width: current_show_percentage() + '%' }"></div>
             <div class="cloudcast-display-progress-elapsed"><span data-bind="text: current_show_elapsed"></span> / <span data-bind="text: current_show_duration"></span></div>
             <div class="cloudcast-display-progress-remaining"><span data-bind="text: current_show_remaining"></span></div>
