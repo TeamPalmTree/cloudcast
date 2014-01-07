@@ -6,8 +6,9 @@ desktop.ini
 /logs/*/*/*
 /cache/*/*
 /config/crypt.php
-/config/db.php
-/config/*/db.php
 /config/*/migrations.php
-/config/cloudcast.php
 /config/liquidsoap.php
+/config/db.php
+/config/promoter.php
+/config/*/db.php
+/config/*/promoter.php
