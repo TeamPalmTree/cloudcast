@@ -30,8 +30,17 @@ class Controller_Cloudcast extends Controller_Standard
             header('Access-Control-Allow-Origin: *');
         }
 
-        // forward to FPHP router
+        // forward to router
         parent::router($method, $params);
+        // make sure we authenticated authenticate
+        if ($this->is_authenticated
+            and !$this->is_restful
+            and !Auth::has_access('cloudcast.access'))
+        {
+            // we failed to authorize
+            Response::redirect();
+            return;
+        }
 
     }
 

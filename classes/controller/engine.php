@@ -277,9 +277,9 @@ class Controller_Engine extends Controller_Cloudcast
 
         // send next queues response
         if (count($next_queues) == 0)
-            return $this->response(array(array('warning' => 'none')));
-        else
-            return $this->response($next_queues);
+            return $this->response('NONE');
+        // success
+        return $this->response($next_queues);
 
     }
 
