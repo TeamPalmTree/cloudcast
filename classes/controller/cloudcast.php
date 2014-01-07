@@ -7,13 +7,10 @@ class Controller_Cloudcast extends Controller_Standard
     {
         // forward up
         parent::before();
+
         // add status and voting interfaces as anonymously available
         $this->anonymous_methods[] = 'Controller_Engine.status';
         $this->anonymous_methods[] = 'Controller_Engine.vote';
-    }
-
-    public function router($method, $params)
-    {
 
         // cloudcast template setup
         if (is_object($this->template))
@@ -29,6 +26,10 @@ class Controller_Cloudcast extends Controller_Standard
             // allow access to REST resources
             header('Access-Control-Allow-Origin: *');
         }
+    }
+
+    public function router($method, $params)
+    {
 
         // forward to router
         parent::router($method, $params);

@@ -14,7 +14,6 @@
                 <li class="<?php if ($section == 'Shows') echo 'active'; ?>"><a href="/shows">SHOWS</a></li>
                 <li class="<?php if ($section == 'Blocks') echo 'active'; ?>"><a href="/blocks">BLOCKS</a></li>
                 <li class="<?php if ($section == 'Files') echo 'active'; ?>"><a href="/files">FILES</a></li>
-                <!--<li class="<?php if ($section == 'Users') echo 'active'; ?>"><a href="/users">USERS</a></li>-->
                 <li class="<?php if ($section == 'Streams') echo 'active'; ?>"><a href="/streams">STREAMS</a></li>
                 <li class="<?php if ($section == 'Settings') echo 'active'; ?>"><a href="/settings">SETTINGS</a></li>
             </ul>
@@ -24,7 +23,7 @@
                     <ul class="dropdown-menu">
                         <!--<li><a href="/users/edit/<?php echo Auth::get_screen_name(); ?>"><span class="glyphicon glyphicon-heart"></span> Profile</a></li>
                         <li class="divider"></li>-->
-                        <li><a href="/promoter/logout"><span class="glyphicon glyphicon-off"></span> Log Out</a></li>
+                        <li><a href="/promoter/logout"><span class="glyphicon glyphicon-off"></span> LOG OUT</a></li>
                     </ul>
                 </li>
             </ul>

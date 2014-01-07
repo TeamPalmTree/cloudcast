@@ -159,37 +159,6 @@ class Create_Schema
             )
         );
 
-        ///////////
-        // USERS //
-        ///////////
-
-        \DBUtil::create_table('users', array(
-                'id' => array('constraint' => 11, 'type' => 'int', 'auto_increment' => true),
-                'group' => array('type' => 'int', 'constraint' => 11, 'default' => 1),
-                'username' => array('constraint' => 255, 'type' => 'varchar'),
-                'password' => array('constraint' => 255, 'type' => 'varchar'),
-                'email' => array('constraint' => 255, 'type' => 'varchar'),
-                'login_hash' => array('constraint' => 255, 'type' => 'varchar'),
-                'last_login' => array('type' => 'varchar', 'constraint' => 25),
-                'created_at' => array('type' => 'int', 'constraint' => 11, 'default' => 0),
-                'updated_at' => array('type' => 'int', 'constraint' => 11, 'default' => 0),
-                'profile_fields' => array('type' => 'text'),
-            ), array('id'), false, 'InnoDB', 'utf8_general_ci');
-
-        // users data
-        \DB::insert('users')
-            ->set(array(
-                'group' => '3',
-                'username' => 'admin',
-                'password' => 'YWqmPGH+dOEvOh6pf83a62lzJ1QQLHRMPHhNIaohB3s=',
-                'email' => 'admin@admin.com',
-                'login_hash' => '4fba7e3667054d75694c2c79f3c453fd7f842ac8',
-                'last_login' => '1369257335',
-                'created_at' => '1369257274',
-                'updated_at' => '0',
-                'profile_fields' => 'a:3:{s:10:"first_name";s:5:"admin";s:9:"last_name";s:5:"admin";s:5:"phone";s:0:"";}'
-            ))->execute();
-
         ////////////
         // INPUTS //
         ////////////
@@ -331,13 +300,6 @@ class Create_Schema
                     'on_delete' => 'CASCADE',
                 ),
                 array(
-                    'key' => 'user_id',
-                    'reference' => array(
-                        'table' => 'users',
-                        'column' => 'id',
-                    ),
-                ),
-                array(
                     'key' => 'input_name',
                     'reference' => array(
                         'table' => 'input',
@@ -346,6 +308,9 @@ class Create_Schema
                 ),
             )
         );
+
+        // show users indexes
+        \DBUtil::create_index('show_users', 'user_id');
 
         ///////////////
         // SCHEDULES //
@@ -718,7 +683,6 @@ class Create_Schema
         \DBUtil::drop_table('show_repeats');
         \DBUtil::drop_table('shows');
         \DBUtil::drop_table('inputs');
-        \DBUtil::drop_table('users');
         \DBUtil::drop_table('block_harmonics');
         \DBUtil::drop_table('block_items');
         \DBUtil::drop_table('block_weights');

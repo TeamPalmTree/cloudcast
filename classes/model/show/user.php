@@ -11,8 +11,7 @@ class Model_Show_User extends \Orm\Model
     );
 
     protected static $_belongs_to = array(
-        'show',
-        'user',
+        'show'
     );
 
 }

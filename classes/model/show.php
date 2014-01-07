@@ -292,7 +292,7 @@ class Model_Show extends \Orm\Model
         {
             $new_show_user = new stdClass();
             $new_show_user->user = new stdClass();
-            $new_show_user->user->username = $show_user->user->username;
+            $new_show_user->user->username = Model_User::username($show_user->user_id);
             $new_show_user->input_name = $show_user->input_name;
             $new_show_users[] = $new_show_user;
         }

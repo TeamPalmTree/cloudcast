@@ -88,9 +88,9 @@ class Controller_Engine extends Controller_Cloudcast
         $status->talkover_input_enabled = (bool)$inputs['talkover']->enabled;
         $status->master_input_enabled = (bool)$inputs['master']->enabled;
         # set usernames
-        $status->show_input_username = ($inputs['show']->user != null) ? $inputs['show']->user->username : null;
-        $status->talkover_input_username = ($inputs['talkover']->user != null) ? $inputs['talkover']->user->username : null;
-        $status->master_input_username = ($inputs['master']->user != null) ? $inputs['master']->user->username : null;
+        $status->show_input_username = Model_User::username($inputs['show']->user_id);
+        $status->talkover_input_username = Model_User::username($inputs['talkover']->user_id);
+        $status->master_input_username = Model_User::username($inputs['master']->user_id);
 
         //////////////
         // SET HOST //
@@ -364,20 +364,9 @@ class Controller_Engine extends Controller_Cloudcast
             $response = 'INVALID_AUTHORIZATION_SCHEDULE';
         }
 
-        /////////////////////////////////////
-        // RESTORE USER LOGIN HASH/SUCCESS //
-        /////////////////////////////////////
-
-        // we need to do this as to not break the UI
-        $query = DB::update('users')
-            ->value('last_login', $user->last_login)
-            ->value('login_hash', $user->login_hash)
-            ->where('id', $user_id);
-        // execute login_hash update
-        $query->execute();
-
         // send response
         return $this->response($response);
+
     }
 
     public function get_enable_input()
