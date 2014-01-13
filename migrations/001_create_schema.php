@@ -169,18 +169,7 @@ class Create_Schema
                 'status' => array('type' => 'boolean', 'default' => '0'),
                 'enabled' => array('type' => 'boolean', 'default' => '0'),
                 'user_id' => array('constraint' => 11, 'type' => 'int', 'null' => true),
-            ), array('name'), false, 'InnoDB', 'utf8_general_ci',
-            array(
-                array(
-                    'key' => 'user_id',
-                    'reference' => array(
-                        'table' => 'users',
-                        'column' => 'id',
-                    ),
-                    'on_delete' => 'CASCADE',
-                ),
-            )
-        );
+            ), array('name'), false, 'InnoDB', 'utf8_general_ci');
 
         // inputs indexes
         \DBUtil::create_index('inputs', 'name', null, 'unique');
@@ -302,7 +291,7 @@ class Create_Schema
                 array(
                     'key' => 'input_name',
                     'reference' => array(
-                        'table' => 'input',
+                        'table' => 'inputs',
                         'column' => 'name',
                     ),
                 ),

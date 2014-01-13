@@ -10,5 +10,6 @@ desktop.ini
 /config/liquidsoap.php
 /config/db.php
 /config/promoter.php
-/config/*/db.php
+/config/test/db.php
+/config/production/db.php
 /config/*/promoter.php
