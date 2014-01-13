@@ -11,5 +11,6 @@ desktop.ini
 /config/db.php
 /config/promoter.php
 /config/test/db.php
+/config/staging/db.php
 /config/production/db.php
 /config/*/promoter.php
