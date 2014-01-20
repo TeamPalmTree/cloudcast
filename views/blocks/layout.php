@@ -61,10 +61,10 @@
                                 <div class="standard-item-form">
                                     <span class="label"><span class="glyphicon glyphicon-time"></span></span>
                                     <input type="text" class="form-control" placeholder="HH:MM:SS"
-                                           data-bind="nowValue: entered_duration, attr: { name: 'block_items[' + $index() + '][duration]' }, css: { active: entered_duration }, click: function() { return false; }, clickBubble: false" />
+                                           data-bind="immediate: entered_duration, attr: { name: 'block_items[' + $index() + '][duration]' }, css: { active: entered_duration }, click: function() { return false; }, clickBubble: false" />
                                     <span class="label"><strong>%</strong></span>
                                     <input type="text" class="form-control"
-                                           data-bind="nowValue: entered_percentage, attr: { name: 'block_items[' + $index() + '][percentage]' }, css: { active: entered_percentage }, click: function() { return false; }, clickBubble: false" />
+                                           data-bind="immediate: entered_percentage, attr: { name: 'block_items[' + $index() + '][percentage]' }, css: { active: entered_percentage }, click: function() { return false; }, clickBubble: false" />
                                     <div data-bind="validate: $root.errors, validateFor: 'block_items[' + $index() + '][percentage_duration]'"></div>
                                     <div data-bind="validate: $root.errors, validateFor: 'block_items[' + $index() + '][duration]'"></div>
                                     <div data-bind="validate: $root.errors, validateFor: 'block_items[' + $index() + '][percentage]'"></div>

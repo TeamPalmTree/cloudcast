@@ -7,7 +7,7 @@
                     <li><button title="Close Query" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
                 </ul>
             </nav>
-            <textarea class="form-control" rows="5" placeholder="Query" data-bind="nowValue: query"></textarea>
+            <textarea class="form-control" rows="5" placeholder="Query" data-bind="immediate: query"></textarea>
         </div>
     </div>
     <div class="standard-sidebar" data-bind="visible: sidebar() == 'info'">

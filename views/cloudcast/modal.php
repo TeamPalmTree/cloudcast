@@ -14,7 +14,7 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label" data-bind="text: text"></label>
                         <div class="col-sm-9">
-                            <input class="form-control" data-bind="nowValue: value, event: { keypress: keypress }, attr: { placeholder: placeholder }" />
+                            <input class="form-control" data-bind="immediate: value, event: { keypress: keypress }, attr: { placeholder: placeholder }" />
                         </div>
                     </div>
                 </div>

@@ -7,12 +7,14 @@ class Model_Show extends \Orm\Model
         'id',
         'start_on',
         'available',
+        'featured',
         'ups',
         'downs',
         'sweeper_interval',
         'duration',
         'title',
         'description',
+        'website',
         'sweepers_album',
         'jingles_album',
         'bumpers_album',
@@ -121,7 +123,9 @@ class Model_Show extends \Orm\Model
         $this->start_on = Helper::user_datetime_string_to_server_datetime_string($input['user_start_on']);
         $this->duration = $input['duration'];
         $this->title = $input['title'];
+        $this->featured = $input['featured'];
         $this->description = isset($input['description']) ? $input['description'] : null;
+        $this->website = isset($input['website']) ? $input['website'] : null;
 
         // set promos albums
         $this->sweepers_album = isset($input['sweepers_album']) ? $input['sweepers_album'] : null;
@@ -135,6 +139,7 @@ class Model_Show extends \Orm\Model
         // add repeat
         if (isset($input['show_repeat']))
         {
+
             // get show repeat
             $show_repeat = $input['show_repeat'];
             // if we have an existing, update, else forge
@@ -142,11 +147,11 @@ class Model_Show extends \Orm\Model
                 $this->show_repeat->set($input['show_repeat']);
             else
                 $this->show_repeat = Model_Show_Repeat::forge($show_repeat);
-            // get user end on
-            $user_end_on = $show_repeat['user_end_on'];
-            // set the end on
-            if ($user_end_on)
-                $this->show_repeat->end_on = Helper::user_datetime_string_to_server_datetime_string($user_end_on);
+
+            // see if we have an ending condition
+            if (isset($show_repeat['user_end_on']))
+                $this->show_repeat->end_on = Helper::user_datetime_string_to_server_datetime_string($show_repeat['user_end_on']);
+
         }
         else if ($this->show_repeat)
         {
@@ -168,7 +173,7 @@ class Model_Show extends \Orm\Model
         {
 
             // find the user
-            $user = Model_User::find('first', array(
+            $user = \Promoter\Model\Promoter_User::find('first', array(
                 'where' => array(
                     array('username', $show_user['user']['username']),
                 )
@@ -273,7 +278,6 @@ class Model_Show extends \Orm\Model
             ->related('show_repeat')
             ->related('block')
             ->related('show_users')
-            ->related('show_users.user')
             ->where('id', $id)
             ->get_one();
     }
@@ -286,13 +290,18 @@ class Model_Show extends \Orm\Model
         if (isset($show->show_repeat->end_on))
             $show->show_repeat->user_end_on = $show->show_repeat->user_end_on_datetime_string();
 
+        // extract show user ids
+        $show_user_ids = Helper::extract_values('user_id', $show->show_users);
+        // get usernames
+        $usernames = \Promoter\Model\Promoter_User::usernames($show_user_ids);
+
         $new_show_users = array();
         // fix up show users
         foreach ($show->show_users as $show_user)
         {
             $new_show_user = new stdClass();
             $new_show_user->user = new stdClass();
-            $new_show_user->user->username = Model_User::username($show_user->user_id);
+            $new_show_user->user->username = $usernames[$show_user->user_id];
             $new_show_user->input_name = $show_user->input_name;
             $new_show_users[] = $new_show_user;
         }

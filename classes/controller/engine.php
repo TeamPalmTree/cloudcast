@@ -88,9 +88,9 @@ class Controller_Engine extends Controller_Cloudcast
         $status->talkover_input_enabled = (bool)$inputs['talkover']->enabled;
         $status->master_input_enabled = (bool)$inputs['master']->enabled;
         # set usernames
-        $status->show_input_username = Model_User::username($inputs['show']->user_id);
-        $status->talkover_input_username = Model_User::username($inputs['talkover']->user_id);
-        $status->master_input_username = Model_User::username($inputs['master']->user_id);
+        $status->show_input_username = \Promoter\Model\Promoter_User::username($inputs['show']->user_id);
+        $status->talkover_input_username = \Promoter\Model\Promoter_User::username($inputs['talkover']->user_id);
+        $status->master_input_username = \Promoter\Model\Promoter_User::username($inputs['master']->user_id);
 
         //////////////
         // SET HOST //
@@ -130,7 +130,7 @@ class Controller_Engine extends Controller_Cloudcast
             if (isset($input['username']) && $input['username'] != '')
             {
                 // find authenticated user
-                $input_user = Model_User::query()
+                $input_user = \Promoter\Model\Promoter_User::query()
                     ->where('username', $input['username'])
                     ->get_one();
             }
@@ -332,7 +332,7 @@ class Controller_Engine extends Controller_Cloudcast
         // get credentials
         $credentials = Input::json();
         // get user (we need to save their login hash)
-        $user = Model_User::query()
+        $user = \Promoter\Model\Promoter_User::query()
             ->where('username', $credentials['username'])
             ->get_one();
         // login user (this will kill the login hash, so we need to restore)

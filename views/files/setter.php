@@ -22,7 +22,7 @@
             </div>
             <div>
                 <!-- ko if: !type() -->
-                <input type="text" class="form-control" data-bind="nowValue: value" />
+                <input type="text" class="form-control" data-bind="immediate: value" />
                 <!-- /ko -->
                 <!-- ko if: type() == 'five' -->
                 <!-- ko foreach: [1, 2, 3, 4, 5] -->
@@ -50,7 +50,7 @@
                 <input type="text" class="form-control" data-bind="datetimepicker: value" />
                 <!-- /ko -->
                 <!-- ko if: type() == 'duration' -->
-                <input type="text" class="form-control" data-bind="nowValue: value" placeholder="00:00:00" />
+                <input type="text" class="form-control" data-bind="immediate: value" placeholder="00:00:00" />
                 <!-- /ko -->
             </div>
         </div>

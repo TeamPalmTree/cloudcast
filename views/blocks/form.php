@@ -31,20 +31,20 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="title">Title</label>
                     <div class="col-sm-10">
-                        <input name="title" type="text" class="form-control" data-bind="nowValue: title, validate: $root.errors" placeholder="Title" />
+                        <input name="title" type="text" class="form-control" data-bind="immediate: title, validate: $root.errors" placeholder="Title" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="description">Description</label>
                     <div class="col-sm-10">
-                        <input name="description" type="text" class="form-control" data-bind="nowValue: description" placeholder="Description" />
+                        <input name="description" type="text" class="form-control" data-bind="immediate: description" placeholder="Description" />
                     </div>
                 </div>
                 <h5>Queries</h5>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="file_query">File Query</label>
                     <div class="col-sm-10">
-                        <textarea name="file_query" class="form-control" rows="5" placeholder="File Query" data-bind="nowValue: file_query"></textarea>
+                        <textarea name="file_query" class="form-control" rows="5" placeholder="File Query" data-bind="immediate: file_query"></textarea>
                     </div>
                 </div>
                 <div class="form-group">
@@ -61,8 +61,8 @@
                 <div data-bind="foreach: block_weights">
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <input type="text" class="form-control" data-bind="nowValue: weight, attr: { name: 'block_weights[' + $index() + '][weight]' }, validate: $root.errors" placeholder="Weight"/>
-                            <textarea class="form-control" rows="3" placeholder="Weight Query" data-bind="nowValue: file_query, attr: { name: 'block_weights[' + $index() + '][file_query]' }"></textarea>
+                            <input type="text" class="form-control" data-bind="immediate: weight, attr: { name: 'block_weights[' + $index() + '][weight]' }, validate: $root.errors" placeholder="Weight"/>
+                            <textarea class="form-control" rows="3" placeholder="Weight Query" data-bind="immediate: file_query, attr: { name: 'block_weights[' + $index() + '][file_query]' }"></textarea>
                             <button name="remove" type="button" class="btn btn-danger" data-bind="visible: ($parent.block_weights().length > 1), click: $parent.remove_block_weight"><span class="glyphicon glyphicon-remove"></span></button>
                             <button name="add" type="button" class="btn btn-info" data-bind="visible: $index() == ($parent.block_weights().length - 1), click: $parent.add_block_weight"><span class="glyphicon glyphicon-plus"></span></button>
                         </div>

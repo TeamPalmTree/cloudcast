@@ -8,7 +8,7 @@ return array(
         'connection'  => array(
             'dsn'        => 'mysql:host=cloudcast;dbname=cloudcast',
             'username'   => 'root',
-            'password'   => '',
+            'password'   => 'mysql',
         ),
     ),
 );

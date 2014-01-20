@@ -5,15 +5,22 @@ class Controller_Cloudcast extends Controller_Standard
 
     public function before()
     {
+
         // forward up
         parent::before();
-
         // add status and voting interfaces as anonymously available
-        $this->anonymous_methods[] = 'Controller_Engine.status';
-        $this->anonymous_methods[] = 'Controller_Engine.vote';
+        $this->anonymous_rest_methods[] = 'Controller_Service.*';
+
+    }
+
+    public function router($method, $params)
+    {
+
+        // forward to router
+        parent::router($method, $params);
 
         // cloudcast template setup
-        if (is_object($this->template))
+        if (!$this->is_restful())
         {
             $this->template->site = 'CloudCast';
             $this->template->display = View::forge('cloudcast/display');
@@ -26,21 +33,20 @@ class Controller_Cloudcast extends Controller_Standard
             // allow access to REST resources
             header('Access-Control-Allow-Origin: *');
         }
-    }
 
-    public function router($method, $params)
-    {
-
-        // forward to router
-        parent::router($method, $params);
-        // make sure we authenticated authenticate
-        if ($this->is_authenticated
-            and !$this->is_restful
-            and !Auth::has_access('cloudcast.access'))
+        // make sure we authenticated
+        if ($this->is_user_authenticated)
         {
-            // we failed to authorize
-            Response::redirect();
-            return;
+            // and have cc access
+            if (!Auth::has_access('cloudcast.access'))
+                throw new HttpAccessDeniedException();
+
+        }
+        else
+        {
+            // or make sure this is an anonymous request
+            if (!$this->is_anonymous_authenticated and !$this->is_key_authenticated)
+                throw new HttpAccessDeniedException();
         }
 
     }

@@ -25,7 +25,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" data-bind="text: human_name"></label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" data-bind="nowValue: value, attr: { name: name, placeholder: human_name }" />
+                        <input type="text" class="form-control" data-bind="immediate: value, attr: { name: name, placeholder: human_name }" />
                     </div>
                 </div>
                 <!-- /ko -->

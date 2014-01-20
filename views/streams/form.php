@@ -29,13 +29,13 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="name">Name</label>
                     <div class="col-sm-10">
-                        <input name="name" type="text" class="form-control" data-bind="nowValue: name, validate: $root.errors" placeholder="Name" />
+                        <input name="name" type="text" class="form-control" data-bind="immediate: name, validate: $root.errors" placeholder="Name" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="type">Type</label>
                     <div class="col-sm-10">
-                        <select name="type" class="form-control" data-bind="nowValue: type, validate: $root.errors">
+                        <select name="type" class="form-control" data-bind="immediate: type, validate: $root.errors">
                             <?php foreach(Model_Stream::$types as $type): ?>
                             <option value="<?php echo $type; ?>"><?php echo $type; ?></option>
                             <?php endforeach; ?>
@@ -46,49 +46,49 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="host">Host</label>
                     <div class="col-sm-10">
-                        <input name="host" type="text" class="form-control" data-bind="nowValue: host, validate: $root.errors" placeholder="Host" />
+                        <input name="host" type="text" class="form-control" data-bind="immediate: host, validate: $root.errors" placeholder="Host" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="port">Port</label>
                     <div class="col-sm-10">
-                        <input name="port" type="text" class="form-control" data-bind="nowValue: port, validate: $root.errors" placeholder="Port" />
+                        <input name="port" type="text" class="form-control" data-bind="immediate: port, validate: $root.errors" placeholder="Port" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="format">Format</label>
                     <div class="col-sm-10">
-                        <input name="port" type="text" class="form-control" data-bind="nowValue: format, validate: $root.errors" placeholder="Format" />
+                        <input name="port" type="text" class="form-control" data-bind="immediate: format, validate: $root.errors" placeholder="Format" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="source_username">Source Username</label>
                     <div class="col-sm-10">
-                        <input name="source_username" type="text" class="form-control" data-bind="nowValue: source_username, validate: $root.errors" placeholder="Source Username" />
+                        <input name="source_username" type="text" class="form-control" data-bind="immediate: source_username, validate: $root.errors" placeholder="Source Username" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="source_password">Source Password</label>
                     <div class="col-sm-10">
-                        <input name="source_password" type="password" class="form-control" data-bind="nowValue: source_password, validate: $root.errors" placeholder="Source Password" />
+                        <input name="source_password" type="password" class="form-control" data-bind="immediate: source_password, validate: $root.errors" placeholder="Source Password" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="admin_username">Admin Username</label>
                     <div class="col-sm-10">
-                        <input name="admin_username" type="text" class="form-control" data-bind="nowValue: admin_username, validate: $root.errors" placeholder="Admin Username" />
+                        <input name="admin_username" type="text" class="form-control" data-bind="immediate: admin_username, validate: $root.errors" placeholder="Admin Username" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="admin_password">Admin Password</label>
                     <div class="col-sm-10">
-                        <input name="admin_password" type="password" class="form-control" data-bind="nowValue: admin_password, validate: $root.errors" placeholder="Admin Password" />
+                        <input name="admin_password" type="password" class="form-control" data-bind="immediate: admin_password, validate: $root.errors" placeholder="Admin Password" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="mount">Mount</label>
                     <div class="col-sm-10">
-                        <input name="mount" type="text" class="form-control" data-bind="nowValue: mount, validate: $root.errors" placeholder="Mount" />
+                        <input name="mount" type="text" class="form-control" data-bind="immediate: mount, validate: $root.errors" placeholder="Mount" />
                     </div>
                 </div>
                 <!-- /ko -->

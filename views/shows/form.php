@@ -31,13 +31,19 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="title">Title</label>
                     <div class="col-sm-10">
-                        <input name="title" type="text" class="form-control" data-bind="nowValue: title, validate: $root.errors" placeholder="Title" />
+                        <input name="title" type="text" class="form-control" data-bind="immediate: title, validate: $root.errors" placeholder="Title" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="description">Description</label>
                     <div class="col-sm-10">
-                        <input name="description" type="text" class="form-control" data-bind="nowValue: description, validate: $root.errors" placeholder="Description" />
+                        <input name="description" type="text" class="form-control" data-bind="immediate: description, validate: $root.errors" placeholder="Description" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="website">Website</label>
+                    <div class="col-sm-10">
+                        <input name="description" type="text" class="form-control" data-bind="immediate: website, validate: $root.errors" placeholder="Website" />
                     </div>
                 </div>
                 <h5>Time</h5>
@@ -56,7 +62,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="duration">Duration</label>
                     <div class="col-sm-10">
-                        <input name="duration" type="text" class="form-control" data-bind="nowValue: duration, validate: $root.errors" placeholder="Duration" readonly />
+                        <input name="duration" type="text" class="form-control" data-bind="immediate: duration, validate: $root.errors" placeholder="Duration" readonly />
                     </div>
                 </div>
                 <h5>Block</h5>
@@ -154,7 +160,7 @@
                         <div class="col-sm-offset-2 col-sm-10">
                             <input type="text" class="form-control" placeholder="Username"
                                    data-bind="typeaheadJS: user().username, typeaheadJSOptions: { remote: '/users/usernames/%QUERY' }, attr: { name: 'show_users[' + $index() + '][user][username]' }, validate: $root.errors" />
-                            <select class="form-control" data-bind="options: $parents[1].input_names, nowValue: input_name"></select>
+                            <select class="form-control" data-bind="options: $parents[1].input_names, immediate: input_name"></select>
                             <button name="remove" type="button" class="btn btn-danger" data-bind="visible: ($parent.show_users().length > 1), click: $parent.remove_show_user"><span class="glyphicon glyphicon-remove"></span></button>
                             <button name="add" type="button" class="btn btn-info" data-bind="visible: $index() == ($parent.show_users().length - 1), click: $parent.add_show_user"><span class="glyphicon glyphicon-plus"></span></button>
                         </div>
@@ -176,13 +182,13 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="sweepers_album">Sweepers Album</label>
                     <div class="col-sm-10">
-                        <input name="sweepers_album" type="text" class="form-control" data-bind="nowValue: sweepers_album" placeholder="Sweepers Album" />
+                        <input name="sweepers_album" type="text" class="form-control" data-bind="immediate: sweepers_album" placeholder="Sweepers Album" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="sweeper_interval">Sweeper Interval</label>
                     <div class="col-sm-10">
-                        <input name="sweeper_interval" type="text" class="form-control" data-bind="nowValue: sweeper_interval, validate: $root.errors" placeholder="Sweeper Interval" />
+                        <input name="sweeper_interval" type="text" class="form-control" data-bind="immediate: sweeper_interval, validate: $root.errors" placeholder="Sweeper Interval" />
                     </div>
                 </div>
                 <!-- /ko -->
@@ -200,7 +206,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="jingles_album">Jingles Album</label>
                     <div class="col-sm-10">
-                        <input name="jingles_album" type="text" class="form-control" data-bind="nowValue: jingles_album" placeholder="Jingles Album" />
+                        <input name="jingles_album" type="text" class="form-control" data-bind="immediate: jingles_album" placeholder="Jingles Album" />
                     </div>
                 </div>
                 <!-- /ko -->
@@ -218,7 +224,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="bumpers_album">Bumpers Album</label>
                     <div class="col-sm-10">
-                        <input name="bumpers_album" type="text" class="form-control" data-bind="nowValue: bumpers_album" placeholder="Bumpers Album" />
+                        <input name="bumpers_album" type="text" class="form-control" data-bind="immediate: bumpers_album" placeholder="Bumpers Album" />
                     </div>
                 </div>
                 <!-- /ko -->
@@ -236,7 +242,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="intros_album">Intros Album</label>
                     <div class="col-sm-10">
-                        <input name="intros_album" type="text" class="form-control" data-bind="nowValue: intros_album" placeholder="Intros Album" />
+                        <input name="intros_album" type="text" class="form-control" data-bind="immediate: intros_album" placeholder="Intros Album" />
                     </div>
                 </div>
                 <!-- /ko -->
@@ -254,7 +260,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="closers_album">Closers Album</label>
                     <div class="col-sm-10">
-                        <input name="closers_album" type="text" class="form-control" data-bind="nowValue: closers_album" placeholder="Closers Album" />
+                        <input name="closers_album" type="text" class="form-control" data-bind="immediate: closers_album" placeholder="Closers Album" />
                     </div>
                 </div>
                 <!-- /ko -->

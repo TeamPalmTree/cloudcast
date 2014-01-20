@@ -8,7 +8,7 @@
                 <li><button title="Close Files" class="btn btn-default navbar-btn" data-bind="click: function() { $root.sidebar(null); }"><span class="glyphicon glyphicon-remove"></span></button></li>
             </ul>
         </nav>
-        <textarea class="form-control" rows="3" placeholder="Query" data-bind="nowValue: query"></textarea>
+        <textarea class="form-control" rows="3" placeholder="Query" data-bind="immediate: query"></textarea>
     </div>
     <div class="standard-sidebar-content" data-bind="foreach: files">
         <div class="standard-sidebar-item" data-bind="draggable: { data: $data, options: { appendTo: 'body', zIndex: 2, cursor: 'move', cursorAt: { left: 0, top: 0 }}}, event: { contextmenu: show_info }">

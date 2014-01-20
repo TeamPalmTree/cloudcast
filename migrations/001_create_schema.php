@@ -220,6 +220,7 @@ class Create_Schema
                 'duration' => array('constraint' => 255, 'type' => 'varchar'),
                 'title' => array('constraint' => 255, 'type' => 'varchar'),
                 'description' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
+                'website' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'sweepers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'jingles_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
                 'bumpers_album' => array('constraint' => 255, 'type' => 'varchar', 'null' => true),
