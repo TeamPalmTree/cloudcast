@@ -44,8 +44,8 @@
         <div class="standard-section-inner" data-bind="foreach: schedule_dates">
             <h4 data-bind="text: date"></h4>
             <div data-bind="foreach: schedules">
-                <div class="standard-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule()) select(); }">
-                    <div class="standard-item-checkbox" data-bind="visible: !$root.editing_schedule()">
+                <div class="standard-item" data-bind="css: { 'selected': selected }, click: function() { if (!$root.editing_schedule() && !static()) select(); }">
+                    <div class="standard-item-checkbox" data-bind="visible: !$root.editing_schedule() && !static()">
                         <input type="checkbox" class="checkbox-inline" data-bind="checked: selected, click: function() { return true; }, clickBubble: false" />
                     </div>
                     <div class="standard-item-content">
