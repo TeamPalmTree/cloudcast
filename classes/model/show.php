@@ -7,7 +7,6 @@ class Model_Show extends \Orm\Model
         'id',
         'start_on',
         'available',
-        'featured',
         'ups',
         'downs',
         'sweeper_interval',
@@ -123,7 +122,6 @@ class Model_Show extends \Orm\Model
         $this->start_on = Helper::user_datetime_string_to_server_datetime_string($input['user_start_on']);
         $this->duration = $input['duration'];
         $this->title = $input['title'];
-        $this->featured = $input['featured'];
         $this->description = isset($input['description']) ? $input['description'] : null;
         $this->website = isset($input['website']) ? $input['website'] : null;
 

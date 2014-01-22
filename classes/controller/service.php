@@ -144,15 +144,20 @@ class Controller_Service extends Controller_Cloudcast
 
     public function get_recent_files()
     {
-        return DB::select(
+
+        // get recent files
+        $recent_files = DB::select(
                 array('files.artist', 'artist'),
                 array('files.title', 'title')
             )->from('schedule_files')
             ->join('files')->on('schedule_files.file_id', '=', 'files.id')
             ->where('played_on', '!=', null)
+            ->where('files.genre', 'NOT IN', array('Intro', 'Closer', 'Bumper', 'Sweeper', 'Ad'))
             ->order_by('played_on', 'DESC')
             ->limit(5)
             ->as_object()->execute();
+        // success
+        return $this->response($recent_files);
 
     }
 

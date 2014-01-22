@@ -132,14 +132,18 @@ class Model_Block extends \Orm\Model
         // clear existing block harmonics array
         $this->block_harmonics = array();
 
-        // get block harmonic names
-        $block_harmonic_names = $input['block_harmonic_names'];
-        // add block harmonics
-        foreach ($block_harmonic_names as $block_harmonic_name)
+        // see if we process block harmonics
+        if (isset($input['block_harmonic_names']))
         {
-            $this->block_harmonics[] = Model_Block_Harmonic::forge(array(
-                'harmonic_name' => $block_harmonic_name
-            ));
+            // get block harmonic names
+            $block_harmonic_names = $input['block_harmonic_names'];
+            // add block harmonics
+            foreach ($block_harmonic_names as $block_harmonic_name)
+            {
+                $this->block_harmonics[] = Model_Block_Harmonic::forge(array(
+                    'harmonic_name' => $block_harmonic_name
+                ));
+            }
         }
 
     }
