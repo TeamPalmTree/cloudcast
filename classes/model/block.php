@@ -65,6 +65,8 @@ class Model_Block extends \Orm\Model
         // validate items
         foreach ($input['block_items'] as $block_item_index => $block_item)
         {
+            if (isset($block_item['file']))
+                continue;
             if (isset($block_item['percentage']))
                 $input['block_items'][$block_item_index]['percentage_duration'] = $block_item['percentage'];
             if (isset($block_item['duration']))
