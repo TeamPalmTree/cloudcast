@@ -9,6 +9,10 @@
 class Model_Harmonic_Separate extends Model_Harmonic
 {
 
+    protected $previous_files_count;
+    protected $separate_artists_count;
+    protected $separate_titles_count;
+
     public function execute($child_harmonic_name, $block)
     {
 
@@ -25,81 +29,75 @@ class Model_Harmonic_Separate extends Model_Harmonic
         // REMOVE FILES IN NEXT HARMONIC OF SAME TITLE+ARTIST //
         ////////////////////////////////////////////////////////
 
+        // get artists distance we can go back
+        $this->separate_artists_count = (int)Model_Setting::get_value('separate_artists_count');
+        // get titles distance we can go back
+        $this->separate_titles_count = (int)Model_Setting::get_value('separate_titles_count');
         // loop through files making sure we don't have a similar one
         foreach ($this->files as $file)
         {
-            // if we have no similar file, add it child harmonic's files array
-            if (!$this->has_similar_file($file, $block))
-                $child_harmonic->files[] = $file;
+
+            // reset last files count
+            $this->previous_files_count = 0;
+            // check amongst gathered files for similar
+            if ($this->is_file_similar($file, $block->schedule->gathered_files))
+                continue;
+            // check amongst previous files for similar
+            if ($this->is_file_similar($file, $block->schedule->previous_files))
+                continue;
+            // add file
+            $child_harmonic->files[] = $file;
+
         }
 
     }
 
-    protected function has_similar_file($file, $block)
+    protected function is_file_similar($file, &$previous_files)
     {
-
-        // reset similar files index
-        $last_files_count = 0;
-        // get distance we can go back
-        $separate_files_count = (int)Model_Setting::get_value('separate_files_count');
 
         //////////////////////////
         // CHECK GATHERED FILES //
         //////////////////////////
 
         // set previous files pointer to end
-        $last_gathered_file = end($block->schedule->gathered_files);
+        $previous_file = end($previous_files);
         // loop through all previous files
         while (true)
         {
 
             // make sure we still have previous
-            if (!$last_gathered_file)
+            if (!$previous_file)
+                break;
+
+            // if we have exceeded both counts, we are done
+            if (($this->previous_files_count >= $this->separate_artists_count)
+                && ($this->previous_files_count >= $this->separate_titles_count))
                 break;
 
             // verify not sweeper/bumper
-            if (!$last_gathered_file->is_sweeper_bumper())
+            if (!$previous_file->is_sweeper_bumper())
             {
-                // verify we have not exceeded similar files count (gone too far)
-                if ($last_files_count++ == $separate_files_count)
-                    break;
-                // verify we have not exceeded similar files count (gone too far)
-                if ($this->is_similar_file($file, $last_gathered_file))
-                    return true;
+
+                // increment previous files count
+                $this->previous_files_count++;
+                // check for similar artists
+                if ($this->previous_files_count < $this->separate_artists_count)
+                {
+                    if ($this->are_file_artists_similar($file, $previous_file))
+                        return true;
+                }
+
+                // check for similar titles
+                if ($this->previous_files_count < $this->separate_titles_count)
+                {
+                    if ($this->are_file_titles_similar($file, $previous_file))
+                        return true;
+                }
+
             }
 
             // keep going backwards
-            $last_gathered_file = prev($block->schedule->gathered_files);
-
-        };
-
-        //////////////////////////
-        // CHECK PREVIOUS FILES //
-        //////////////////////////
-
-        // set previous files pointer to end
-        $last_previous_file = end($block->schedule->previous_files);
-        // loop through all previous files
-        while (true)
-        {
-
-            // make sure we still have previous
-            if (!$last_previous_file)
-                break;
-
-            // verify not sweeper/bumper
-            if (!$last_previous_file->is_sweeper_bumper())
-            {
-                // verify we have not exceeded similar files count (gone too far)
-                if ($last_files_count++ == $separate_files_count)
-                    break;
-                // verify we have not exceeded similar files count (gone too far)
-                if ($this->is_similar_file($file, $last_previous_file))
-                    return true;
-            }
-
-            // keep going backwards
-            $last_previous_file = prev($block->schedule->previous_files);
+            $previous_file = prev($previous_files);
 
         };
 
@@ -108,19 +106,25 @@ class Model_Harmonic_Separate extends Model_Harmonic
 
     }
 
-    protected function is_similar_file($a, $b)
+    protected function are_file_artists_similar($a, $b)
     {
 
-        // compare titles
-        if ($a->scraped_title() == $b->scraped_title())
-        {
-            // compute intersected artists
-            $intersected_artists = array_intersect($a->scraped_artists(), $b->scraped_artists());
-            // compare artists
-            if (count($intersected_artists) > 0)
-                return true;
-        }
+        // get a and b scraped artists
+        $a_scraped_artists = $a->scraped_artists();
+        $b_scraped_artists = $b->scraped_artists();
+        // intersect artists
+        $same_artists = array_intersect($a_scraped_artists, $b_scraped_artists);
+        // see if we have any intersected
+        return count($same_artists) > 0;
 
+    }
+
+    protected function are_file_titles_similar($a, $b)
+    {
+
+        // compare titles, check similar artists if titles are the same
+        if ($a->scraped_title() == $b->scraped_title())
+            return $this->are_file_artists_similar($a, $b);
         // bot similar
         return false;
 

@@ -509,7 +509,15 @@ class Create_Schema
 
         \DB::insert('settings')
             ->set(array(
-                'name' => 'separate_files_count',
+                'name' => 'separate_artists_count',
+                'type' => 'text',
+                'value' => "5",
+                'category' => 'scheduling'
+            ))->execute();
+
+        \DB::insert('settings')
+            ->set(array(
+                'name' => 'separate_titles_count',
                 'type' => 'text',
                 'value' => "10",
                 'category' => 'scheduling'

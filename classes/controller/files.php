@@ -119,7 +119,7 @@ class Controller_Files extends Controller_Cloudcast
         ////////////////////////////////////////////
 
         // scan directory for tags
-        $scanned_files = TagScanner::scan_files($files_directory, $file_modified_ons);
+        $scanned_files = TagScanner::scan_directory($files_directory, $file_modified_ons);
         // loop over scanned files to update DB
         foreach ($scanned_files as $scanned_file_name => &$scanned_file)
         {
