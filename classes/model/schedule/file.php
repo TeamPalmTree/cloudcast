@@ -175,7 +175,7 @@ class Model_Schedule_File extends \Orm\Model
             ->where('schedule.available', '1')
             ->where('schedule.start_on', '<=', $next_schedule_start_on_datetime_string)
             ->where('schedule.end_at', '>', $next_schedule_start_on_datetime_string)
-            ->order_by('id', 'ASC')
+            ->order_by(array('schedule.start_on' => 'ASC', 'id' => 'ASC'))
             ->rows_limit(2)
             ->get();
 

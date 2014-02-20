@@ -292,7 +292,7 @@ class Model_Schedule extends \Orm\Model
 
     }
 
-    public function authorization($server_datetime)
+    public static function authorization($server_datetime)
     {
         // get server time
         $server_datetime_string = Helper::server_datetime_string($server_datetime);

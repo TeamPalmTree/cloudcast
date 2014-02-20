@@ -32,7 +32,7 @@
                             <button title="Layout" class="btn btn-default btn-xs" data-bind="click: layout"><span class="glyphicon glyphicon-list"></span></button>
                         </div>
                         <div class="standard-item-title">
-                            <span data-bind="text: title"></span> <span class="text-muted" data-bind="text: description"></span>
+                            <span data-bind="text: title"></span>&nbsp;<span class="text-muted" data-bind="text: description"></span>
                         </div>
                     </div>
                     <div class="standard-item-footer">
