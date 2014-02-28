@@ -428,7 +428,7 @@ class Controller_Engine extends Controller_Cloudcast
             switch ($stream->type)
             {
                 // Icecast
-                case '1':
+                case 'icecast':
                     // query stats from icecast
                     $icecast_hook = new IcecastHook(
                         $stream->host,
