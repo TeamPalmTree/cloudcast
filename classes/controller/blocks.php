@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for block model access
+ */
 class Controller_Blocks extends Controller_Cloudcast
 {
 

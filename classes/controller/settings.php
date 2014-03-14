@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for setting model access
+ */
 class Controller_Settings extends Controller_Cloudcast
 {
 

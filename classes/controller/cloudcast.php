@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Base controller for all model-based controllers
+ */
 class Controller_Cloudcast extends Controller_Standard
 {
 

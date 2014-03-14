@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for stream model access
+ */
 class Controller_Streams extends Controller_Cloudcast
 {
 

@@ -504,7 +504,7 @@ class Model_File extends \Orm\Model
         /////////////////////////////////////////////////
 
         // start off with our current file duration
-        $transitioned_duration_seconds = $this->duration_seconds();
+        $duration_seconds = $this->duration_seconds();
         // get transition parameters
         $transition_cross_seconds = Model_Setting::get_value('transition_cross_seconds');
         $transition_delay_seconds = Model_Setting::get_value('transition_delay_seconds');
@@ -515,15 +515,15 @@ class Model_File extends \Orm\Model
 
         // bumper to file
         if (($previous_genre == 'Bumper') && ($this->genre != 'Intro'))
-            return $transitioned_duration_seconds + $transition_delay_seconds;
+            return $duration_seconds + $transition_delay_seconds;
         // intro to file
         if ($previous_genre == 'Intro')
-            return $transitioned_duration_seconds + $transition_delay_seconds;
+            return $duration_seconds + $transition_delay_seconds;
         // file to sweeper or sweeper to file
         if (($this->genre == 'Sweeper') or ($previous_genre == 'Sweeper'))
-            return $transitioned_duration_seconds - ($transition_cross_seconds / 2);
+            return $duration_seconds - ($transition_cross_seconds / 2);
         // everything else is back to back
-        return $transitioned_duration_seconds;
+        return $duration_seconds;
 
     }
 

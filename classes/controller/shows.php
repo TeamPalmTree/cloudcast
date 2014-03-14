@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for show model access
+ */
 class Controller_Shows extends Controller_Cloudcast
 {
 

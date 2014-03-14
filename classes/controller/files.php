@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for file model access
+ */
 class Controller_Files extends Controller_Cloudcast
 {
 

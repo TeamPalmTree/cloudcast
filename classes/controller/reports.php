@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for report model access
+ */
 class Controller_Reports extends Controller_Cloudcast
 {
 

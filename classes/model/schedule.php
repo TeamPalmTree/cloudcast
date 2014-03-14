@@ -329,7 +329,7 @@ class Model_Schedule extends \Orm\Model
             ->where('played_on', null)
             ->where('skipped_on', null);
 
-        // if takover is on, remove sweepers from durations
+        // if talkover is on, remove sweepers from durations
         if ($talkover_input->active())
             $remaining_schedule_files_query->where('file.genre', '!=', 'Sweeper');
 

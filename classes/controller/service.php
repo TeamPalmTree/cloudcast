@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for external REST data access
+ */
 class Controller_Service extends Controller_Cloudcast
 {
 
@@ -154,7 +157,7 @@ class Controller_Service extends Controller_Cloudcast
             ->where('played_on', '!=', null)
             ->where('files.genre', 'NOT IN', array('Intro', 'Closer', 'Bumper', 'Sweeper', 'Ad'))
             ->order_by('played_on', 'DESC')
-            ->limit(5)
+            ->limit(8)
             ->as_object()->execute();
         // success
         return $this->response($recent_files);

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for schedule model access and scheduling
+ */
 class Controller_Schedules extends Controller_Cloudcast
 {
 

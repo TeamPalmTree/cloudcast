@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for promoter user model access
+ */
 class Controller_Users extends Controller_Cloudcast
 {
 

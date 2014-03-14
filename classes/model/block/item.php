@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Model for Block Items
+ *
+ * A block items assigns a block to another block or file.
+ * See the block model docs and item/file docs for details.
+ */
 class Model_Block_Item extends \Orm\Model
 {
 

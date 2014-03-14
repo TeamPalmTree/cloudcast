@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Controller for Liquidsoap REST and base UI interactions
+ */
 class Controller_Engine extends Controller_Cloudcast
 {
 

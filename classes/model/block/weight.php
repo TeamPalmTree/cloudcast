@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Model for Block Weights
+ *
+ * A block weight gives a weight to a file query to run on top
+ * of the block file query. Using block weights will create a
+ * probability tree of possible files to select.
+ */
 class Model_Block_Weight extends \Orm\Model
 {
 

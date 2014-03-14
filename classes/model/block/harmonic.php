@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Model for Block Harmonics
+ *
+ * A block harmonic assigns a block to a harmonic.
+ * See the block model docs and harmonic docs for details.
+ */
 class Model_Block_Harmonic extends \Orm\Model
 {
 
