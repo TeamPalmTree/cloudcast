@@ -1,0 +1,3 @@
+[submodule "config"]
+	path = config
+	url = ssh://awgneo@gdmradio.com:2200/home/gdmradio/git/configs/cloudcast.gdmradio.com
